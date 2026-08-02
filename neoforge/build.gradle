@@ -39,6 +39,10 @@ neoForge {
     }
 }
 
+dependencies {
+    implementation 'top.theillusivec4.curios:curios-neoforge:15.0.0+26.1.2'
+}
+
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 // Implement mcgradleconventions loader attribute

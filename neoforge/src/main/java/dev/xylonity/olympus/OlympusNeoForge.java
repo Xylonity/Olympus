@@ -9,8 +9,9 @@ public class OlympusNeoForge {
 
     public OlympusNeoForge(IEventBus eventBus) {
 
-        Olympus.init();
 
+
+        Olympus.init();
     }
 
 }
