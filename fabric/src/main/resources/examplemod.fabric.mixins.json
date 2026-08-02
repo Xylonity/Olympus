@@ -6,7 +6,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
   "client": [
-    "MixinTitleScreen"
+    "dev.xylonity.olympus.mixin.MixinTitleScreen"
   ],
   "server": [],
   "injectors": {

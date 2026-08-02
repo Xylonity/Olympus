@@ -1,9 +1,8 @@
-package com.example.examplemod.platform;
+package dev.xylonity.olympus.platform;
 
-import com.example.examplemod.platform.services.IPlatformHelper;
 import net.fabricmc.loader.api.FabricLoader;
 
-public class FabricPlatformHelper implements IPlatformHelper {
+public class FabricPlatformHelper implements OlympusPlatform {
 
     @Override
     public String getPlatformName() {
