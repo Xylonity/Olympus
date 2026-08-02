@@ -1,6 +1,7 @@
 package dev.xylonity.olympus;
 
 import dev.xylonity.olympus.platform.OlympusPlatform;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ public class Olympus {
     }
 
     public static Identifier of(final String path) {
-        return net.minecraft.resources.Identifier
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
 }
