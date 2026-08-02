@@ -12,7 +12,7 @@ public class ExampleMod implements ModInitializer {
         // project.
 
         // Use Fabric to bootstrap the Common mod.
-        Constants.LOG.info("Hello Fabric world!");
+        Olympus.LOGGER.info("Hello Fabric world!");
         Olympus.init();
     }
 }

@@ -18,7 +18,9 @@ neoForge {
         client {
             client()
             gameDirectory = this.mkdir(this.file("runs/client"))
+            environment("XDG_SESSION_TYPE", "x11")
         }
+
         data {
             clientData()
             gameDirectory = this.mkdir(this.file("runs/data"))
