@@ -1,0 +1,9 @@
+{
+  "zeus_bracers_lightning_strike": {
+    "subtitle": "subtitles.olympus.zeus_bracers_lightning_strike",
+    "sounds": [
+      "olympus:zeus_bracers_lightning_strike1",
+      "olympus:zeus_bracers_lightning_strike2"
+    ]
+  }
+}

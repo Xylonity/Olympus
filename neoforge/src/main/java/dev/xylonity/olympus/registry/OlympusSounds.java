@@ -1,0 +1,15 @@
+package dev.xylonity.olympus.registry;
+
+import dev.xylonity.olympus.Olympus;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.sounds.SoundEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+public final class OlympusSounds {
+
+    public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(Registries.SOUND_EVENT, Olympus.MOD_ID);
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> ZEUS_BRACERS_LIGHTNING_STRIKE = SOUND_EVENTS.register("zeus_bracers_lightning_strike", () -> SoundEvent.createVariableRangeEvent(Olympus.of("zeus_bracers_lightning_strike")));
+
+}
