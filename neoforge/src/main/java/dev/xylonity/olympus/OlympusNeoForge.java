@@ -24,7 +24,7 @@ public class OlympusNeoForge {
 
         eventBus.addListener(OlympusNetwork::registerPayloads);
         NeoForge.EVENT_BUS.addListener(BracersOfZeusHandler::onLivingDamage);
-        
+
         modContainer.registerConfig(ModConfig.Type.SERVER, OlympusConfig.SPEC);
 
         Olympus.init();
