@@ -3,7 +3,7 @@ package dev.xylonity.olympus.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.client.model.BracersOfZeusModel;
-import dev.xylonity.olympus.client.registry.OlympusRenderTypes;
+import dev.xylonity.olympus.registry.OlympusRenderTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
