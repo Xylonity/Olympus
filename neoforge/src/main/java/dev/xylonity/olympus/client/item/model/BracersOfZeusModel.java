@@ -1,4 +1,4 @@
-package dev.xylonity.olympus.client.model;
+package dev.xylonity.olympus.client.item.model;
 
 import dev.xylonity.olympus.Olympus;
 import net.minecraft.client.model.HumanoidModel;
@@ -16,14 +16,8 @@ import net.minecraft.world.entity.HumanoidArm;
 
 public final class BracersOfZeusModel extends HumanoidModel<HumanoidRenderState> {
 
-    public static final ModelLayerLocation SLIM_LAYER_LOCATION = new ModelLayerLocation(
-            Olympus.of("bracers_of_zeus_slim"),
-            "main"
-    );
-    public static final ModelLayerLocation WIDE_LAYER_LOCATION = new ModelLayerLocation(
-            Olympus.of("bracers_of_zeus_wide"),
-            "main"
-    );
+    public static final ModelLayerLocation SLIM_LAYER_LOCATION = new ModelLayerLocation(Olympus.of("bracers_of_zeus_slim"), "main");
+    public static final ModelLayerLocation WIDE_LAYER_LOCATION = new ModelLayerLocation(Olympus.of("bracers_of_zeus_wide"), "main");
 
     private final ModelPart leftBracer;
     private final ModelPart leftOutline;

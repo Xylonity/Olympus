@@ -1,8 +1,8 @@
-package dev.xylonity.olympus.client.renderer;
+package dev.xylonity.olympus.client.item.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.xylonity.olympus.Olympus;
-import dev.xylonity.olympus.client.model.BracersOfZeusModel;
+import dev.xylonity.olympus.client.item.model.BracersOfZeusModel;
 import dev.xylonity.olympus.registry.OlympusRenderTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -48,16 +48,7 @@ public final class BracersOfZeusRenderer implements ICurioRenderer.HumanoidRende
     }
 
     @Override
-    public void renderFirstPersonHand(
-            final ItemStack stack,
-            final SlotContext slotContext,
-            final HumanoidArm arm,
-            final PoseStack poseStack,
-            final SubmitNodeCollector submitNodeCollector,
-            final AvatarRenderState avatarRenderState,
-            final AbstractClientPlayer clientPlayer,
-            final int packedLight
-    ) {
+    public void renderFirstPersonHand(final ItemStack stack, final SlotContext slotContext, final HumanoidArm arm, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final AvatarRenderState avatarRenderState, final AbstractClientPlayer clientPlayer, final int packedLight) {
         final BracersOfZeusModel model = modelFor(clientPlayer);
         model.resetPose();
 
@@ -68,18 +59,7 @@ public final class BracersOfZeusRenderer implements ICurioRenderer.HumanoidRende
     }
 
     @Override
-    public void prepareModel(
-            final ItemStack stack,
-            final SlotContext slotContext,
-            final PoseStack poseStack,
-            final SubmitNodeCollector submitNodeCollector,
-            final int packedLight,
-            final HumanoidRenderState renderState,
-            final RenderLayerParent<HumanoidRenderState, EntityModel<HumanoidRenderState>> renderLayerParent,
-            final EntityRendererProvider.Context context,
-            final float yRotation,
-            final float xRotation
-    ) {
+    public void prepareModel(final ItemStack stack, final SlotContext slotContext, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int packedLight, final HumanoidRenderState renderState, final RenderLayerParent<HumanoidRenderState, EntityModel<HumanoidRenderState>> renderLayerParent, final EntityRendererProvider.Context context, final float yRotation, final float xRotation) {
         final BracersOfZeusModel model = modelFor(renderState);
         if (renderLayerParent.getModel() instanceof HumanoidModel<?> parentModel) {
             model.arm(HumanoidArm.LEFT).loadPose(parentModel.leftArm.storePose());
@@ -92,32 +72,13 @@ public final class BracersOfZeusRenderer implements ICurioRenderer.HumanoidRende
     }
 
     @Override
-    public void renderModel(
-            final ItemStack stack,
-            final SlotContext slotContext,
-            final PoseStack poseStack,
-            final SubmitNodeCollector submitNodeCollector,
-            final int packedLight,
-            final HumanoidRenderState renderState,
-            final RenderLayerParent<HumanoidRenderState, EntityModel<HumanoidRenderState>> renderLayerParent,
-            final EntityRendererProvider.Context context,
-            final float yRotation,
-            final float xRotation
-    ) {
+    public void renderModel(final ItemStack stack, final SlotContext slotContext, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int packedLight, final HumanoidRenderState renderState, final RenderLayerParent<HumanoidRenderState, EntityModel<HumanoidRenderState>> renderLayerParent, final EntityRendererProvider.Context context, final float yRotation, final float xRotation) {
         final BracersOfZeusModel model = modelFor(renderState);
         submitArm(model, stack, HumanoidArm.LEFT, poseStack, submitNodeCollector, packedLight, renderState.outlineColor);
         submitArm(model, stack, HumanoidArm.RIGHT, poseStack, submitNodeCollector, packedLight, renderState.outlineColor);
     }
 
-    private void submitArm(
-            final BracersOfZeusModel model,
-            final ItemStack stack,
-            final HumanoidArm arm,
-            final PoseStack poseStack,
-            final SubmitNodeCollector submitNodeCollector,
-            final int packedLight,
-            final int outlineColor
-    ) {
+    private void submitArm(final BracersOfZeusModel model, final ItemStack stack, final HumanoidArm arm, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int packedLight, final int outlineColor) {
         final ModelPart armPart = model.arm(arm);
         poseStack.pushPose();
         armPart.translateAndRotate(poseStack);
@@ -153,11 +114,7 @@ public final class BracersOfZeusRenderer implements ICurioRenderer.HumanoidRende
     }
 
     private BracersOfZeusModel modelFor(final HumanoidRenderState renderState) {
-        if (
-            renderState instanceof AvatarRenderState avatarRenderState
-            && avatarRenderState.skin != null
-            && avatarRenderState.skin.model() == PlayerModelType.SLIM
-        ) {
+        if (renderState instanceof AvatarRenderState avatarRenderState && avatarRenderState.skin != null && avatarRenderState.skin.model() == PlayerModelType.SLIM) {
             return slimModel;
         }
 
