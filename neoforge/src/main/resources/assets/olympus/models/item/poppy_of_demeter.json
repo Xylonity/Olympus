@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "olympus:item/poppy_of_demeter_item"
+  }
+}
