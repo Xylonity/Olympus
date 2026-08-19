@@ -65,7 +65,6 @@ public final class BracersOfZeusModel extends HumanoidModel<HumanoidRenderState>
         final float rightBracerX = wide ? -3.0F : -2.0F;
         final float outlineOffsetX = wide ? 1.0F : 0.5F;
         final float outlineMainHalfX = wide ? 2.1F : 1.6F;
-        final float outlineBandHalfX = wide ? 2.5F : 2.0F;
 
         final PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.ZERO);
         head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
@@ -94,14 +93,11 @@ public final class BracersOfZeusModel extends HumanoidModel<HumanoidRenderState>
                 "outline",
                 CubeListBuilder.create()
                         .texOffs(51, 42)
-                        .addBox(outlineMainHalfX, 1.4667F, 2.1F, -outlineMainHalfX * 2.0F, -5.2F, -4.2F,
+                        .addBox(outlineMainHalfX, -0.1333F, 2.1F, -outlineMainHalfX * 2.0F, -3.0F, -4.2F,
                                 new CubeDeformation(-0.24F))
-                        .texOffs(24, 55)
-                        .addBox(outlineBandHalfX, -2.7833F, 2.5F, -outlineBandHalfX * 2.0F, -2.3F, -5.0F,
-                                new CubeDeformation(-0.05F))
-                        .texOffs(24, 55)
-                        .addBox(outlineBandHalfX, 1.7167F, 2.5F, -outlineBandHalfX * 2.0F, -2.3F, -5.0F,
-                                new CubeDeformation(-0.05F)),
+                        .texOffs(44, 56)
+                        .addBox(outlineMainHalfX, 0.3667F, 2.1F, -outlineMainHalfX * 2.0F, -4.0F, -4.2F,
+                                new CubeDeformation(-0.3F)),
                 PartPose.offset(outlineOffsetX, 6.1333F, 0.0F)
         );
 
@@ -130,18 +126,13 @@ public final class BracersOfZeusModel extends HumanoidModel<HumanoidRenderState>
                 CubeListBuilder.create()
                         .texOffs(51, 42)
                         .mirror()
-                        .addBox(outlineMainHalfX, 1.4667F, 2.1F, -outlineMainHalfX * 2.0F, -5.2F, -4.2F,
+                        .addBox(outlineMainHalfX, -0.1333F, 2.1F, -outlineMainHalfX * 2.0F, -3.0F, -4.2F,
                                 new CubeDeformation(-0.24F))
                         .mirror(false)
-                        .texOffs(24, 55)
+                        .texOffs(44, 56)
                         .mirror()
-                        .addBox(outlineBandHalfX, -2.7833F, 2.5F, -outlineBandHalfX * 2.0F, -2.3F, -5.0F,
-                                new CubeDeformation(-0.05F))
-                        .mirror(false)
-                        .texOffs(24, 55)
-                        .mirror()
-                        .addBox(outlineBandHalfX, 1.7167F, 2.5F, -outlineBandHalfX * 2.0F, -2.3F, -5.0F,
-                                new CubeDeformation(-0.05F))
+                        .addBox(outlineMainHalfX, 0.3667F, 2.1F, -outlineMainHalfX * 2.0F, -4.0F, -4.2F,
+                                new CubeDeformation(-0.3F))
                         .mirror(false),
                 PartPose.offset(-outlineOffsetX, 6.1333F, 0.0F)
         );
