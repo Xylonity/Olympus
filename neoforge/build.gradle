@@ -17,6 +17,7 @@ neoForge {
         }
         client {
             client()
+            programArguments.addAll '--username', 'Steve'
             gameDirectory = this.mkdir(this.file("runs/client"))
             environment("XDG_SESSION_TYPE", "x11")
         }
@@ -43,6 +44,7 @@ neoForge {
 
 dependencies {
     implementation 'top.theillusivec4.curios:curios-neoforge:15.0.0+26.1.2'
+    implementation "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
