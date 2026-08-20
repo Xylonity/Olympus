@@ -2,10 +2,9 @@ package dev.xylonity.olympus.common.entity;
 
 import dev.xylonity.olympus.common.item.PersephoneCupItem;
 import dev.xylonity.olympus.network.payload.SoulSalvationPayload;
-import dev.xylonity.olympus.registry.OlympusEntityTypes;
+import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.UUIDUtil;
@@ -56,7 +55,7 @@ public final class AbsorbedSoulEntity extends Entity {
     }
 
     public AbsorbedSoulEntity(final Level level, final Vec3 position, final ServerPlayer targetPlayer) {
-        this(OlympusEntityTypes.ABSORBED_SOUL.get(), level);
+        this(OlympusEntities.ABSORBED_SOUL.get(), level);
         setPos(position);
         setYRot(random.nextFloat() * 360f);
         setDeltaMovement((random.nextDouble() * 0.2 - 0.1) * 2d, random.nextDouble() * 0.4D, (random.nextDouble() * 0.2 - 0.1) * 2d);
