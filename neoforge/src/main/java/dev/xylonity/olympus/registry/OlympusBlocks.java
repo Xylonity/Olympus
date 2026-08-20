@@ -23,6 +23,4 @@ public final class OlympusBlocks {
                 .pushReaction(PushReaction.DESTROY)
     );
 
-    private OlympusBlocks() {}
-
 }
