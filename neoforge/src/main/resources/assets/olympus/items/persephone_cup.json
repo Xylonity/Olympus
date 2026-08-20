@@ -1,0 +1,33 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "entries": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "olympus:item/persephone_cup_2"
+        },
+        "threshold": 11.0
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "olympus:item/persephone_cup_3"
+        },
+        "threshold": 21.0
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "olympus:item/persephone_cup_4"
+        },
+        "threshold": 31.0
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "olympus:item/persephone_cup_1"
+    },
+    "property": "minecraft:custom_model_data"
+  }
+}
