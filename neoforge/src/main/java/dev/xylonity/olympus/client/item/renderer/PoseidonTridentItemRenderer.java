@@ -31,10 +31,12 @@ public final class PoseidonTridentItemRenderer extends GeoItemRenderer<PoseidonT
                     renderPassInfo.poseStack().translate(0, -1.25, -1);
                 }
                 else if (context == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {
-                    renderPassInfo.poseStack().translate(0.25, -0.4, -0.4);
+                    renderPassInfo.poseStack().translate(0.5, -1, 0.55);
+                    renderPassInfo.poseStack().mulPose(Axis.XP.rotationDegrees(-35));
                 }
                 else if (context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND) {
-                    renderPassInfo.poseStack().translate(-0.25, -0.4, -0.4);
+                    renderPassInfo.poseStack().translate(-0.5, -1, 0.55);
+                    renderPassInfo.poseStack().mulPose(Axis.XP.rotationDegrees(-35));
                 }
 
             }
