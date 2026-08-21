@@ -5,5 +5,11 @@
       "olympus:zeus_bracers_lightning_strike1",
       "olympus:zeus_bracers_lightning_strike2"
     ]
+  },
+  "poseidons_trident_hit": {
+    "subtitle": "subtitles.olympus.poseidons_trident_hit",
+    "sounds": [
+      "olympus:poseidons_trident_hit"
+    ]
   }
 }
