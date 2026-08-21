@@ -15,6 +15,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -157,6 +159,8 @@ public final class AbsorbedSoulEntity extends Entity {
 
         // Adds a charge to the cup
         PersephoneCupItem.addSoulCharge(equippedCup.get());
+        // Experience orb pickup sound
+        level().playSound(null, getX(), getY(), getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (random.nextFloat() - random.nextFloat()) * 0.35F + 0.9F);
         // Spawns particles
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(serverPlayer, new SoulSalvationPayload(serverPlayer.getId(), 3 + random.nextInt(2), true));
 
