@@ -7,6 +7,7 @@
     "LivingEntityMixin"
   ],
   "client": [
+    "LivingEntityRendererMixin",
     "RenderTypeAccessor"
   ],
   "server": [],
