@@ -29,5 +29,15 @@
     "sounds": [
       "olympus:ares_spear_surface_hit"
     ]
+  },
+  "lyre_music": {
+    "subtitle": "subtitles.olympus.lyre_music",
+    "sounds": [
+      {
+        "name": "olympus:lyre_music",
+        "stream": true,
+        "attenuation_distance": 32
+      }
+    ]
   }
 }

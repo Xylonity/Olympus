@@ -15,5 +15,6 @@ public final class OlympusSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> ARES_SPEAR_LANDING = SOUND_EVENTS.register("ares_spear_landing", () -> SoundEvent.createVariableRangeEvent(Olympus.of("ares_spear_landing")));
     public static final DeferredHolder<SoundEvent, SoundEvent> ARES_SPEAR_NAILING = SOUND_EVENTS.register("ares_spear_nailing", () -> SoundEvent.createVariableRangeEvent(Olympus.of("ares_spear_nailing")));
     public static final DeferredHolder<SoundEvent, SoundEvent> ARES_SPEAR_SURFACE_HIT = SOUND_EVENTS.register("ares_spear_surface_hit", () -> SoundEvent.createVariableRangeEvent(Olympus.of("ares_spear_surface_hit")));
+    public static final DeferredHolder<SoundEvent, SoundEvent> LYRE_MUSIC = SOUND_EVENTS.register("lyre_music", () -> SoundEvent.createVariableRangeEvent(Olympus.of("lyre_music")));
 
 }
