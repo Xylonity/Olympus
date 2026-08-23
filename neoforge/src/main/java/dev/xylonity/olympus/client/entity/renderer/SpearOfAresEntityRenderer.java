@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import org.jspecify.annotations.NonNull;
 
@@ -30,6 +31,10 @@ public final class SpearOfAresEntityRenderer extends EntityRenderer<SpearOfAresE
 
         poseStack.mulPose(Axis.YP.rotationDegrees(state.yRot + 90));
         poseStack.mulPose(Axis.ZP.rotationDegrees(90 - state.xRot));
+
+        if (state.shake > 0) {
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-Mth.sin(state.shake * 3.0F) * state.shake));
+        }
 
         poseStack.mulPose(Axis.YP.rotationDegrees(90));
         poseStack.translate(0, -22 / 16F, 0);
@@ -57,12 +62,14 @@ public final class SpearOfAresEntityRenderer extends EntityRenderer<SpearOfAresE
         super.extractRenderState(entity, state, partialTick);
         state.yRot = entity.getYRot(partialTick);
         state.xRot = entity.getXRot(partialTick);
+        state.shake = entity.shakeTime - partialTick;
         itemModelResolver.updateForNonLiving(state.item, entity.getWeaponItem(), ItemDisplayContext.NONE, entity);
     }
 
     public static final class RenderState extends ThrownItemRenderState {
         private float xRot;
         private float yRot;
+        private float shake;
     }
 
 }

@@ -234,8 +234,6 @@ public final class SpearOfAresEntity extends ThrownTrident {
         yRotO = impactYRot;
         xRotO = impactXRot;
 
-        shakeTime = 0;
-
         nailedSurfaceImpactPending = false;
     }
 
@@ -337,7 +335,7 @@ public final class SpearOfAresEntity extends ThrownTrident {
         return Math.clamp(1f - dissolveAge / DISSOLVE_DURATION, 0, 1);
     }
 
-    // Just some trail particles sampled to the tail of the spear so it's visible
+    // Just some trail particles sampled to the whole movement trail of the spear so the spear itself remains visible
     private void particleTrail(final ServerLevel level, final Vec3 previousPosition) {
         final Vec3 movement = position().subtract(previousPosition);
         if (movement.lengthSqr() <= 1.0E-8D) {
