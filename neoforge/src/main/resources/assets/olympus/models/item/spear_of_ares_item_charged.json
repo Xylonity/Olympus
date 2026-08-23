@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "olympus:item/spear_of_ares_item_charged"
+  }
+}

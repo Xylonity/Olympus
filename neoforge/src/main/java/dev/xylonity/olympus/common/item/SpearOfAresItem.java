@@ -10,6 +10,7 @@ import dev.xylonity.olympus.client.item.renderer.SpearOfAresItemRenderer;
 import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,18 +22,63 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public final class SpearOfAresItem extends TridentItem implements GeoItem {
+
+    private static final String TAG_SPECIAL_ABILITY_CHARGED = "olympus_special_ability_charged";
+    private static final String TAG_SPECIAL_ABILITY_COOLDOWN_END = "olympus_special_ability_cooldown_end";
+
+    // 6 seconds after using the ability (inclusive)
+    public static final int SPECIAL_ABILITY_COOLDOWN = 6 * 20;
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public SpearOfAresItem(final Properties properties) {
         super(properties);
         GeoItem.registerSyncedAnimatable(this);
+    }
+
+    public static boolean isSpecialAbilityCharged(final ItemStack stack) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getBooleanOr(TAG_SPECIAL_ABILITY_CHARGED, false);
+    }
+
+    public static void setSpecialAbilityCharged(final ItemStack stack, final boolean charged) {
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
+            if (charged) {
+                tag.putBoolean(TAG_SPECIAL_ABILITY_CHARGED, true);
+            }
+            else {
+                tag.remove(TAG_SPECIAL_ABILITY_CHARGED);
+            }
+
+        });
+
+        if (charged) {
+            stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(1.0F), List.of(), List.of(), List.of()));
+        }
+        else {
+            stack.remove(DataComponents.CUSTOM_MODEL_DATA);
+        }
+
+    }
+
+    public static boolean isSpecialAbilityReady(final ItemStack stack, final Level level) {
+        final long cooldownEnd = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getLongOr(TAG_SPECIAL_ABILITY_COOLDOWN_END, 0L);
+        return level.getGameTime() >= cooldownEnd;
+    }
+
+    public static void startSpecialAbilityCooldown(final ItemStack stack, final Level level) {
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag ->
+                tag.putLong(TAG_SPECIAL_ABILITY_COOLDOWN_END, level.getGameTime() + SPECIAL_ABILITY_COOLDOWN)
+        );
+
     }
 
     /// Same code over again {@link PoseidonTridentItem}

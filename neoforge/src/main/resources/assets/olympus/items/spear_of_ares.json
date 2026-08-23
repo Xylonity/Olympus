@@ -11,8 +11,21 @@
           "on_shelf"
         ],
         "model": {
-          "type": "minecraft:model",
-          "model": "olympus:item/spear_of_ares_item"
+          "type": "minecraft:range_dispatch",
+          "property": "minecraft:custom_model_data",
+          "entries": [
+            {
+              "threshold": 1.0,
+              "model": {
+                "type": "minecraft:model",
+                "model": "olympus:item/spear_of_ares_item_charged"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "olympus:item/spear_of_ares_item"
+          }
         }
       }
     ],
