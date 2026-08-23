@@ -57,6 +57,18 @@ public final class OlympusRenderTypes {
             .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
             .build();
 
+    public static final RenderPipeline UNDERWATER_SPLASH_PIPELINE = RenderPipeline.builder()
+            .withLocation(Olympus.of("pipeline/underwater_splash"))
+            .withVertexShader("core/position_color")
+            .withFragmentShader("core/position_color")
+            .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+            .withUniform("Projection", UniformType.UNIFORM_BUFFER)
+            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+            .withCull(false)
+            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+            .build();
+
     private static final Function<Identifier, RenderType> INVERTED_CUBE_GLOW = Util.memoize(texture ->
             RenderTypeAccessor.olympus$create(
                     "olympus_inverted_cube_glow",
@@ -77,12 +89,24 @@ public final class OlympusRenderTypes {
                     .createRenderSetup()
     );
 
+    private static final RenderType UNDERWATER_SPLASH = RenderTypeAccessor.olympus$create(
+            "olympus_underwater_splash",
+            RenderSetup.builder(UNDERWATER_SPLASH_PIPELINE)
+                    .sortOnUpload()
+                    .bufferSize(65536)
+                    .createRenderSetup()
+    );
+
     public static RenderType invertedCubeGlow(final Identifier texture) {
         return INVERTED_CUBE_GLOW.apply(texture);
     }
 
     public static RenderType lightningBolt() {
         return LIGHTNING_BOLT;
+    }
+
+    public static RenderType underwaterSplash() {
+        return UNDERWATER_SPLASH;
     }
 
 }
