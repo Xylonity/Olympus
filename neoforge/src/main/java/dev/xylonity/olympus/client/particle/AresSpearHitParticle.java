@@ -1,22 +1,18 @@
 package dev.xylonity.olympus.client.particle;
 
-import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
-import org.joml.Quaternionf;
 import org.jspecify.annotations.NonNull;
 
 public final class AresSpearHitParticle extends SingleQuadParticle {
 
-    private static final Quaternionf AZIMUTH = new Quaternionf().rotationX((float) (-Math.PI * 0.5D));
     private static final int FRAME_COUNT = 7;
 
     private final SpriteSet sprites;
@@ -37,11 +33,6 @@ public final class AresSpearHitParticle extends SingleQuadParticle {
     public void tick() {
         super.tick();
         updateSprite();
-    }
-
-    @Override
-    public void extract(final QuadParticleRenderState renderState, final Camera camera, final float partialTick) {
-        extractRotatedQuad(renderState, camera, AZIMUTH, partialTick);
     }
 
     @Override
