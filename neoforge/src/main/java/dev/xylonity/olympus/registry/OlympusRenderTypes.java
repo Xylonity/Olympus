@@ -57,6 +57,7 @@ public final class OlympusRenderTypes {
             .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
             .build();
 
+    /// Render type applied to a simple spherical geom, mostly created to make it actually visible underwater
     public static final RenderPipeline UNDERWATER_SPLASH_PIPELINE = RenderPipeline.builder()
             .withLocation(Olympus.of("pipeline/underwater_splash"))
             .withVertexShader("core/position_color")
@@ -67,6 +68,23 @@ public final class OlympusRenderTypes {
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
             .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+            .build();
+
+    /// Dithering pixelation (dissolver) applied to the ares spear
+    public static final RenderPipeline ARES_SPEAR_DISSOLVE_PIPELINE = RenderPipeline.builder()
+            .withLocation(Olympus.of("pipeline/ares_spear_dissolve"))
+            .withVertexShader("core/entity")
+            .withFragmentShader(Olympus.of("core/ares_spear_dissolve"))
+            .withSampler("Sampler0")
+            .withSampler("Sampler1")
+            .withSampler("Sampler2")
+            .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+            .withUniform("Projection", UniformType.UNIFORM_BUFFER)
+            .withUniform("Fog", UniformType.UNIFORM_BUFFER)
+            .withColorTargetState(ColorTargetState.DEFAULT)
+            .withCull(true)
+            .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)
+            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
             .build();
 
     private static final Function<Identifier, RenderType> INVERTED_CUBE_GLOW = Util.memoize(texture ->
@@ -97,6 +115,19 @@ public final class OlympusRenderTypes {
                     .createRenderSetup()
     );
 
+    private static final Function<Identifier, RenderType> ARES_SPEAR_DISSOLVE = Util.memoize(texture ->
+            RenderTypeAccessor.olympus$create(
+                    "olympus_ares_spear_dissolve",
+                    RenderSetup.builder(ARES_SPEAR_DISSOLVE_PIPELINE)
+                            .withTexture("Sampler0", texture)
+                            .useLightmap()
+                            .useOverlay()
+                            .bufferSize(256)
+                            .createRenderSetup()
+            )
+
+    );
+
     public static RenderType invertedCubeGlow(final Identifier texture) {
         return INVERTED_CUBE_GLOW.apply(texture);
     }
@@ -107,6 +138,10 @@ public final class OlympusRenderTypes {
 
     public static RenderType underwaterSplash() {
         return UNDERWATER_SPLASH;
+    }
+
+    public static RenderType aresSpearDissolve(final Identifier texture) {
+        return ARES_SPEAR_DISSOLVE.apply(texture);
     }
 
 }
