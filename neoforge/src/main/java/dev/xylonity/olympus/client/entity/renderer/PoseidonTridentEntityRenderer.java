@@ -10,6 +10,9 @@ import net.minecraft.client.renderer.entity.state.ThrownItemRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 
 public final class PoseidonTridentEntityRenderer extends EntityRenderer<PoseidonTridentEntity, PoseidonTridentEntityRenderer.RenderState> {
@@ -25,9 +28,14 @@ public final class PoseidonTridentEntityRenderer extends EntityRenderer<Poseidon
     public void submit(final RenderState state, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final CameraRenderState camera) {
         poseStack.pushPose();
 
-        poseStack.mulPose(Axis.YP.rotationDegrees(state.yRot + 90.0F));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(90.0F - state.xRot));
-        poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.yRot + 90F));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(90F - state.xRot));
+
+        if (state.shake > 0) {
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-Mth.sin(state.shake * 3.0F) * state.shake));
+        }
+
+        poseStack.mulPose(Axis.YP.rotationDegrees(90F));
 
         // The pivot is located basically in the middle of the model, so this is done to close the gap between the bbox and the tip of the model
         poseStack.translate(0, -26/16f, 0);
@@ -37,6 +45,11 @@ public final class PoseidonTridentEntityRenderer extends EntityRenderer<Poseidon
         poseStack.popPose();
 
         super.submit(state, poseStack, submitNodeCollector, camera);
+    }
+
+    @Override
+    protected int getBlockLightLevel(PoseidonTridentEntity entity, BlockPos blockPos) {
+        return entity.isInWall() ? LightCoordsUtil.FULL_SKY : super.getBlockLightLevel(entity, blockPos);
     }
 
     @Override
@@ -50,6 +63,7 @@ public final class PoseidonTridentEntityRenderer extends EntityRenderer<Poseidon
 
         state.yRot = entity.getYRot(partialTick);
         state.xRot = entity.getXRot(partialTick);
+        state.shake = entity.shakeTime - partialTick;
 
         itemModelResolver.updateForNonLiving(state.item, entity.getWeaponItem(), ItemDisplayContext.NONE, entity);
     }
@@ -57,6 +71,7 @@ public final class PoseidonTridentEntityRenderer extends EntityRenderer<Poseidon
     public static final class RenderState extends ThrownItemRenderState {
         private float xRot;
         private float yRot;
+        private float shake;
     }
 
 }

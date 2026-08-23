@@ -23,6 +23,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
@@ -51,7 +52,11 @@ public final class PoseidonTridentItem extends TridentItem implements GeoItem {
     }
 
     public static @NonNull ItemAttributeModifiers createAttributes() {
-        return TridentItem.createAttributes().withModifierAdded(NeoForgeMod.SWIM_SPEED, SWIM_SPEED_MODIFIER, EquipmentSlotGroup.HAND);
+        return ItemAttributeModifiers.builder()
+                .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, 9D, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -2.8D, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                .add(NeoForgeMod.SWIM_SPEED, SWIM_SPEED_MODIFIER, EquipmentSlotGroup.HAND)
+                .build();
     }
 
     @Override
@@ -107,7 +112,12 @@ public final class PoseidonTridentItem extends TridentItem implements GeoItem {
 
     @Override
     public boolean supportsEnchantment(final ItemStack stack, final Holder<Enchantment> enchantment) {
-        return !enchantment.is(Enchantments.LOYALTY) && !enchantment.is(Enchantments.RIPTIDE) && super.supportsEnchantment(stack, enchantment);
+        return enchantment.is(Enchantments.CHANNELING)
+                || enchantment.is(Enchantments.IMPALING)
+                || enchantment.is(Enchantments.MENDING)
+                || enchantment.is(Enchantments.KNOCKBACK)
+                || enchantment.is(Enchantments.UNBREAKING)
+                || enchantment.is(Enchantments.LOOTING);
     }
 
     @Override
