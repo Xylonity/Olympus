@@ -11,5 +11,17 @@
     "sounds": [
       "olympus:poseidons_trident_hit"
     ]
+  },
+  "ares_spear_landing": {
+    "subtitle": "subtitles.olympus.ares_spear_landing",
+    "sounds": [
+      "olympus:ares_spear_landing"
+    ]
+  },
+  "ares_spear_nailing": {
+    "subtitle": "subtitles.olympus.ares_spear_nailing",
+    "sounds": [
+      "olympus:ares_spear_nailing"
+    ]
   }
 }

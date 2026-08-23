@@ -18,5 +18,7 @@ public final class OlympusParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> TRIDENT_WATER_DROP = PARTICLES.register("trident_water_drop", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> TRIDENT_SMALL_SPLASH_OF_WATER = PARTICLES.register("trident_small_splash_of_water", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> TRIDENT_UNDERWATER_SPLASH = PARTICLES.register("trident_underwater_splash", () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ARES_SPEAR_TRACE = PARTICLES.register("ares_spear_trace", () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ARES_SPEAR_HIT = PARTICLES.register("ares_spear_hit", () -> new SimpleParticleType(false));
 
 }
