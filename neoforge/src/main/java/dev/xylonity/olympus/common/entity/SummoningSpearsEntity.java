@@ -7,6 +7,7 @@ import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
 import com.geckolib.util.GeckoLibUtil;
 import dev.xylonity.olympus.registry.OlympusEntities;
+import dev.xylonity.olympus.registry.OlympusParticles;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -14,9 +15,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.NonNull;
 
 public final class SummoningSpearsEntity extends Entity implements GeoEntity {
@@ -31,10 +34,18 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
     private static final EntityDataAccessor<Boolean> ANCHORED = SynchedEntityData.defineId(SummoningSpearsEntity.class, EntityDataSerializers.BOOLEAN);
 
     private static final String TAG_SPAWN_TICK = "SpawnTick";
+    private static final String TAG_DAMAGE_APPLIED = "DamageApplied";
 
-    private static final int APPEARANCE_DELAY = 5;
+    // Animation purposes
+    private static final int APPEARANCE_DELAY = 2;
+
     private static final int DISSOLVE_DURATION = 3 * 20;
     private static final int DISSOLVE_START = APPEARANCE_DELAY + 10 + 2 * 20;
+
+    private static final double MIN_HEIGHT = 0.25;
+    private static final double HEIGHT_RANGE = 2;
+
+    private boolean damageApplied;
 
     public SummoningSpearsEntity(final EntityType<? extends SummoningSpearsEntity> entityType, final Level level) {
         super(entityType, level);
@@ -66,9 +77,51 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
 
         followOwner();
 
-        if (!level().isClientSide() && getLifetimeAge(0) >= DISSOLVE_START + DISSOLVE_DURATION) {
-            discard();
+        if (level() instanceof ServerLevel serverLevel) {
+            if (entityData.get(ANCHORED) && getLifetimeAge(0) >= APPEARANCE_DELAY) {
+                if (!damageApplied) {
+                    damageNearbyEntities(serverLevel);
+                    damageApplied = true;
+                }
+
+                spawnTraceParticles(serverLevel);
+            }
+
+            if (getLifetimeAge(0) >= DISSOLVE_START + DISSOLVE_DURATION) {
+                discard();
+            }
         }
+
+    }
+
+    private void spawnTraceParticles(final ServerLevel level) {
+        final double areaWidth = 5;
+        final double x = getX() + (random.nextDouble() - 0.5) * areaWidth;
+        final double y = getY() + MIN_HEIGHT + random.nextDouble() * HEIGHT_RANGE;
+        final double z = getZ() + (random.nextDouble() - 0.5) * areaWidth;
+        final double xSpeed = (random.nextDouble() - 0.5) * 0.02;
+        final double ySpeed = 0.025 + random.nextDouble() * 0.035;
+        final double zSpeed = (random.nextDouble() - 0.5) * 0.02;
+
+        level.sendParticles(OlympusParticles.ARES_SPEAR_TRACE.get(), x, y, z, 0, xSpeed, ySpeed, zSpeed, 1);
+    }
+
+    private void damageNearbyEntities(final ServerLevel level) {
+        final double halfWidth = 2.5;
+        final AABB area = new AABB(
+                getX() - halfWidth, getY() + MIN_HEIGHT, getZ() - halfWidth,
+                getX() + halfWidth, getY() + MIN_HEIGHT + HEIGHT_RANGE, getZ() + halfWidth
+        );
+        final Entity owner = level.getEntity(entityData.get(OWNER_ID));
+        final DamageSource damageSource = damageSources().trident(this, owner == null ? this : owner);
+
+        level.getEntitiesOfClass(LivingEntity.class, area, target -> target.isAlive() && target != owner
+        ).forEach(target -> {
+            if (target.hurtServer(level, damageSource, 8) && owner instanceof LivingEntity livingOwner) {
+                livingOwner.setLastHurtMob(target);
+            }
+
+        });
 
     }
 
@@ -115,11 +168,13 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
     protected void readAdditionalSaveData(final ValueInput input) {
         entityData.set(SPAWN_TICK, input.getLongOr(TAG_SPAWN_TICK, level().getGameTime()));
         entityData.set(ANCHORED, true);
+        damageApplied = input.getBooleanOr(TAG_DAMAGE_APPLIED, false);
     }
 
     @Override
     protected void addAdditionalSaveData(final ValueOutput output) {
         output.putLong(TAG_SPAWN_TICK, entityData.get(SPAWN_TICK));
+        output.putBoolean(TAG_DAMAGE_APPLIED, damageApplied);
     }
 
     @Override
