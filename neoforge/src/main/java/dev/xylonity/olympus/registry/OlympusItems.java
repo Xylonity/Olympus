@@ -24,7 +24,7 @@ public class OlympusItems {
     public static final DeferredItem<PoseidonTridentItem> POSEIDON_TRIDENT = ITEMS.registerItem("poseidon_trident", PoseidonTridentItem::new,
             properties -> properties
                 .rarity(Rarity.EPIC)
-                .durability(250)
+                .durability(2000)
                 .attributes(PoseidonTridentItem.createAttributes())
                 .component(DataComponents.TOOL, TridentItem.createToolProperties())
                 .enchantable(1)
