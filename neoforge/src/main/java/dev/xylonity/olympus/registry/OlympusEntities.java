@@ -3,6 +3,7 @@ package dev.xylonity.olympus.registry;
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.common.entity.AbsorbedSoulEntity;
 import dev.xylonity.olympus.common.entity.PoseidonTridentEntity;
+import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -17,5 +18,8 @@ public final class OlympusEntities {
 
     public static final DeferredHolder<EntityType<?>, EntityType<PoseidonTridentEntity>> POSEIDON_TRIDENT = ENTITIES.registerEntityType(
             "poseidon_trident", PoseidonTridentEntity::new, MobCategory.MISC, builder -> builder.noLootTable().sized(0.5F, 0.5F).eyeHeight(0.13F).clientTrackingRange(4).updateInterval(20));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<SpearOfAresEntity>> SPEAR_OF_ARES = ENTITIES.registerEntityType(
+            "spear_of_ares", SpearOfAresEntity::new, MobCategory.MISC, builder -> builder.noLootTable().sized(0.5F, 0.5F).eyeHeight(0.13F).clientTrackingRange(6).updateInterval(1));
 
 }
