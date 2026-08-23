@@ -5,13 +5,19 @@ import dev.xylonity.olympus.common.item.BracersOfZeusItem;
 import dev.xylonity.olympus.common.item.HelmetOfHadesItem;
 import dev.xylonity.olympus.common.item.PersephoneCupItem;
 import dev.xylonity.olympus.common.item.PoseidonTridentItem;
+import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.TridentItem;
-import net.minecraft.world.item.component.Weapon;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.*;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.DeferredItem;
+
+import java.util.Optional;
 
 public class OlympusItems {
 
@@ -21,8 +27,7 @@ public class OlympusItems {
     public static final DeferredItem<HelmetOfHadesItem> HELMET_OF_HADES = ITEMS.registerItem("helmet_of_hades", HelmetOfHadesItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC));
     public static final DeferredItem<PersephoneCupItem> PERSEPHONE_CUP = ITEMS.registerItem("persephone_cup", PersephoneCupItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC));
     public static final DeferredItem<BlockItem> POPPY_OF_DEMETER = ITEMS.registerSimpleBlockItem(OlympusBlocks.POPPY_OF_DEMETER, properties -> properties.rarity(Rarity.EPIC));
-    public static final DeferredItem<PoseidonTridentItem> POSEIDON_TRIDENT = ITEMS.registerItem("poseidon_trident", PoseidonTridentItem::new,
-            properties -> properties
+    public static final DeferredItem<PoseidonTridentItem> POSEIDON_TRIDENT = ITEMS.registerItem("poseidon_trident", PoseidonTridentItem::new, properties -> properties
                 .rarity(Rarity.EPIC)
                 .durability(2000)
                 .attributes(PoseidonTridentItem.createAttributes())
@@ -30,5 +35,30 @@ public class OlympusItems {
                 .enchantable(1)
                 .component(DataComponents.WEAPON, new Weapon(1))
     );
+    public static final DeferredItem<SpearOfAresItem> SPEAR_OF_ARES = ITEMS.registerItem("spear_of_ares", SpearOfAresItem::new, properties -> properties.rarity(Rarity.EPIC)
+            .durability(2000)
+            // Base att modifiers
+            .attributes(
+                    ItemAttributeModifiers.builder()
+                        .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 9, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                        .add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -3, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                    .build())
+            .component(DataComponents.TOOL, TridentItem.createToolProperties())
+            .enchantable(1)
+            // Spear-type item damage
+            .delayedHolderComponent(DataComponents.DAMAGE_TYPE, DamageTypes.SPEAR)
+            // Keeps the exact forward attack (client transforms) used by vanilla spears without enabling their charged attack
+            .component(DataComponents.KINETIC_WEAPON,
+                    new KineticWeapon(10, 0, Optional.empty(), Optional.empty(),
+                    Optional.empty(), 0.38F, 0.7F, Optional.empty(), Optional.empty()
+            ))
+            .component(DataComponents.PIERCING_WEAPON, new PiercingWeapon(
+                    true, false, Optional.of(SoundEvents.SPEAR_ATTACK), Optional.of(SoundEvents.SPEAR_HIT)
+            ))
+            .component(DataComponents.ATTACK_RANGE, new AttackRange(2, 4.5F, 2.0F, 6.5F, 0.125F, 0.5F))
+            .component(DataComponents.MINIMUM_ATTACK_CHARGE, 1f)
+            .component(DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, 10))
+            .component(DataComponents.USE_EFFECTS, new UseEffects(true, false, 1))
+            .component(DataComponents.WEAPON, new Weapon(1)));
 
 }

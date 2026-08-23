@@ -76,9 +76,9 @@ public final class PoseidonTridentItem extends TridentItem implements GeoItem {
         }
 
         stack.hurtWithoutBreaking(1, player);
-        final ItemStack thrownStack = stack.consumeAndReturn(1, player);
+        final ItemStack poseidonTrident = stack.consumeAndReturn(1, player);
         final PoseidonTridentEntity trident = Projectile.spawnProjectileFromRotation(
-                PoseidonTridentEntity::new, serverLevel, thrownStack, player, 0.0F, PROJECTILE_SHOOT_POWER, 1.0F
+                PoseidonTridentEntity::new, serverLevel, poseidonTrident, player, 0.0F, PROJECTILE_SHOOT_POWER, 1.0F
         );
         if (player.hasInfiniteMaterials()) {
             trident.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
