@@ -17,11 +17,13 @@ public final class OlympusCreativeModeTabs {
                     .title(Component.translatable("creativetab.olympus.title"))
                     .icon(() -> new ItemStack(OlympusItems.POPPY_OF_DEMETER.get()))
                     .displayItems((_, output) -> {
+                        output.accept(OlympusItems.APHRODITE_LYRE.get());
                         output.accept(OlympusItems.BRACERS_OF_ZEUS.get());
                         output.accept(OlympusItems.HELMET_OF_HADES.get());
                         output.accept(OlympusItems.PERSEPHONE_CUP.get());
                         output.accept(OlympusItems.POPPY_OF_DEMETER.get());
                         output.accept(OlympusItems.POSEIDON_TRIDENT.get());
+                        output.accept(OlympusItems.SPEAR_OF_ARES.get());
                     })
                     .build()
     );
