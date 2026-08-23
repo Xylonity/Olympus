@@ -23,5 +23,11 @@
     "sounds": [
       "olympus:ares_spear_nailing"
     ]
+  },
+  "ares_spear_surface_hit": {
+    "subtitle": "subtitles.olympus.ares_spear_surface_hit",
+    "sounds": [
+      "olympus:ares_spear_surface_hit"
+    ]
   }
 }
