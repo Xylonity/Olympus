@@ -1,0 +1,28 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:display_context",
+    "cases": [
+      {
+        "when": [
+          "gui",
+          "ground",
+          "fixed",
+          "on_shelf"
+        ],
+        "model": {
+          "type": "minecraft:model",
+          "model": "olympus:item/spear_of_ares_item"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:special",
+      "base": "olympus:item/spear_of_ares",
+      "model": {
+        "type": "geckolib:geckolib"
+      }
+    }
+  },
+  "swap_animation_scale": 1.95
+}
