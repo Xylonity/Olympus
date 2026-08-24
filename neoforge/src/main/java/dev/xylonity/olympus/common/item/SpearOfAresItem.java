@@ -10,6 +10,7 @@ import dev.xylonity.olympus.client.item.renderer.SpearOfAresItemRenderer;
 import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
 import dev.xylonity.olympus.common.entity.SummoningSpearsEntity;
 import dev.xylonity.olympus.registry.OlympusItems;
+import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
@@ -177,6 +178,12 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
         final Vec3 movement = player.getDeltaMovement();
         player.setDeltaMovement(movement.x, Math.min(movement.y, -2), movement.z);
         player.hurtMarked = true;
+
+        final double angle = Math.PI * 2 * (player.tickCount % 10) / 10;
+        final double x = player.getX() + Math.cos(angle);
+        final double z = player.getZ() + Math.sin(angle);
+        player.level().sendParticles(OlympusParticles.ARES_SPEAR_TRACE.get(), x, player.getY(), z, 1, 0, 0, 0, 0);
+        player.level().sendParticles(OlympusParticles.ARES_SPEAR_TRACE.get(), x, player.getY(), z, 1, 0.1, 0.1, 0.1, 0);
     }
 
     private static ItemStack findSpearUsedForKill(final ServerPlayer player, final DamageSource damageSource) {
