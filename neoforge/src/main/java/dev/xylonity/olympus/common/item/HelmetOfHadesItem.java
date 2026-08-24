@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.common.item;
 
+import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.payload.SoulSalvationPayload;
 import dev.xylonity.olympus.registry.OlympusItems;
@@ -9,9 +10,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
+import top.theillusivec4.curios.api.CurioAttributeModifiers;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.CuriosSlotTypes;
 import top.theillusivec4.curios.api.SlotContext;
@@ -32,6 +36,17 @@ public class HelmetOfHadesItem extends Item implements ICurioItem {
     @Override
     public boolean canEquipFromUse(final SlotContext slotContext, final ItemStack stack) {
         return canEquip(slotContext, stack);
+    }
+
+    @Override
+    public CurioAttributeModifiers getDefaultCurioAttributeModifiers(final ItemStack stack) {
+        return CurioAttributeModifiers.builder()
+                .addModifier(
+                        Attributes.ARMOR,
+                        new AttributeModifier(Olympus.of("helmet_of_hades_armor"), 2, AttributeModifier.Operation.ADD_VALUE),
+                        CuriosSlotTypes.Preset.HEAD.id()
+                )
+                .build();
     }
 
     /// Applies the special effect of the helmet of hades (when receiving a mortal hit)

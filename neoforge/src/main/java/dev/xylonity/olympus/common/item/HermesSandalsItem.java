@@ -44,12 +44,12 @@ public final class HermesSandalsItem extends Item implements ICurioItem {
         return CurioAttributeModifiers.builder()
                 .addModifier(
                         Attributes.ARMOR,
-                        new AttributeModifier(Olympus.of("hermes_sandals_armor"), 1.0D, AttributeModifier.Operation.ADD_VALUE),
+                        new AttributeModifier(Olympus.of("hermes_sandals_armor"), 1, AttributeModifier.Operation.ADD_VALUE),
                         CuriosSlotTypes.Preset.FEET.id()
                 )
                 .addModifier(
                         Attributes.MOVEMENT_SPEED,
-                        new AttributeModifier(Olympus.of("hermes_sandals_speed"), 0.1D, AttributeModifier.Operation.ADD_MULTIPLIED_BASE),
+                        new AttributeModifier(Olympus.of("hermes_sandals_speed"), 0.1, AttributeModifier.Operation.ADD_MULTIPLIED_BASE),
                         CuriosSlotTypes.Preset.FEET.id()
                 )
                 .build();

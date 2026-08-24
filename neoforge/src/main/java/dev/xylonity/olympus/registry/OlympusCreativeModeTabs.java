@@ -20,6 +20,7 @@ public final class OlympusCreativeModeTabs {
                         output.accept(OlympusItems.APHRODITE_LYRE.get());
                         output.accept(OlympusItems.BRACERS_OF_ZEUS.get());
                         output.accept(OlympusItems.HELMET_OF_HADES.get());
+                        output.accept(OlympusItems.HERMES_SANDALS.get());
                         output.accept(OlympusItems.INSTRUMENTS_OF_HEPHAESTUS.get());
                         output.accept(OlympusItems.PERSEPHONE_CUP.get());
                         output.accept(OlympusItems.POPPY_OF_DEMETER.get());

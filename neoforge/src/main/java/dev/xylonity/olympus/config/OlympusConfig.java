@@ -32,7 +32,7 @@ public final class OlympusConfig {
         builder.push("helmetOfHades");
         helmetOfHadesCooldownSeconds = builder
                 .comment("Cooldown (in seconds) of the Helmet of Hades death protection")
-                .defineInRange("cooldownSeconds", 40.0D, 0.0D, 3600.0D);
+                .defineInRange("cooldownSeconds", 80.0D, 0.0D, 3600.0D);
         builder.pop();
     }
 
