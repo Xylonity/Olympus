@@ -15,10 +15,11 @@ public final class OlympusCreativeModeTabs {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> OLYMPUS = CREATIVE_MODE_TABS.register("olympus",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("creativetab.olympus.title"))
-                    .icon(() -> new ItemStack(OlympusItems.POPPY_OF_DEMETER.get()))
+                    .icon(() -> new ItemStack(OlympusItems.HELMET_OF_HADES.get()))
                     .displayItems((_, output) -> {
                         output.accept(OlympusItems.APHRODITE_LYRE.get());
                         output.accept(OlympusItems.BRACERS_OF_ZEUS.get());
+                        output.accept(OlympusItems.BOW_OF_ARTEMIS.get());
                         output.accept(OlympusItems.HELMET_OF_HADES.get());
                         output.accept(OlympusItems.HERMES_SANDALS.get());
                         output.accept(OlympusItems.INSTRUMENTS_OF_HEPHAESTUS.get());

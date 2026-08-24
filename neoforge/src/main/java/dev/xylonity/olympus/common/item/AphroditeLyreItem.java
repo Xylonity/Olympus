@@ -89,7 +89,7 @@ public final class AphroditeLyreItem extends Item {
 
     @Override
     public @NonNull ItemUseAnimation getUseAnimation(final @NonNull ItemStack stack) {
-        return ItemUseAnimation.TOOT_HORN;
+        return ItemUseAnimation.BOW;
     }
 
     private static void stopPlaying(final ItemStack stack, final LivingEntity user) {

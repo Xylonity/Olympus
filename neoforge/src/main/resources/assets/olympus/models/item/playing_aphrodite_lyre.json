@@ -1,0 +1,16 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "olympus:item/aphrodite_lyre"
+  },
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [0, -55, -5],
+      "translation": [-1, -2.5, -7.5]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, 115, 5],
+      "translation": [0, -2.5, -7.5]
+    }
+  }
+}
