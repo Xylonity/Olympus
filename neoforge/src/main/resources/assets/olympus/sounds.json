@@ -39,5 +39,11 @@
         "attenuation_distance": 32
       }
     ]
+  },
+  "hephaestus_forging": {
+    "subtitle": "subtitles.olympus.hephaestus_forging",
+    "sounds": [
+      "minecraft:block/smithing_table/smithing_table2"
+    ]
   }
 }
