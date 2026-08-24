@@ -31,7 +31,6 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
 
     private static final EntityDataAccessor<Long> SPAWN_TICK = SynchedEntityData.defineId(SummoningSpearsEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SummoningSpearsEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Boolean> ANCHORED = SynchedEntityData.defineId(SummoningSpearsEntity.class, EntityDataSerializers.BOOLEAN);
 
     private static final String TAG_SPAWN_TICK = "SpawnTick";
     private static final String TAG_DAMAGE_APPLIED = "DamageApplied";
@@ -68,17 +67,14 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
     protected void defineSynchedData(final SynchedEntityData.Builder builder) {
         builder.define(SPAWN_TICK, -1L);
         builder.define(OWNER_ID, -1);
-        builder.define(ANCHORED, false);
     }
 
     @Override
     public void tick() {
         super.tick();
 
-        followOwner();
-
         if (level() instanceof ServerLevel serverLevel) {
-            if (entityData.get(ANCHORED) && getLifetimeAge(0) >= APPEARANCE_DELAY) {
+            if (getLifetimeAge(0) >= APPEARANCE_DELAY) {
                 if (!damageApplied) {
                     damageNearbyEntities(serverLevel);
                     damageApplied = true;
@@ -125,30 +121,6 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
 
     }
 
-    private void followOwner() {
-        if (entityData.get(ANCHORED)) {
-            return;
-        }
-
-        final Entity owner = level().getEntity(entityData.get(OWNER_ID));
-        if (owner == null) {
-            if (!level().isClientSide()) {
-                entityData.set(ANCHORED, true);
-            }
-
-            return;
-        }
-
-        setPos(owner.getX(), owner.getY(), owner.getZ());
-        // Applies a bit of fall damage
-        owner.fallDistance = 3;
-
-        if (!level().isClientSide() && (owner.onGround() || owner.isInWater())) {
-            entityData.set(ANCHORED, true);
-        }
-
-    }
-
     public float getDissolveVisibility(final float partialTick) {
         // Converts lifetime age into a visibility value
         final float dissolveAge = getLifetimeAge(partialTick) - DISSOLVE_START;
@@ -167,7 +139,6 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
     @Override
     protected void readAdditionalSaveData(final ValueInput input) {
         entityData.set(SPAWN_TICK, input.getLongOr(TAG_SPAWN_TICK, level().getGameTime()));
-        entityData.set(ANCHORED, true);
         damageApplied = input.getBooleanOr(TAG_DAMAGE_APPLIED, false);
     }
 
