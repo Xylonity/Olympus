@@ -3,6 +3,7 @@ package dev.xylonity.olympus;
 
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.OlympusNetwork;
+import dev.xylonity.olympus.registry.OlympusAttachments;
 import dev.xylonity.olympus.registry.OlympusBlockEntities;
 import dev.xylonity.olympus.registry.OlympusBlocks;
 import dev.xylonity.olympus.registry.OlympusCreativeModeTabs;
@@ -21,6 +22,7 @@ public class OlympusNeoForge {
 
     public OlympusNeoForge(final IEventBus eventBus, final ModContainer modContainer) {
 
+        OlympusAttachments.ATTACHMENTS.register(eventBus);
         OlympusEntities.ENTITIES.register(eventBus);
         OlympusBlocks.BLOCKS.register(eventBus);
         OlympusBlockEntities.BLOCK_ENTITIES.register(eventBus);
