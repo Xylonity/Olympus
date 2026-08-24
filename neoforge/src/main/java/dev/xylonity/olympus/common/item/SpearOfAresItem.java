@@ -8,13 +8,18 @@ import com.geckolib.renderer.GeoItemRenderer;
 import com.geckolib.util.GeckoLibUtil;
 import dev.xylonity.olympus.client.item.renderer.SpearOfAresItemRenderer;
 import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
+import dev.xylonity.olympus.common.entity.SummoningSpearsEntity;
+import dev.xylonity.olympus.registry.OlympusItems;
+import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,6 +30,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
@@ -34,6 +40,7 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
 
     private static final String TAG_SPECIAL_ABILITY_CHARGED = "olympus_special_ability_charged";
     private static final String TAG_SPECIAL_ABILITY_COOLDOWN_END = "olympus_special_ability_cooldown_end";
+    private static final String TAG_PLAYER_SPECIAL_FALL = "olympus_ares_special_fall";
 
     // 6 seconds after using the ability (inclusive)
     public static final int SPECIAL_ABILITY_COOLDOWN = 6 * 20;
@@ -79,6 +86,140 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
                 tag.putLong(TAG_SPECIAL_ABILITY_COOLDOWN_END, level.getGameTime() + SPECIAL_ABILITY_COOLDOWN)
         );
 
+    }
+
+    public static void chargeSpecialAbilityForKill(final ServerPlayer player, final DamageSource damageSource) {
+        // On entity kill, checks if the spear was the reason
+        final ItemStack spear = findSpearUsedForKill(player, damageSource);
+        if (!spear.isEmpty()) {
+            setSpecialAbilityCharged(spear, true);
+        }
+
+    }
+
+    public static void updateSpecialFall(final ServerPlayer player) {
+        // If the player is executing the special ability
+        if (isActiveFallActive(player)) {
+            // On ground hit
+            if (player.onGround()) {
+                finishActiveFallAbility(player);
+                return;
+            }
+
+            // On ground hit (if it's water or if the player starts flying), the ability is canceled
+            if (player.isInWater() || player.isFallFlying() || player.getAbilities().flying) {
+                player.getPersistentData().remove(TAG_PLAYER_SPECIAL_FALL);
+                return;
+            }
+
+            // Extra speed for the player
+            acceleratePlayer(player);
+
+            return;
+        }
+
+        // Checks if the player should activate the active ability
+        if (player.onGround() || !tryActiveAbility(player, player.fallDistance)) {
+            return;
+        }
+
+        acceleratePlayer(player);
+    }
+
+    public static boolean handleSpecialLanding(final ServerPlayer player, final double fallDistance) {
+        if (!isActiveFallActive(player) && !tryActiveAbility(player, fallDistance)) {
+            return false;
+        }
+
+        return finishActiveFallAbility(player);
+    }
+
+    /// Applies the special effect of the helmet of spear (summoning spears come from the ground on ground hit on certain conditions)
+    private static boolean tryActiveAbility(ServerPlayer player, double fallDistance) {
+        if (fallDistance < 3 || !player.isShiftKeyDown() || player.isInWater() || player.isFallFlying() || player.getAbilities().flying) {
+            return false;
+        }
+
+        final ItemStack spear = findUsableHeldSpear(player);
+        if (spear.isEmpty()) {
+            return false;
+        }
+
+        // Starts the special ability
+        setSpecialAbilityCharged(spear, false);
+        // The active ability has a different cooldown
+        startSpecialAbilityCooldown(spear, player.level());
+        player.getPersistentData().putBoolean(TAG_PLAYER_SPECIAL_FALL, true);
+
+        return true;
+    }
+
+    private static boolean finishActiveFallAbility(final ServerPlayer player) {
+        if (!isActiveFallActive(player) || player.isInWater() || player.isFallFlying() || player.getAbilities().flying) {
+            return false;
+        }
+
+        player.getPersistentData().remove(TAG_PLAYER_SPECIAL_FALL);
+        player.resetFallDistance();
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), OlympusSounds.ARES_SPEAR_LANDING.get(), SoundSource.PLAYERS, 1, 1);
+        player.level().addFreshEntity(new SummoningSpearsEntity(player.level(), player));
+
+        return true;
+    }
+
+    private static boolean isActiveFallActive(final ServerPlayer player) {
+        // Checked on player tick, whether it is executing the spear special ability or not
+        return player.getPersistentData().getBooleanOr(TAG_PLAYER_SPECIAL_FALL, false);
+    }
+
+    private static void acceleratePlayer(final ServerPlayer player) {
+        // Moves the player downwards
+        final Vec3 movement = player.getDeltaMovement();
+        player.setDeltaMovement(movement.x, Math.min(movement.y, -2), movement.z);
+        player.hurtMarked = true;
+    }
+
+    private static ItemStack findSpearUsedForKill(final ServerPlayer player, final DamageSource damageSource) {
+        // If the damage is caused by the thrown entity
+        if (damageSource.getDirectEntity() instanceof SpearOfAresEntity thrownSpear) {
+            final ItemStack projectileStack = thrownSpear.getWeaponItem();
+            // If the spear is in the hand
+            for (final InteractionHand hand : InteractionHand.values()) {
+                final ItemStack stack = player.getItemInHand(hand);
+                if (stack.is(OlympusItems.SPEAR_OF_ARES.get()) && ItemStack.isSameItemSameComponents(stack, projectileStack)) {
+                    return stack;
+                }
+
+            }
+
+            // If the player changed to another slot before the entity died
+            final int slotIdx = player.getInventory().findSlotMatchingItem(projectileStack);
+            if (slotIdx >= 0) {
+                final ItemStack stack = player.getInventory().getItem(slotIdx);
+                if (stack.is(OlympusItems.SPEAR_OF_ARES.get())) {
+                    return stack;
+                }
+
+            }
+
+            return ItemStack.EMPTY;
+        }
+
+        // If it's a direct hit (killed with the spear item itself)
+        final ItemStack mainHandStack = player.getMainHandItem();
+        return damageSource.getDirectEntity() == player && mainHandStack.is(OlympusItems.SPEAR_OF_ARES.get()) ? mainHandStack : ItemStack.EMPTY;
+    }
+
+    private static ItemStack findUsableHeldSpear(final ServerPlayer player) {
+        for (final InteractionHand hand : InteractionHand.values()) {
+            final ItemStack stack = player.getItemInHand(hand);
+            if (stack.is(OlympusItems.SPEAR_OF_ARES.get()) && isSpecialAbilityCharged(stack) && isSpecialAbilityReady(stack, player.level())) {
+                return stack;
+            }
+
+        }
+
+        return ItemStack.EMPTY;
     }
 
     /// Same code over again {@link PoseidonTridentItem}
