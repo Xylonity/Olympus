@@ -4,6 +4,7 @@ import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.common.effect.InvisibilityOfHadesEffect;
 import dev.xylonity.olympus.common.item.BracersOfZeusItem;
 import dev.xylonity.olympus.common.item.HelmetOfHadesItem;
+import dev.xylonity.olympus.common.item.InstrumentsOfHephaestusItem;
 import dev.xylonity.olympus.common.item.PersephoneCupItem;
 import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import dev.xylonity.olympus.registry.OlympusDamageTypes;
@@ -58,6 +59,8 @@ public final class OlympusServerEvents {
 
         // Charges the spear of ares active ability
         SpearOfAresItem.chargeSpecialAbilityForKill(player, event.getSource());
+        // Reduces the instruments of hephaestus repair cooldown
+        InstrumentsOfHephaestusItem.reduceCooldownOnKill(player);
     }
 
     @SubscribeEvent
