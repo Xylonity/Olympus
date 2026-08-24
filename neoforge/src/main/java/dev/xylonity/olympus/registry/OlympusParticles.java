@@ -22,5 +22,7 @@ public final class OlympusParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ARES_SPEAR_HIT = PARTICLES.register("ares_spear_hit", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> LYRE_NOTE = PARTICLES.register("lyre_note", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> FORGING_SPARK = PARTICLES.register("forging_spark", () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ARTEMIS_ARROW_TRACE = PARTICLES.register("artemis_arrow_trace", () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ARTEMIS_ARROW_TRACE_SMALL = PARTICLES.register("artemis_arrow_trace_small", () -> new SimpleParticleType(false));
 
 }
