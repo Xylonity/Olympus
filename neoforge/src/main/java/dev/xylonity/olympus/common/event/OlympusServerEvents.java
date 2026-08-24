@@ -4,6 +4,7 @@ import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.common.effect.InvisibilityOfHadesEffect;
 import dev.xylonity.olympus.common.item.BracersOfZeusItem;
 import dev.xylonity.olympus.common.item.HelmetOfHadesItem;
+import dev.xylonity.olympus.common.item.HermesSandalsItem;
 import dev.xylonity.olympus.common.item.InstrumentsOfHephaestusItem;
 import dev.xylonity.olympus.common.item.PersephoneCupItem;
 import dev.xylonity.olympus.common.item.SpearOfAresItem;
@@ -75,6 +76,7 @@ public final class OlympusServerEvents {
     @SubscribeEvent
     public static void onPlayerTick(final PlayerTickEvent.Post event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            HermesSandalsItem.rechargeExtraJumps(player);
             SpearOfAresItem.updateSpecialFall(player);
         }
 
