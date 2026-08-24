@@ -10,6 +10,8 @@ public final class OlympusConfig {
 
     public final ModConfigSpec.DoubleValue zeusBracersDamage;
     public final ModConfigSpec.DoubleValue zeusBracersCooldownSeconds;
+    public final ModConfigSpec.DoubleValue persephoneCupRegenerationSeconds;
+    public final ModConfigSpec.DoubleValue helmetOfHadesCooldownSeconds;
 
     private OlympusConfig(final ModConfigSpec.Builder builder) {
         builder.push("bracersOfZeus");
@@ -19,6 +21,18 @@ public final class OlympusConfig {
         zeusBracersCooldownSeconds = builder
                 .comment("Cooldown (in seconds) of the Bracers of Zeus")
                 .defineInRange("cooldownSeconds", 5.0D, 0.0D, 3600.0D);
+        builder.pop();
+
+        builder.push("persephoneCup");
+        persephoneCupRegenerationSeconds = builder
+                .comment("Duration (in seconds) of the Regeneration II effect granted by Persephone's Cup")
+                .defineInRange("regenerationSeconds", 20.0D, 0.0D, 3600.0D);
+        builder.pop();
+
+        builder.push("helmetOfHades");
+        helmetOfHadesCooldownSeconds = builder
+                .comment("Cooldown (in seconds) of the Helmet of Hades death protection")
+                .defineInRange("cooldownSeconds", 40.0D, 0.0D, 3600.0D);
         builder.pop();
     }
 
