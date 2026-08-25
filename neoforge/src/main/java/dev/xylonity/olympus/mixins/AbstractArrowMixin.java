@@ -5,6 +5,8 @@ import dev.xylonity.olympus.registry.OlympusAttachments;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -69,9 +71,16 @@ public abstract class AbstractArrowMixin implements ArtemisArrow {
 
         // Additional particles
         final Vec3 movement = arrow.getDeltaMovement();
-        final Vec3 speed = movement.lengthSqr() > 1.0E-8D ? movement.normalize().scale(-0.012D) : Vec3.ZERO;
-        olympus$spawnLeaf(arrow, OlympusParticles.ARTEMIS_ARROW_TRACE.get(), speed);
-        olympus$spawnLeaf(arrow, OlympusParticles.ARTEMIS_ARROW_TRACE_SMALL.get(), new Vec3(-speed.z, speed.y, speed.x));
+        if (movement.lengthSqr() <= 1.0E-8D) {
+            return;
+        }
+
+        final RandomSource random = arrow.getRandom();
+        for (int i = 0; i < 3; i++) {
+            final ParticleOptions particle = (i & 1) == 0 ? OlympusParticles.ARTEMIS_ARROW_TRACE.get() : OlympusParticles.ARTEMIS_ARROW_TRACE_SMALL.get();
+            olympus$spawnLeaf(arrow, particle, movement, (i + random.nextDouble()) / 4D);
+        }
+
     }
 
     @Inject(method = "onHitEntity", at = @At("HEAD"), cancellable = true)
@@ -92,11 +101,14 @@ public abstract class AbstractArrowMixin implements ArtemisArrow {
                 damage = (int) Math.min((long) damage + arrow.getRandom().nextInt(damage / 2 + 2), Integer.MAX_VALUE);
             }
 
+            // Heal and sound
             pet.heal(damage * 0.35F);
+            player.level().playSound(null, pet.blockPosition(), SoundEvents.AMETHYST_BLOCK_FALL, SoundSource.AMBIENT, 1, 1.5F);
 
+            // Particles
             final double y = pet.getY() + pet.getBbHeight() * 0.5D;
-            level.sendParticles(OlympusParticles.ARTEMIS_ARROW_TRACE.get(), pet.getX(), y, pet.getZ(), 12, pet.getBbWidth() * 0.45D, pet.getBbHeight() * 0.35D, pet.getBbWidth() * 0.45D, 0.045D);
-            level.sendParticles(OlympusParticles.ARTEMIS_ARROW_TRACE_SMALL.get(), pet.getX(), y, pet.getZ(), 12, pet.getBbWidth() * 0.45D, pet.getBbHeight() * 0.35D, pet.getBbWidth() * 0.45D, 0.045D);
+            level.sendParticles(OlympusParticles.ARTEMIS_ARROW_TRACE.get(), pet.getX(), y, pet.getZ(), 16, pet.getBbWidth() * 0.08D, pet.getBbHeight() * 0.08D, pet.getBbWidth() * 0.08D, 0.14D);
+            level.sendParticles(OlympusParticles.ARTEMIS_ARROW_TRACE_SMALL.get(), pet.getX(), y, pet.getZ(), 20, pet.getBbWidth() * 0.08D, pet.getBbHeight() * 0.08D, pet.getBbWidth() * 0.08D, 0.11D);
         }
 
         arrow.discard();
@@ -104,13 +116,20 @@ public abstract class AbstractArrowMixin implements ArtemisArrow {
     }
 
     @Unique
-    private static void olympus$spawnLeaf(final AbstractArrow arrow, final ParticleOptions particle, final Vec3 speed) {
+    private static void olympus$spawnLeaf(final AbstractArrow arrow, final ParticleOptions particle, final Vec3 movement, final double trailProgress) {
+        // Randomized position
         final RandomSource random = arrow.getRandom();
-        final double radius = Math.cbrt(random.nextDouble()) * 0.2D;
+        final Vec3 origin = arrow.position().subtract(movement.scale(trailProgress));
+        final Vec3 speed = movement.normalize().scale(-(0.008D + random.nextDouble() * 0.01D)).add(
+                (random.nextDouble() - 0.5D) * 0.012,
+                (random.nextDouble() - 0.5D) * 0.008,
+                (random.nextDouble() - 0.5D) * 0.012
+        );
+        final double radius = Math.cbrt(random.nextDouble()) * 0.28D;
         final double direction = random.nextDouble() * 2 - 1;
         final double horizontalRadius = Math.sqrt(1 - direction * direction) * radius;
         final double angle = random.nextDouble() * Math.PI * 2;
-        arrow.level().addParticle(particle, arrow.getX() + Math.cos(angle) * horizontalRadius, arrow.getY() + direction * radius, arrow.getZ() + Math.sin(angle) * horizontalRadius, speed.x, speed.y, speed.z);
+        arrow.level().addParticle(particle, origin.x + Math.cos(angle) * horizontalRadius, origin.y + direction * radius, origin.z + Math.sin(angle) * horizontalRadius, speed.x, speed.y, speed.z);
     }
 
 }
