@@ -2,6 +2,7 @@ package dev.xylonity.olympus.common.event;
 
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.common.effect.InvisibilityOfHadesEffect;
+import dev.xylonity.olympus.common.util.ArtemisArrow;
 import dev.xylonity.olympus.common.item.BracersOfZeusItem;
 import dev.xylonity.olympus.common.item.HelmetOfHadesItem;
 import dev.xylonity.olympus.common.item.HermesSandalsItem;
@@ -11,6 +12,7 @@ import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import dev.xylonity.olympus.registry.OlympusDamageTypes;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.neoforged.bus.api.EventPriority;
@@ -20,6 +22,7 @@ import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
+import net.neoforged.neoforge.event.enchanting.EnchantedEntityLootEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = Olympus.MOD_ID)
@@ -96,6 +99,14 @@ public final class OlympusServerEvents {
         // Bracers of zeus lightning bolt
         if (event.getEntity() instanceof Mob target) {
             BracersOfZeusItem.tryActivateAbility(target, player, event.getSource(), event.getHealthDamage());
+        }
+
+    }
+
+    @SubscribeEvent
+    public static void onEnchantedEntityLoot(final EnchantedEntityLootEvent event) {
+        if (event.getDamageSource() != null && event.getDamageSource().getDirectEntity() instanceof ArtemisArrow artemisArrow && artemisArrow.olympus$isArtemisArrow() && event.getEnchantment().is(Enchantments.LOOTING)) {
+            event.setEnchantmentLevel(event.getEnchantmentLevel() + 1);
         }
 
     }

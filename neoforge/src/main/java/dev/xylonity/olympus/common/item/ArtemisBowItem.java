@@ -1,6 +1,6 @@
 package dev.xylonity.olympus.common.item;
 
-import dev.xylonity.olympus.common.entity.ArtemisArrow;
+import dev.xylonity.olympus.common.util.ArtemisArrow;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.BowItem;
@@ -17,7 +17,7 @@ public final class ArtemisBowItem extends BowItem {
     protected Projectile createProjectile(final Level level, final LivingEntity shooter, final ItemStack bowStack, final ItemStack ammunition, final boolean critical) {
         final Projectile projectile = super.createProjectile(level, shooter, bowStack, ammunition, critical);
         if (projectile instanceof ArtemisArrow artemisArrow) {
-            artemisArrow.setArtemisArrow(true);
+            artemisArrow.olympus$setArtemisArrow(true);
         }
 
         return projectile;
