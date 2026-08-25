@@ -31,7 +31,7 @@ public final class ForgingSparkParticle extends SingleQuadParticle {
             return;
         }
 
-        level.addParticle(ParticleTypes.LAVA, x, y + 0.02D, z, 0, 0, 0);
+        level.addParticle(ParticleTypes.SMOKE, x, y + 0.02D, z, 0, 0, 0);
 
         remove();
     }
