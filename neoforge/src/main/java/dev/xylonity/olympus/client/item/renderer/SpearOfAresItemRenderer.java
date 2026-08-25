@@ -5,6 +5,7 @@ import com.geckolib.renderer.GeoItemRenderer;
 import com.geckolib.renderer.base.GeoRenderState;
 import com.geckolib.constant.DataTickets;
 import com.geckolib.renderer.base.RenderPassInfo;
+import com.geckolib.renderer.layer.builtin.CustomBoneTextureGeoLayer;
 import com.mojang.math.Axis;
 import dev.xylonity.olympus.client.item.model.SpearOfAresModel;
 import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
@@ -23,6 +24,24 @@ public final class SpearOfAresItemRenderer extends GeoItemRenderer<SpearOfAresIt
 
     public SpearOfAresItemRenderer() {
         super(new SpearOfAresModel<>());
+        withRenderLayer(new CustomBoneTextureGeoLayer<>(this, "cube_outline", SpearOfAresModel.CHARGED_TEXTURE) {
+            @Override
+            public boolean shouldRenderBone(final GeoRenderState renderState) {
+                return SpearOfAresModel.isSpecialAbilityCharged(renderState);
+            }
+
+            @Override
+            protected @Nullable RenderType getRenderType(final GeoRenderState renderState, final Identifier texture) {
+                return OlympusRenderTypes.invertedCubeGlow(texture);
+            }
+
+        });
+
+    }
+
+    @Override
+    public void addRenderData(final SpearOfAresItem animatable, final @Nullable RenderData renderData, final GeoRenderState renderState, final float partialTick) {
+        renderState.addGeckolibData(SpearOfAresModel.SPECIAL_ABILITY_CHARGED, renderData != null && SpearOfAresItem.isSpecialAbilityCharged(renderData.itemStack()));
     }
 
     @Override
