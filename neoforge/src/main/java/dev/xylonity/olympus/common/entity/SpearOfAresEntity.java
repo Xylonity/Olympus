@@ -138,14 +138,14 @@ public final class SpearOfAresEntity extends ThrownTrident {
         final boolean pinnedEntityHitWall = movePinnedEntities(serverLevel, movement);
         // Computed if entities hit a wall this tick
         if (hitWallThisTick) {
-            applyWallSlowness(serverLevel);
+            applyWallImpactEffects(serverLevel);
             finishPinningAtSurface();
             return;
         }
 
         // Computed if entities hit a wall this tick too
         if (pinnedEntityHitWall) {
-            applyWallSlowness(serverLevel);
+            applyWallImpactEffects(serverLevel);
             nailedSurfaceImpactPending = true;
             releasePinnedEntities();
             return;
@@ -222,6 +222,9 @@ public final class SpearOfAresEntity extends ThrownTrident {
         startCollisionLifetime();
         hitWallThisTick = pinning;
 
+        // super arrow caches its ground hit sound when the projectile itself is constructed before entities are pinned
+        setSoundEvent(nailedEntities ? OlympusSounds.ARES_SPEAR_NAILING.get() : OlympusSounds.ARES_SPEAR_SURFACE_HIT.get());
+
         if (nailedEntities && level() instanceof ServerLevel serverLevel) {
             final Vec3 pos = hitResult.getLocation().add(hitResult.getDirection().getUnitVec3().scale(0.01D));
             serverLevel.sendParticles(OlympusParticles.ARES_SPEAR_HIT.get(), pos.x, pos.y, pos.z, 0, 3.5, 0, 0, 1);
@@ -281,13 +284,21 @@ public final class SpearOfAresEntity extends ThrownTrident {
         return hitWall;
     }
 
-    // TODO: apply extra damage on wall hit
-    private void applyWallSlowness(final ServerLevel level) {
+    private void applyWallImpactEffects(final ServerLevel level) {
+        final Entity currentOwner = getOwner();
+        final DamageSource damageSource = damageSources().trident(this, currentOwner == null ? this : currentOwner);
         final IntIterator iterator = pinnedEntityIds.iterator();
         while (iterator.hasNext()) {
             final Entity target = level.getEntity(iterator.nextInt());
-            if (target instanceof LivingEntity livingTarget && target.isAlive()) {
-                livingTarget.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 2, false, false, false));
+            if (target instanceof LivingEntity entity && target.isAlive()) {
+                // Prevents invulnerability window from taking effect, so the damage on collision is applied properly
+                final int previousInvulnerableTime = entity.invulnerableTime;
+                entity.invulnerableTime = 0;
+                if (!entity.hurtServer(level, damageSource, 6)) {
+                    entity.invulnerableTime = previousInvulnerableTime;
+                }
+
+                entity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 2, false, false, false));
             }
 
         }
