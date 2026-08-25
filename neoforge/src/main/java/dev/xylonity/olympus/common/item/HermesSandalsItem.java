@@ -93,8 +93,12 @@ public final class HermesSandalsItem extends Item implements ICurioItem {
             return;
         }
 
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WIND_CHARGE_BURST, SoundSource.PLAYERS, 0.8f, 1.1f);
-        level.sendParticles(ParticleTypes.POOF, player.getX(), player.getY() + 0.08, player.getZ(), 10, player.getBbWidth() * 0.35, 0.05, player.getBbWidth() * 0.35, 0.025);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BREEZE_WIND_CHARGE_BURST, SoundSource.PLAYERS, 0.8f, 1.1f);
+        for (int direction = 0; direction < 16; direction++) {
+            final double angle = Math.PI * 2D * direction / 16;
+            level.sendParticles(ParticleTypes.POOF, player.getX(), player.getY() + 0.08D, player.getZ(), 0, Math.cos(angle) * 0.23225D, 0, Math.sin(angle) * 0.23225D, 1);
+        }
+
     }
 
 }
