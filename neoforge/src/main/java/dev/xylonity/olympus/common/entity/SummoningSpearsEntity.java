@@ -174,7 +174,7 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
     }
 
     private void damageNearbyEntities(final ServerLevel level) {
-        final double halfWidth = 2.5;
+        final double halfWidth = 3;
         final AABB area = new AABB(
                 getX() - halfWidth, getY() + MIN_HEIGHT, getZ() - halfWidth,
                 getX() + halfWidth, getY() + MIN_HEIGHT + HEIGHT_RANGE, getZ() + halfWidth
