@@ -4,6 +4,7 @@
   "package": "dev.xylonity.olympus.mixins",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "AbstractArrowMixin",
     "LivingEntityMixin"
   ],
   "client": [
