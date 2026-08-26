@@ -13,14 +13,18 @@ import dev.xylonity.olympus.network.payload.CameraShakePayload;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,9 +36,12 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -59,9 +66,13 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getBooleanOr(TAG_SPECIAL_ABILITY_CHARGED, false);
     }
 
-    public static void setSpecialAbilityCharged(final ItemStack stack, final boolean charged) {
+    public static void setSpecialAbilityCharged(final ItemStack stack, final Player player, final boolean charged) {
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             if (charged) {
+                if (!isSpecialAbilityCharged(stack)) {
+                    player.level().playSound(null, player.blockPosition(), SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS, 1.4f, 1f);
+                }
+
                 tag.putBoolean(TAG_SPECIAL_ABILITY_CHARGED, true);
             }
             else {
@@ -95,7 +106,7 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
         // On entity kill, checks if the spear was the reason
         final ItemStack spear = findSpearUsedForKill(player, damageSource);
         if (!spear.isEmpty()) {
-            setSpecialAbilityCharged(spear, true);
+            setSpecialAbilityCharged(spear, player, true);
         }
 
     }
@@ -149,7 +160,7 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
         }
 
         // Starts the special ability
-        setSpecialAbilityCharged(spear, false);
+        setSpecialAbilityCharged(spear, player, false);
         // The active ability has a different cooldown
         startSpecialAbilityCooldown(spear, player.level());
         player.getPersistentData().putBoolean(TAG_PLAYER_SPECIAL_FALL, true);
@@ -169,11 +180,54 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
         final Vec3 pos = player.position();
         level.playSound(null, pos.x, pos.y, pos.z, OlympusSounds.ARES_SPEAR_LANDING.get(), SoundSource.PLAYERS, 1, 1);
         level.addFreshEntity(new SummoningSpearsEntity(level, player));
+        spawnLandingParticles(level, pos);
 
         // Camera shake
         PacketDistributor.sendToPlayersNear(level, null, pos.x, pos.y, pos.z, 6, new CameraShakePayload(pos, 6, 1.1f, 30));
 
         return true;
+    }
+
+    private static void spawnLandingParticles(final ServerLevel level, final Vec3 center) {
+        final RandomSource random = level.getRandom();
+        final double radius = 3;
+        final int particles = 6;
+        final BlockPos pos = findParticleGround(level, center.x, center.y, center.z, radius);
+        if (pos == null) {
+            return;
+        }
+
+        for (int cluster = 0; cluster < 20; cluster++) {
+            final double angle = random.nextDouble() * Math.PI * 2;
+            final double distance = Math.sqrt(random.nextDouble()) * radius;
+            final double x = center.x + Math.cos(angle) * distance;
+            final double z = center.z + Math.sin(angle) * distance;
+            final BlockPos particleGround = findParticleGround(level, x, center.y, z, radius);
+            final BlockPos sanitizedPos = particleGround != null ? particleGround : pos;
+            final double particleX = particleGround != null ? x : center.x;
+            final double particleZ = particleGround != null ? z : center.z;
+
+            final BlockState state = level.getBlockState(sanitizedPos);
+            final double y = sanitizedPos.getY() + state.getCollisionShape(level, sanitizedPos).max(Direction.Axis.Y) + 0.05;
+            level.sendParticles(new BlockParticleOption(ParticleTypes.DUST_PILLAR, state, sanitizedPos), particleX, y, particleZ, particles, 0.12, 0.04, 0.12, 0.16);
+        }
+
+    }
+
+    private static @Nullable BlockPos findParticleGround(final ServerLevel level, final double x, final double y, final double z, final double radius) {
+        final int blockX = (int) Math.floor(x);
+        final int blockZ = (int) Math.floor(z);
+
+        // Searches a few blocks down so particles follow nearby slopes instead of floating
+        for (int blockY = (int) Math.floor(y); blockY >= Math.floor(y - radius); blockY--) {
+            final BlockPos blockPos = new BlockPos(blockX, blockY, blockZ);
+            if (!level.getBlockState(blockPos).getCollisionShape(level, blockPos).isEmpty()) {
+                return blockPos;
+            }
+
+        }
+
+        return null;
     }
 
     private static boolean isActiveFallActive(final ServerPlayer player) {
