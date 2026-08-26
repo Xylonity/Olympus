@@ -5,7 +5,6 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
@@ -42,8 +41,7 @@ public final class AresSpearHitParticle extends SingleQuadParticle {
 
     @Override
     protected int getLightCoords(final float partialTick) {
-        // Prevents the black overlay if inside a block
-        return level.getBlockState(BlockPos.containing(getPos())).isAir() ? super.getLightCoords(partialTick) : LightCoordsUtil.FULL_SKY;
+        return LightCoordsUtil.FULL_BRIGHT;
     }
 
     private void updateSprite() {

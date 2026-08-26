@@ -6,6 +6,7 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.NonNull;
 
@@ -35,6 +36,11 @@ public final class AresSpearTraceParticle extends SingleQuadParticle {
     @Override
     protected @NonNull Layer getLayer() {
         return Layer.TRANSLUCENT;
+    }
+
+    @Override
+    protected int getLightCoords(final float partialTick) {
+        return LightCoordsUtil.FULL_BRIGHT;
     }
 
     public static final class Provider implements ParticleProvider<SimpleParticleType> {
