@@ -28,6 +28,7 @@ public final class BracersOfZeusRenderer implements ICurioRenderer.HumanoidRende
 
     private static final Identifier TEXTURE = Olympus.of("textures/entity/curio/bracers_of_zeus.png");
     private static final Identifier GLOW_TEXTURE = Olympus.of("textures/entity/curio/bracers_of_zeus_glow.png");
+
     private static final float THIRD_PERSON_Y_OFFSET = 2 / 16F;
     
     private final BracersOfZeusModel slimModel;
@@ -56,7 +57,7 @@ public final class BracersOfZeusRenderer implements ICurioRenderer.HumanoidRende
         // Extra tilt so the bracers and the hand point at the same rotation
         model.arm(arm).zRot = arm == HumanoidArm.LEFT ? -0.1F : 0.1F;
 
-        submitArm(model, stack, arm, poseStack, submitNodeCollector, packedLight, avatarRenderState.outlineColor, 0);
+        submitArm(model, stack, arm, poseStack, submitNodeCollector, packedLight, avatarRenderState.outlineColor, 0, true);
     }
 
     @Override
@@ -75,11 +76,11 @@ public final class BracersOfZeusRenderer implements ICurioRenderer.HumanoidRende
     @Override
     public void renderModel(final ItemStack stack, final SlotContext slotContext, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int packedLight, final HumanoidRenderState renderState, final RenderLayerParent<HumanoidRenderState, EntityModel<HumanoidRenderState>> renderLayerParent, final EntityRendererProvider.Context context, final float yRotation, final float xRotation) {
         final BracersOfZeusModel model = modelFor(renderState);
-        submitArm(model, stack, HumanoidArm.LEFT, poseStack, submitNodeCollector, packedLight, renderState.outlineColor, THIRD_PERSON_Y_OFFSET);
-        submitArm(model, stack, HumanoidArm.RIGHT, poseStack, submitNodeCollector, packedLight, renderState.outlineColor, THIRD_PERSON_Y_OFFSET);
+        submitArm(model, stack, HumanoidArm.LEFT, poseStack, submitNodeCollector, packedLight, renderState.outlineColor, THIRD_PERSON_Y_OFFSET, false);
+        submitArm(model, stack, HumanoidArm.RIGHT, poseStack, submitNodeCollector, packedLight, renderState.outlineColor, THIRD_PERSON_Y_OFFSET, false);
     }
 
-    private void submitArm(final BracersOfZeusModel model, final ItemStack stack, final HumanoidArm arm, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int packedLight, final int outlineColor, final float yOffset) {
+    private void submitArm(final BracersOfZeusModel model, final ItemStack stack, final HumanoidArm arm, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int packedLight, final int outlineColor, final float yOffset, final boolean firstPerson) {
         final ModelPart armPart = model.arm(arm);
         poseStack.pushPose();
         armPart.translateAndRotate(poseStack);
@@ -101,7 +102,7 @@ public final class BracersOfZeusRenderer implements ICurioRenderer.HumanoidRende
         submitNodeCollector.order(3).submitModelPart(
                 model.outline(arm),
                 poseStack,
-                OlympusRenderTypes.invertedCubeGlow(GLOW_TEXTURE),
+                firstPerson ? OlympusRenderTypes.firstPersonInvertedCubesGlow(GLOW_TEXTURE) : OlympusRenderTypes.invertedCubesGlow(GLOW_TEXTURE),
                 LightCoordsUtil.FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY,
                 null,

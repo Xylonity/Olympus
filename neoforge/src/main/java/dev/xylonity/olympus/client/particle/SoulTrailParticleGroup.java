@@ -3,6 +3,7 @@ package dev.xylonity.olympus.client.particle;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.xylonity.olympus.Olympus;
+import dev.xylonity.olympus.registry.OlympusRenderTypes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -13,7 +14,6 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.ParticleGroupRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -28,7 +28,7 @@ public final class SoulTrailParticleGroup extends ParticleGroup<SoulTrailParticl
 
     public static final ParticleRenderType TYPE = new ParticleRenderType("OLYMPUS_SOUL_TRAILS");
 
-    private static final RenderType RENDER_TYPE = RenderTypes.entityTranslucentEmissive(Olympus.of("textures/particle/soul_trail.png"), false);
+    private static final RenderType RENDERTYPE = OlympusRenderTypes.translucentEntityComposite(Olympus.of("textures/particle/soul_trail.png"));
 
     public SoulTrailParticleGroup(final ParticleEngine engine) {
         super(engine);
@@ -160,7 +160,7 @@ public final class SoulTrailParticleGroup extends ParticleGroup<SoulTrailParticl
             }
 
             // Every trail shares a render type, so one geometry submission should be enough for the whole group
-            submitNodeCollector.submitCustomGeometry(new PoseStack(), RENDER_TYPE,
+            submitNodeCollector.submitCustomGeometry(new PoseStack(), RENDERTYPE,
                     (pose, buffer) -> snapshots.forEach(snapshot -> render(pose.pose(), buffer, snapshot))
             );
 
