@@ -1,6 +1,7 @@
 package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.config.OlympusConfig;
+import dev.xylonity.olympus.network.payload.CameraShakePayload;
 import dev.xylonity.olympus.network.payload.LightningBoltPayload;
 import dev.xylonity.olympus.registry.OlympusDamageTypes;
 import dev.xylonity.olympus.registry.OlympusItems;
@@ -108,6 +109,11 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
         // Lightning bolt particle and sound
         PacketDistributor.sendToPlayersNear(level, null, end.x, end.y, end.z, 128, new LightningBoltPayload(start, end, skyStrike));
         level.playSound(null, end.x, end.y, end.z, OlympusSounds.ZEUS_BRACERS_LIGHTNING_STRIKE.get(), SoundSource.PLAYERS, skyStrike ? 2.5F : 0.8F, 0.9F + level.getRandom().nextFloat() * 0.2F);
+
+        // Camera shake
+        if (skyStrike) {
+            PacketDistributor.sendToPlayersNear(level, null, end.x, end.y, end.z, 36, new CameraShakePayload(end, 36, 1.7f, 35));
+        }
 
         // Additional particles around
         spawnLightningSparks(level, target);
