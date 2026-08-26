@@ -11,7 +11,9 @@ import org.jspecify.annotations.NonNull;
 public final class SpearOfAresModel<T extends GeoAnimatable> extends DefaultedItemGeoModel<T> {
 
     public static final DataTicket<Boolean> SPECIAL_ABILITY_CHARGED = DataTicket.create("olympus_spear_of_ares_special_ability_charged", Boolean.class);
+    public static final DataTicket<Float> DISSOLVE_VISIBILITY = DataTicket.create("olympus_spear_of_ares_dissolve_visibility", Float.class);
 
+    public static final Identifier BASE_TEXTURE = Olympus.of("textures/item/spear_of_ares.png");
     public static final Identifier CHARGED_TEXTURE = Olympus.of("textures/item/spear_of_ares_charged.png");
 
     public SpearOfAresModel() {

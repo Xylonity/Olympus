@@ -1,40 +1,39 @@
 package dev.xylonity.olympus.client.entity.renderer;
 
-import com.geckolib.constant.DataTickets;
 import com.geckolib.constant.dataticket.DataTicket;
 import com.geckolib.renderer.GeoEntityRenderer;
 import com.geckolib.renderer.base.BoneSnapshots;
 import com.geckolib.renderer.base.GeoRenderState;
 import com.geckolib.renderer.base.RenderPassInfo;
 import dev.xylonity.olympus.client.entity.model.SummoningSpearsModel;
+import dev.xylonity.olympus.client.texture.SpearDissolveTextures;
 import dev.xylonity.olympus.common.entity.SummoningSpearsEntity;
-import dev.xylonity.olympus.registry.OlympusRenderTypes;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 
 public final class SummoningSpearsEntityRenderer extends GeoEntityRenderer<SummoningSpearsEntity, EntityRenderState> {
 
-    private static final DataTicket<Long> SPEAR_GROUND_STATES = DataTicket.create("olympus:spear_ground_states", Long.class);
+    private static final DataTicket<Long> SPEAR_GROUND_STATES = DataTicket.create("olympus_spear_ground_states", Long.class);
+    private static final DataTicket<Float> DISSOLVE_VISIBILITY = DataTicket.create("olympus_summoning_spears_dissolve_visibility", Float.class);
 
     public SummoningSpearsEntityRenderer(final EntityRendererProvider.Context context) {
         super(context, new SummoningSpearsModel());
-        shadowRadius = 0.0F;
+        shadowRadius = 0;
     }
 
     @Override
     public int getRenderColor(final SummoningSpearsEntity animatable, final @Nullable Void relatedObject, final float partialTick) {
-        final int visibility = Mth.clamp(Math.round(animatable.getDissolveVisibility(partialTick) * 255.0F), 0, 255);
-        return visibility << 24 | 0xFFFFFF;
+        return 0xFFFFFFFF;
     }
 
     @Override
     public void addRenderData(final SummoningSpearsEntity animatable, final @Nullable Void relatedObject, final EntityRenderState renderState, final float partialTick) {
         ((GeoRenderState) renderState).addGeckolibData(SPEAR_GROUND_STATES, animatable.getSpearGroundStates());
+        ((GeoRenderState) renderState).addGeckolibData(DISSOLVE_VISIBILITY, animatable.getDissolveVisibility(partialTick));
     }
 
     @Override
@@ -58,9 +57,8 @@ public final class SummoningSpearsEntityRenderer extends GeoEntityRenderer<Summo
 
     @Override
     public @Nullable RenderType getRenderType(final EntityRenderState renderState, final Identifier texture) {
-        // Switches to the dissolve shader when alpha starts decreasing
-        final int renderColor = ((GeoRenderState) renderState).getOrDefaultGeckolibData(DataTickets.RENDER_COLOR, 0xFFFFFFFF);
-        return renderColor >>> 24 < 255 ? OlympusRenderTypes.aresSpearDissolve(texture) : RenderTypes.entityCutout(texture);
+        final float visibility = ((GeoRenderState) renderState).getOrDefaultGeckolibData(DISSOLVE_VISIBILITY, 1f);
+        return RenderTypes.entityCutout(SpearDissolveTextures.textureFor(texture, visibility));
     }
 
 }
