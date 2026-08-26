@@ -373,6 +373,11 @@ public final class SpearOfAresEntity extends ThrownTrident {
     }
 
     @Override
+    public void playSound(final SoundEvent sound, final float volume, final float pitch) {
+        super.playSound(sound, sound == OlympusSounds.ARES_SPEAR_NAILING.get() ? 2 : volume, pitch);
+    }
+
+    @Override
     protected @NonNull SoundEvent getDefaultHitGroundSoundEvent() {
         return hasNailedEntitiesAtSurface() ? OlympusSounds.ARES_SPEAR_NAILING.get() : OlympusSounds.ARES_SPEAR_SURFACE_HIT.get();
     }
