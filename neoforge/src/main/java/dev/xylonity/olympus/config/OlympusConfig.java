@@ -20,7 +20,7 @@ public final class OlympusConfig {
                 .defineInRange("additionalLightningDamage", 8.0D, 0.0D, 1000.0D);
         zeusBracersCooldownSeconds = builder
                 .comment("Cooldown (in seconds) of the Bracers of Zeus")
-                .defineInRange("cooldownSeconds", 10, 0.0D, 3600.0D);
+                .defineInRange("cooldownSeconds", 15, 0.0D, 3600.0D);
         builder.pop();
 
         builder.push("persephoneCup");
