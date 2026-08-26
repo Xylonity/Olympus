@@ -1,13 +1,16 @@
 package dev.xylonity.olympus.client.item.renderer;
 
 import com.geckolib.animatable.GeoItem;
+import com.geckolib.cache.model.GeoQuad;
 import com.geckolib.renderer.GeoItemRenderer;
 import com.geckolib.renderer.base.GeoRenderState;
 import com.geckolib.constant.DataTickets;
 import com.geckolib.renderer.base.RenderPassInfo;
 import com.geckolib.renderer.layer.builtin.CustomBoneTextureGeoLayer;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.xylonity.olympus.client.item.model.SpearOfAresModel;
+import dev.xylonity.olympus.client.texture.SpearDissolveTextures;
 import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
 import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import dev.xylonity.olympus.registry.OlympusRenderTypes;
@@ -16,9 +19,11 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.item.ItemDisplayContext;
 import org.jspecify.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 public final class SpearOfAresItemRenderer extends GeoItemRenderer<SpearOfAresItem> {
 
@@ -32,7 +37,17 @@ public final class SpearOfAresItemRenderer extends GeoItemRenderer<SpearOfAresIt
 
             @Override
             protected @Nullable RenderType getRenderType(final GeoRenderState renderState, final Identifier texture) {
-                return OlympusRenderTypes.invertedCubeGlow(texture);
+                final ItemDisplayContext context = renderState.getOrDefaultGeckolibData(DataTickets.ITEM_RENDER_PERSPECTIVE, ItemDisplayContext.NONE);
+                if (context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || context == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {
+                    return OlympusRenderTypes.firstPersonInvertedCubesGlow(texture);
+                }
+
+                return OlympusRenderTypes.invertedCubesGlow(texture);
+            }
+
+            @Override
+            protected void renderQuad(GeoQuad quad, final Matrix4f pose, final Vector3f normal, VertexConsumer vertexConsumer, final int packedLight, int packedOverlay, final int renderColor, float widthRatio, final float heightRatio) {
+                super.renderQuad(quad, pose, normal, vertexConsumer, LightCoordsUtil.FULL_BRIGHT, packedOverlay, renderColor, widthRatio, heightRatio);
             }
 
         });
@@ -42,6 +57,8 @@ public final class SpearOfAresItemRenderer extends GeoItemRenderer<SpearOfAresIt
     @Override
     public void addRenderData(final SpearOfAresItem animatable, final @Nullable RenderData renderData, final GeoRenderState renderState, final float partialTick) {
         renderState.addGeckolibData(SpearOfAresModel.SPECIAL_ABILITY_CHARGED, renderData != null && SpearOfAresItem.isSpecialAbilityCharged(renderData.itemStack()));
+        final float visibility = renderData != null && renderData.itemOwner() instanceof SpearOfAresEntity spear ? spear.getDissolveVisibility(partialTick) : 1;
+        renderState.addGeckolibData(SpearOfAresModel.DISSOLVE_VISIBILITY, visibility);
     }
 
     @Override
@@ -74,21 +91,13 @@ public final class SpearOfAresItemRenderer extends GeoItemRenderer<SpearOfAresIt
 
     @Override
     public int getRenderColor(final SpearOfAresItem animatable, final @Nullable RenderData renderData, final float partialTick) {
-        // Using the spear's dissolve visibility as alpha
-        if (renderData != null && renderData.itemOwner() instanceof SpearOfAresEntity spear) {
-            final int visibility = Mth.clamp(Math.round(spear.getDissolveVisibility(partialTick) * 255F), 0, 255);
-            return visibility << 24 | 0xFFFFFF;
-        }
-
-        // Renders regular itemstacks fully opaque
         return 0xFFFFFFFF;
     }
 
     @Override
     public @Nullable RenderType getRenderType(final GeoRenderState renderState, final Identifier texture) {
-        // Switches to the dissolve shader when alpha starts decreasing
-        final int renderColor = renderState.getOrDefaultGeckolibData(DataTickets.RENDER_COLOR, 0xFFFFFFFF);
-        return renderColor >>> 24 < 255 ? OlympusRenderTypes.aresSpearDissolve(texture) : RenderTypes.entityCutout(texture);
+        final float visibility = renderState.getOrDefaultGeckolibData(SpearOfAresModel.DISSOLVE_VISIBILITY, 1.0F);
+        return RenderTypes.entityCutout(SpearDissolveTextures.textureFor(texture, visibility));
     }
 
 }

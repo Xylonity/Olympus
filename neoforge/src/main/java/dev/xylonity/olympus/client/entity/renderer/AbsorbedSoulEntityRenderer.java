@@ -22,7 +22,7 @@ public final class AbsorbedSoulEntityRenderer extends EntityRenderer<AbsorbedSou
     private static final Identifier TEXTURE = Olympus.of("textures/entity/absorbed_soul.png");
 
     private static final RenderType RENDER_TYPE_BASE = RenderTypes.entityTranslucentEmissive(TEXTURE);
-    private static final RenderType RENDER_TYPE_INVERTED_CUBES = OlympusRenderTypes.invertedCubeGlow(TEXTURE);
+    private static final RenderType RENDER_TYPE_INVERTED_CUBES = OlympusRenderTypes.invertedCubesGlow(TEXTURE);
 
     private final AbsorbedSoulModel model;
 

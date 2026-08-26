@@ -72,7 +72,7 @@ public final class HelmetOfHadesRenderer implements ICurioRenderer.HumanoidRende
         submitNodeCollector.order(3).submitModelPart(
                 model.outline(),
                 poseStack,
-                OlympusRenderTypes.invertedCubeGlow(OUTLINE_TEXTURE),
+                OlympusRenderTypes.invertedCubesGlow(OUTLINE_TEXTURE),
                 LightCoordsUtil.FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY,
                 null,

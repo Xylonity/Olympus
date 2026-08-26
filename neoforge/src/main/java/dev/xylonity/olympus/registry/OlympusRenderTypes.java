@@ -19,8 +19,8 @@ import net.minecraft.util.Util;
 
 public final class OlympusRenderTypes {
 
-    public static final RenderPipeline INVERTED_CUBE_GLOW_PIPELINE = createInvertedCubeGlowPipeline("inverted_cube_glow");
-    public static final RenderPipeline FIRST_PERSON_INVERTED_CUBE_GLOW_PIPELINE = createInvertedCubeGlowPipeline("first_person_inverted_cube_glow");
+    public static final RenderPipeline INVERTED_CUBES_GLOW_PIPELINE = createInvertedCubeGlowPipeline("inverted_cube_glow");
+    public static final RenderPipeline FIRST_PERSON_INVERTED_CUBES_GLOW_PIPELINE = createInvertedCubeGlowPipeline("first_person_inverted_cube_glow");
 
     /// Based off my own inverted cubes render type (if the code is not visible then the mod is not public yet)
     /// https://github.com/Xylonity/Arcane/blob/v1.20.1/common/src/main/java/dev/xylonity/arcane/registry/ArcaneRenderTypes.java#16
@@ -65,10 +65,10 @@ public final class OlympusRenderTypes {
                     .createRenderSetup()
     );
 
-    private static final Function<Identifier, RenderType> INVERTED_CUBE_GLOW = Util.memoize(texture ->
+    private static final Function<Identifier, RenderType> INVERTED_CUBES_GLOW = Util.memoize(texture ->
             RenderTypeAccessor.olympus$create(
                     "olympus_inverted_cube_glow",
-                    RenderSetup.builder(INVERTED_CUBE_GLOW_PIPELINE)
+                    RenderSetup.builder(INVERTED_CUBES_GLOW_PIPELINE)
                             .withTexture("Sampler0", texture)
                             .sortOnUpload()
                             .bufferSize(256)
@@ -77,10 +77,10 @@ public final class OlympusRenderTypes {
 
     );
 
-    private static final Function<Identifier, RenderType> FIRST_PERSON_INVERTED_CUBE_GLOW = Util.memoize(texture ->
+    private static final Function<Identifier, RenderType> FIRST_PERSON_INVERTED_CUBES_GLOW = Util.memoize(texture ->
             RenderTypeAccessor.olympus$create(
                     "olympus_first_person_inverted_cube_glow",
-                    RenderSetup.builder(FIRST_PERSON_INVERTED_CUBE_GLOW_PIPELINE)
+                    RenderSetup.builder(FIRST_PERSON_INVERTED_CUBES_GLOW_PIPELINE)
                             .withTexture("Sampler0", texture)
                             .sortOnUpload()
                             .bufferSize(256)
@@ -89,12 +89,12 @@ public final class OlympusRenderTypes {
 
     );
 
-    public static RenderType invertedCubeGlow(final Identifier texture) {
-        return INVERTED_CUBE_GLOW.apply(texture);
+    public static RenderType invertedCubesGlow(final Identifier texture) {
+        return INVERTED_CUBES_GLOW.apply(texture);
     }
 
-    public static RenderType firstPersonInvertedCubeGlow(final Identifier texture) {
-        return FIRST_PERSON_INVERTED_CUBE_GLOW.apply(texture);
+    public static RenderType firstPersonInvertedCubesGlow(final Identifier texture) {
+        return FIRST_PERSON_INVERTED_CUBES_GLOW.apply(texture);
     }
 
     public static RenderType lightningBolt() {
