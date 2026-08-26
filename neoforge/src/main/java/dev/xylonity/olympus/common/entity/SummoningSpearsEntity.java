@@ -184,7 +184,7 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
 
         level.getEntitiesOfClass(LivingEntity.class, area, target -> target.isAlive() && target != owner
         ).forEach(target -> {
-            if (target.hurtServer(level, damageSource, 8) && owner instanceof LivingEntity livingOwner) {
+            if (target.hurtServer(level, damageSource, 15) && owner instanceof LivingEntity livingOwner) {
                 livingOwner.setLastHurtMob(target);
             }
 
