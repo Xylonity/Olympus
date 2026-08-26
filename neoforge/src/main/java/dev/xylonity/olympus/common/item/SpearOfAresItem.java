@@ -9,6 +9,7 @@ import com.geckolib.util.GeckoLibUtil;
 import dev.xylonity.olympus.client.item.renderer.SpearOfAresItemRenderer;
 import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
 import dev.xylonity.olympus.common.entity.SummoningSpearsEntity;
+import dev.xylonity.olympus.network.payload.CameraShakePayload;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
@@ -32,6 +33,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
@@ -162,8 +164,14 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
 
         player.getPersistentData().remove(TAG_PLAYER_SPECIAL_FALL);
         player.resetFallDistance();
-        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), OlympusSounds.ARES_SPEAR_LANDING.get(), SoundSource.PLAYERS, 1, 1);
-        player.level().addFreshEntity(new SummoningSpearsEntity(player.level(), player));
+
+        final ServerLevel level = player.level();
+        final Vec3 pos = player.position();
+        level.playSound(null, pos.x, pos.y, pos.z, OlympusSounds.ARES_SPEAR_LANDING.get(), SoundSource.PLAYERS, 1, 1);
+        level.addFreshEntity(new SummoningSpearsEntity(level, player));
+
+        // Camera shake
+        PacketDistributor.sendToPlayersNear(level, null, pos.x, pos.y, pos.z, 6, new CameraShakePayload(pos, 6, 1.1f, 30));
 
         return true;
     }
