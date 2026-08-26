@@ -139,7 +139,7 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
     }
 
     private static boolean isDamagedTool(final ItemStack stack) {
-        return stack.isDamaged() && stack.has(DataComponents.TOOL);
+        return stack.isDamaged() && (stack.has(DataComponents.TOOL) || stack.is(ItemTags.SPEARS));
     }
 
     private static boolean isDamagedArmor(final ItemStack stack, final EquipmentSlot slot) {
