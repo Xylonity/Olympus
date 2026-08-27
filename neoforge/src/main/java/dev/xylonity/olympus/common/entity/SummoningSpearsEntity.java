@@ -6,6 +6,7 @@ import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
 import com.geckolib.util.GeckoLibUtil;
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import net.minecraft.core.BlockPos;
@@ -174,7 +175,7 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
     }
 
     private void damageNearbyEntities(final ServerLevel level) {
-        final double halfWidth = 3;
+        final double halfWidth = OlympusConfig.INSTANCE.aresSpearAbilityRadius.get();
         final AABB area = new AABB(
                 getX() - halfWidth, getY() + MIN_HEIGHT, getZ() - halfWidth,
                 getX() + halfWidth, getY() + MIN_HEIGHT + HEIGHT_RANGE, getZ() + halfWidth
@@ -184,7 +185,7 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
 
         level.getEntitiesOfClass(LivingEntity.class, area, target -> target.isAlive() && target != owner
         ).forEach(target -> {
-            if (target.hurtServer(level, damageSource, 15) && owner instanceof LivingEntity livingOwner) {
+            if (target.hurtServer(level, damageSource, OlympusConfig.INSTANCE.aresSpearAbilityDamage.get().floatValue()) && owner instanceof LivingEntity livingOwner) {
                 livingOwner.setLastHurtMob(target);
             }
 

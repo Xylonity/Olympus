@@ -1,6 +1,7 @@
 package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.common.util.ArtemisArrow;
+import dev.xylonity.olympus.config.OlympusConfig;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.BowItem;
@@ -25,7 +26,8 @@ public final class ArtemisBowItem extends BowItem {
 
     @Override
     protected void shootProjectile(final LivingEntity shooter, final Projectile projectile, final int projectileIndex, final float velocity, final float inaccuracy, final float angle, final LivingEntity target) {
-        super.shootProjectile(shooter, projectile, projectileIndex, velocity * 1.2f, inaccuracy, angle, target);
+        final float speedMultiplier = OlympusConfig.INSTANCE.artemisBowProjectileSpeedMultiplier.get().floatValue();
+        super.shootProjectile(shooter, projectile, projectileIndex, velocity * speedMultiplier, inaccuracy, angle, target);
     }
 
     @Override

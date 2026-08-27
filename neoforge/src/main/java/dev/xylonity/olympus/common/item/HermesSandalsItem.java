@@ -1,6 +1,7 @@
 package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.Olympus;
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusItems;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -23,8 +24,6 @@ public final class HermesSandalsItem extends Item implements ICurioItem {
 
     private static final String TAG_EXTRA_JUMPS = "olympus_hermes_sandals_extra_jumps";
 
-    public static final int EXTRA_JUMPS = 3;
-
     public HermesSandalsItem(final Properties properties) {
         super(properties);
     }
@@ -44,12 +43,12 @@ public final class HermesSandalsItem extends Item implements ICurioItem {
         return CurioAttributeModifiers.builder()
                 .addModifier(
                         Attributes.ARMOR,
-                        new AttributeModifier(Olympus.of("hermes_sandals_armor"), 1, AttributeModifier.Operation.ADD_VALUE),
+                        new AttributeModifier(Olympus.of("hermes_sandals_armor"), OlympusConfig.INSTANCE.hermesSandalsArmor.get(), AttributeModifier.Operation.ADD_VALUE),
                         CuriosSlotTypes.Preset.FEET.id()
                 )
                 .addModifier(
                         Attributes.MOVEMENT_SPEED,
-                        new AttributeModifier(Olympus.of("hermes_sandals_speed"), 0.1, AttributeModifier.Operation.ADD_MULTIPLIED_BASE),
+                        new AttributeModifier(Olympus.of("hermes_sandals_speed"), OlympusConfig.INSTANCE.hermesSandalsMovementSpeedBonus.get(), AttributeModifier.Operation.ADD_MULTIPLIED_BASE),
                         CuriosSlotTypes.Preset.FEET.id()
                 )
                 .build();
@@ -65,16 +64,21 @@ public final class HermesSandalsItem extends Item implements ICurioItem {
         return findEquippedSandals(player) && !player.onGround() && !player.isPassenger() && !player.isFallFlying() && !player.getAbilities().flying && !player.isInWater() && !player.isInLava() && !player.onClimbable() && !player.isSpectator();
     }
 
+    public static int getExtraJumps() {
+        return 3;
+    }
+
     public static void rechargeExtraJumps(final ServerPlayer player) {
         // Jumps are always recharged on ground collision
         if (player.onGround()) {
-            player.getPersistentData().putInt(TAG_EXTRA_JUMPS, EXTRA_JUMPS);
+            player.getPersistentData().putInt(TAG_EXTRA_JUMPS, getExtraJumps());
         }
 
     }
 
     public static void tryActiveAbility(final ServerPlayer player) {
-        final int remainingJumps = player.getPersistentData().getIntOr(TAG_EXTRA_JUMPS, EXTRA_JUMPS);
+        final int maxJumps = getExtraJumps();
+        final int remainingJumps = Math.min(player.getPersistentData().getIntOr(TAG_EXTRA_JUMPS, maxJumps), maxJumps);
         if (remainingJumps <= 0 || !canExtraJump(player)) {
             return;
         }

@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.common.item;
 
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.payload.LyreMusicPayload;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import net.minecraft.server.level.ServerLevel;
@@ -102,13 +103,17 @@ public final class AphroditeLyreItem extends Item {
             return;
         }
 
-        player.getCooldowns().addCooldown(stack, 100);
+        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.aphroditeLyreCooldownSeconds.get());
+        if (cooldownTicks > 0) {
+            player.getCooldowns().addCooldown(stack, cooldownTicks);
+        }
+
         // Stops the music
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new LyreMusicPayload(player.getId(), false));
     }
 
     private static void breedNearby(final ServerLevel level, final ServerPlayer player) {
-        final float radius = 8;
+        final double radius = OlympusConfig.INSTANCE.aphroditeLyreBreedingRadius.get();
         final Set<UUID> entities = ENTITIES.computeIfAbsent(player.getUUID(), ignored -> new HashSet<>());
         level.getEntitiesOfClass(Animal.class, player.getBoundingBox().inflate(radius),
                 animal -> animal.isAlive() && !animal.isBaby() && animal.canFallInLove() && !entities.contains(animal.getUUID()) && animal.distanceToSqr(player) <= radius * radius

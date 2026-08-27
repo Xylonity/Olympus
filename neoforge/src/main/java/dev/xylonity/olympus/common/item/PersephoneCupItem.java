@@ -58,14 +58,22 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
     @Override
     public CurioAttributeModifiers getDefaultCurioAttributeModifiers(final ItemStack stack) {
         final int soulCharges = getSoulCharges(stack);
-        if (soulCharges == 0) {
+        if (soulCharges == 0 || OlympusConfig.INSTANCE.persephoneCupDamageAppliesToWeapons.get()) {
             return CurioAttributeModifiers.EMPTY;
         }
 
-        // Additional 0.2 damage per soul acquired
+        // Additional configurable damage per soul acquired
+        final double damagePerSoul = OlympusConfig.INSTANCE.persephoneCupDamagePerSoul.get();
         return CurioAttributeModifiers.builder()
-                .addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(Olympus.of("persephone_cup_damage"), soulCharges * 0.2, AttributeModifier.Operation.ADD_VALUE), "jewelry")
+                .addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(Olympus.of("persephone_cup_damage"), soulCharges * damagePerSoul, AttributeModifier.Operation.ADD_VALUE), "jewelry")
                 .build();
+    }
+
+    public static float getEquippedDamageBonus(final ServerPlayer player) {
+        final float damagePerSoul = OlympusConfig.INSTANCE.persephoneCupDamagePerSoul.get().floatValue();
+        return findEquippedCup(player)
+                .map(cup -> getSoulCharges(cup) * damagePerSoul)
+                .orElse(0f);
     }
 
     @Override
@@ -84,14 +92,14 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
 
         // Reduces the charges amount
         final ItemStack cup = equippedCup.get();
-        setSoulCharges(cup, MAX_SOUL_CHARGES / 2);
+        setSoulCharges(cup, MAX_SOUL_CHARGES - OlympusConfig.INSTANCE.persephoneCupDeathProtectionChargeCost.get());
         // Saves the player on a mortal hit
-        player.setHealth(player.getMaxHealth() * 0.3f);
+        player.setHealth(player.getMaxHealth() * OlympusConfig.INSTANCE.persephoneCupRestoredHealthPercentage.get().floatValue());
         // Particles and sound
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new SoulSalvationPayload(player.getId(), 16, false));
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THUNDER, SoundSource.PLAYERS, 0.3F, 1);
 
-        final int regenerationTicks = Math.max(0, (int) Math.round(OlympusConfig.INSTANCE.persephoneCupRegenerationSeconds.get() * 20));
+        final int regenerationTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.persephoneCupRegenerationSeconds.get());
         if (regenerationTicks > 0) {
             player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, regenerationTicks, 1));
         }

@@ -2,6 +2,7 @@ package dev.xylonity.olympus.common.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.xylonity.olympus.common.block.entity.PoppyOfDemeterBlockEntity;
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,9 +25,6 @@ import java.util.List;
 public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBlock {
 
     public static final MapCodec<PoppyOfDemeterBlock> CODEC = simpleCodec(PoppyOfDemeterBlock::new);
-
-    private static final int RADIUS = 5;
-    private static final double RADIUS_SQR = RADIUS * RADIUS;
 
     public PoppyOfDemeterBlock(final BlockBehaviour.Properties properties) {
         super(SuspiciousStewEffects.EMPTY, properties);
@@ -76,12 +74,14 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
         }
 
         // Performs bone meal acceleration once the cycle is reached and looks for a new block
-        if (!newlyAttached && poppy.advanceCycle(4) % 40 == 0) {
+        final int growthIntervalTicks = Math.max(4, OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.demeterPoppyGrowthIntervalSeconds.get()));
+        if (!newlyAttached && poppy.advanceCycle(4) >= growthIntervalTicks) {
+            poppy.resetCycle();
             final BlockState targetState = level.getBlockState(target);
             final BonemealableBlock bonemealable = (BonemealableBlock) targetState.getBlock();
             bonemealable.performBonemeal(level, random, target, targetState);
 
-            if (poppy.recordAcceleration() >= 3 || !isValidBlock(level, origin, target)) {
+            if (poppy.recordAcceleration() >= OlympusConfig.INSTANCE.demeterPoppyGrowthsPerTarget.get() || !isValidBlock(level, origin, target)) {
                 target = findRandomBlock(level, origin, random, target);
                 poppy.attachTo(target);
             }
@@ -98,12 +98,14 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
     }
 
     private static @Nullable BlockPos findRandomBlock(final ServerLevel level, final BlockPos origin, final RandomSource random, final @Nullable BlockPos excludedTarget) {
-        final BlockPos min = origin.offset(-RADIUS, -RADIUS, -RADIUS);
-        final BlockPos max = origin.offset(RADIUS, RADIUS, RADIUS);
+        final int radius = OlympusConfig.INSTANCE.demeterPoppyRadius.get();
+        final double radiusSqr = radius * radius;
+        final BlockPos min = origin.offset(-radius, -radius, -radius);
+        final BlockPos max = origin.offset(radius, radius, radius);
         final List<BlockPos> possiblePositions = new ArrayList<>();
 
         for (final BlockPos target : BlockPos.betweenClosed(min, max)) {
-            if (origin.distSqr(target) > RADIUS_SQR || !level.hasChunkAt(target)) {
+            if (origin.distSqr(target) > radiusSqr || !level.hasChunkAt(target)) {
                 continue;
             }
 
@@ -126,7 +128,8 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
     }
 
     private static boolean isValidBlock(final ServerLevel level, final BlockPos origin, final @Nullable BlockPos target) {
-        if (target == null || origin.distSqr(target) > RADIUS_SQR || !level.hasChunkAt(target)) {
+        final int radius = OlympusConfig.INSTANCE.demeterPoppyRadius.get();
+        if (target == null || origin.distSqr(target) > radius * radius || !level.hasChunkAt(target)) {
             return false;
         }
 

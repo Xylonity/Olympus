@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.common.item;
 
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
@@ -23,8 +24,6 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 public final class InstrumentsOfHephaestusItem extends Item implements ICurioItem {
 
     private static final String TAG_COOLDOWN_END = "olympus_hephaestus_cooldown_end";
-
-    private static final int REPAIR_COOLDOWN_TICKS = 1000;
 
     private static final EquipmentSlot[] ARMOR_SLOTS = {
             EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET
@@ -67,7 +66,7 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
         }
 
         // Repairs the target item a certain amount of durability
-        repairTarget.setDamageValue(Math.max(0, repairTarget.getDamageValue() - 30));
+        repairTarget.setDamageValue(Math.max(0, repairTarget.getDamageValue() - OlympusConfig.INSTANCE.hephaestusInstrumentsRepairAmount.get()));
 
         // Cooldown
         startCooldown(player, instruments);
@@ -93,7 +92,8 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
         }
 
         // Reduces the cooldown of the instruments by x amount
-        final int reducedCooldown = Math.max(0, remainingCooldown - 100);
+        final int reductionTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.hephaestusInstrumentsKillCooldownReductionSeconds.get());
+        final int reducedCooldown = Math.max(0, remainingCooldown - reductionTicks);
         if (reducedCooldown == 0) {
             clearCooldown(instruments);
             player.getCooldowns().removeCooldown(player.getCooldowns().getCooldownGroup(instruments));
@@ -163,8 +163,11 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
     }
 
     private static void startCooldown(final ServerPlayer player, final ItemStack instruments) {
-        setCooldownEnd(instruments, player.level().getGameTime() + REPAIR_COOLDOWN_TICKS);
-        player.getCooldowns().addCooldown(instruments, REPAIR_COOLDOWN_TICKS);
+        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.hephaestusInstrumentsRepairCooldownSeconds.get());
+        setCooldownEnd(instruments, player.level().getGameTime() + cooldownTicks);
+        if (cooldownTicks > 0) {
+            player.getCooldowns().addCooldown(instruments, cooldownTicks);
+        }
     }
 
     private static void syncCooldown(ServerPlayer player, ItemStack instruments, int remainingCooldown) {

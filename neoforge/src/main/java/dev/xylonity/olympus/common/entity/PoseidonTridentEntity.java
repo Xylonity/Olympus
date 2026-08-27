@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.common.entity;
 
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
@@ -43,9 +44,6 @@ import org.jspecify.annotations.Nullable;
 public final class PoseidonTridentEntity extends ThrownTrident {
 
     private static final EntityDataAccessor<Boolean> RETURNING = SynchedEntityData.defineId(PoseidonTridentEntity.class, EntityDataSerializers.BOOLEAN);
-
-    private static final float IMPACT_DAMAGE = 10;
-    private static final double SPLASH_RADIUS = 3.5;
 
     private boolean hasSplashed;
 
@@ -141,7 +139,8 @@ public final class PoseidonTridentEntity extends ThrownTrident {
         boolean targetWasHurt = false;
         if (level() instanceof ServerLevel serverLevel) {
             // Applies the same damage as the trident item
-            final float damage = EnchantmentHelper.modifyDamage(serverLevel, getWeaponItem(), target, damageSource, IMPACT_DAMAGE);
+            final float projectileDamage = OlympusConfig.INSTANCE.poseidonTridentProjectileDamage.get().floatValue();
+            final float damage = EnchantmentHelper.modifyDamage(serverLevel, getWeaponItem(), target, damageSource, projectileDamage);
             if (firstImpact) {
                 // Splash particle
                 createSplash(serverLevel, target.getBoundingBox().getCenter(), target);
@@ -201,14 +200,15 @@ public final class PoseidonTridentEntity extends ThrownTrident {
 
     private void createSplash(final ServerLevel level, final Vec3 center, final @Nullable Entity directTarget) {
         final boolean underwater = isWaterImpact(center, directTarget);
+        final double splashRadius = OlympusConfig.INSTANCE.poseidonTridentSplashRadius.get();
         // Particles
-        spawnSplashEffects(level, center, directTarget, underwater);
+        spawnSplashEffects(level, center, directTarget, underwater, splashRadius);
 
         final Entity currentOwner = getOwner();
         final DamageSource damageSource = damageSources().trident(this, currentOwner == null ? this : currentOwner);
         final AABB bounds = new AABB(
-                center.x - SPLASH_RADIUS, center.y - SPLASH_RADIUS, center.z - SPLASH_RADIUS,
-                center.x + SPLASH_RADIUS, center.y + SPLASH_RADIUS, center.z + SPLASH_RADIUS
+                center.x - splashRadius, center.y - splashRadius, center.z - splashRadius,
+                center.x + splashRadius, center.y + splashRadius, center.z + splashRadius
         );
 
         // Damage to the entities in the radius
@@ -219,12 +219,12 @@ public final class PoseidonTridentEntity extends ThrownTrident {
 
             final Vec3 targetCenter = target.getBoundingBox().getCenter();
             final double distance = targetCenter.distanceTo(center);
-            if (distance > SPLASH_RADIUS) {
+            if (distance > splashRadius) {
                 continue;
             }
 
-            target.hurtServer(level, damageSource, IMPACT_DAMAGE);
-            applySplashKnockback(level, target, targetCenter.subtract(center), distance, damageSource, underwater);
+            target.hurtServer(level, damageSource, OlympusConfig.INSTANCE.poseidonTridentSplashDamage.get().floatValue());
+            applySplashKnockback(level, target, targetCenter.subtract(center), distance, damageSource, underwater, splashRadius);
         }
 
     }
@@ -238,16 +238,16 @@ public final class PoseidonTridentEntity extends ThrownTrident {
         return isInWater() || isWater;
     }
 
-    private void spawnSplashEffects(final ServerLevel level, final Vec3 center, final @Nullable Entity directTarget, final boolean underwater) {
+    private void spawnSplashEffects(final ServerLevel level, final Vec3 center, final @Nullable Entity directTarget, final boolean underwater, final double splashRadius) {
         if (underwater) {
-            level.sendParticles(OlympusParticles.TRIDENT_UNDERWATER_SPLASH.get(), center.x, center.y, center.z, 0, SPLASH_RADIUS, 0, 0, 1);
+            level.sendParticles(OlympusParticles.TRIDENT_UNDERWATER_SPLASH.get(), center.x, center.y, center.z, 0, splashRadius, 0, 0, 1);
             level.sendParticles(ParticleTypes.BUBBLE, center.x, center.y, center.z, 72, 0.2, 0.2, 0.2, 0.18);
             level.playSound(null, center.x, center.y, center.z, SoundEvents.ELDER_GUARDIAN_HURT, getSoundSource(), 1.4F, 1.0F);
             return;
         }
 
         final double effectY = directTarget == null ? center.y + 0.25D : center.y;
-        level.sendParticles(OlympusParticles.TRIDENT_SPLASH_OF_WATER.get(), center.x, effectY, center.z, 0, SPLASH_RADIUS, 0, 0, 1);
+        level.sendParticles(OlympusParticles.TRIDENT_SPLASH_OF_WATER.get(), center.x, effectY, center.z, 0, splashRadius, 0, 0, 1);
         level.sendParticles(OlympusParticles.TRIDENT_WATER_DROP.get(), center.x, effectY + 0.15, center.z, 32, 0.35, 0.28, 0.35, 0.32);
 
         level.playSound(null, center.x, effectY, center.z, OlympusSounds.POSEIDONS_TRIDENT_HIT.get(), getSoundSource(), 0.85F, 1.0F);
@@ -276,10 +276,10 @@ public final class PoseidonTridentEntity extends ThrownTrident {
 
     }
 
-    private void applySplashKnockback(final ServerLevel level, final LivingEntity target, final Vec3 offset, final double distance, final DamageSource damageSource, final boolean underwater) {
+    private void applySplashKnockback(final ServerLevel level, final LivingEntity target, final Vec3 offset, final double distance, final DamageSource damageSource, final boolean underwater, final double splashRadius) {
         final float knockback = EnchantmentHelper.modifyKnockback(level, getWeaponItem(), target, damageSource, 1.35F);
         final double resistance = Math.max(0, 1f - target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
-        final double falloff = 1f - distance / SPLASH_RADIUS;
+        final double falloff = 1f - distance / splashRadius;
         final double strength = knockback * 0.6 * resistance * (0.35 + falloff * 0.65);
         if (strength <= 0) {
             return;

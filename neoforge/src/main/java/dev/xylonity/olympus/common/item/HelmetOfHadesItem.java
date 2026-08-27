@@ -43,7 +43,7 @@ public class HelmetOfHadesItem extends Item implements ICurioItem {
         return CurioAttributeModifiers.builder()
                 .addModifier(
                         Attributes.ARMOR,
-                        new AttributeModifier(Olympus.of("helmet_of_hades_armor"), 2, AttributeModifier.Operation.ADD_VALUE),
+                        new AttributeModifier(Olympus.of("helmet_of_hades_armor"), OlympusConfig.INSTANCE.helmetOfHadesArmor.get(), AttributeModifier.Operation.ADD_VALUE),
                         CuriosSlotTypes.Preset.HEAD.id()
                 )
                 .build();
@@ -60,15 +60,18 @@ public class HelmetOfHadesItem extends Item implements ICurioItem {
         }
 
         // Heals
-        player.setHealth(player.getMaxHealth() * 0.5f);
+        player.setHealth(player.getMaxHealth() * OlympusConfig.INSTANCE.helmetOfHadesRestoredHealthPercentage.get().floatValue());
         // Particles
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new SoulSalvationPayload(player.getId(), 16, false));
 
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THUNDER, SoundSource.PLAYERS, 0.3F, 1);
-        player.addEffect(new MobEffectInstance(OlympusMobEffects.INVISIBILITY_OF_HADES, 600, 0, false, false, true));
+        final int invisibilityTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.helmetOfHadesInvisibilitySeconds.get());
+        if (invisibilityTicks > 0) {
+            player.addEffect(new MobEffectInstance(OlympusMobEffects.INVISIBILITY_OF_HADES, invisibilityTicks, 0, false, false, true));
+        }
 
         // Cooldown
-        final int cooldownTicks = Math.max(0, (int) Math.round(OlympusConfig.INSTANCE.helmetOfHadesCooldownSeconds.get() * 20));
+        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.helmetOfHadesCooldownSeconds.get());
         if (cooldownTicks > 0) {
             player.getCooldowns().addCooldown(equippedHelmet.get(), cooldownTicks);
         }

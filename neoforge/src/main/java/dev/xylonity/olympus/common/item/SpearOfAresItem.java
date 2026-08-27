@@ -9,12 +9,14 @@ import com.geckolib.util.GeckoLibUtil;
 import dev.xylonity.olympus.client.item.renderer.SpearOfAresItemRenderer;
 import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
 import dev.xylonity.olympus.common.entity.SummoningSpearsEntity;
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.payload.CameraShakePayload;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -35,6 +37,8 @@ import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -51,9 +55,6 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
     private static final String TAG_SPECIAL_ABILITY_CHARGED = "olympus_special_ability_charged";
     private static final String TAG_SPECIAL_ABILITY_COOLDOWN_END = "olympus_special_ability_cooldown_end";
     private static final String TAG_PLAYER_SPECIAL_FALL = "olympus_ares_special_fall";
-
-    // 6 seconds after using the ability (inclusive)
-    public static final int SPECIAL_ABILITY_COOLDOWN = 6 * 20;
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -96,8 +97,9 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
     }
 
     public static void startSpecialAbilityCooldown(final ItemStack stack, final Level level) {
+        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.aresSpearAbilityCooldownSeconds.get());
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag ->
-                tag.putLong(TAG_SPECIAL_ABILITY_COOLDOWN_END, level.getGameTime() + SPECIAL_ABILITY_COOLDOWN)
+                tag.putLong(TAG_SPECIAL_ABILITY_COOLDOWN_END, level.getGameTime() + cooldownTicks)
         );
 
     }
@@ -150,7 +152,7 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
 
     /// Applies the special effect of the helmet of spear (summoning spears come from the ground on ground hit on certain conditions)
     private static boolean tryActiveAbility(ServerPlayer player, double fallDistance) {
-        if (fallDistance < 3 || !player.isShiftKeyDown() || player.isInWater() || player.isFallFlying() || player.getAbilities().flying) {
+        if (fallDistance < OlympusConfig.INSTANCE.aresSpearAbilityMinimumFallDistance.get() || !player.isShiftKeyDown() || player.isInWater() || player.isFallFlying() || player.getAbilities().flying) {
             return false;
         }
 
@@ -316,7 +318,11 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
         );
         spear.pickup = AbstractArrow.Pickup.DISALLOWED;
 
-        player.getCooldowns().addCooldown(stack, 50);
+        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.aresSpearThrowCooldownSeconds.get());
+        if (cooldownTicks > 0) {
+            player.getCooldowns().addCooldown(stack, cooldownTicks);
+        }
+
         level.playSound(null, spear, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
 
         return true;
@@ -339,6 +345,11 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
         final SpearOfAresEntity spear = new SpearOfAresEntity(level, position.x(), position.y(), position.z(), stack.copyWithCount(1));
         spear.pickup = AbstractArrow.Pickup.DISALLOWED;
         return spear;
+    }
+
+    @Override
+    public boolean supportsEnchantment(final ItemStack stack, final Holder<Enchantment> enchantment) {
+        return !enchantment.is(Enchantments.LOYALTY) && !enchantment.is(Enchantments.RIPTIDE) && super.supportsEnchantment(stack, enchantment);
     }
 
     @Override

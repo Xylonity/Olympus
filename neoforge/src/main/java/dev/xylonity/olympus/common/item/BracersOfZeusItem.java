@@ -80,7 +80,8 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
 
         // For each entity nearby, in chain (normal iterator)
         Mob current = firstTarget;
-        for (int jump = 0; jump < 3; jump++) {
+        final int chainJumps = OlympusConfig.INSTANCE.zeusBracersChainJumps.get();
+        for (int jump = 0; jump < chainJumps; jump++) {
             final Mob next = findNextTarget(level, player, current, struckEntities);
             // Instance checking also checks if the instance is not null, so double condition here
             if (!(next instanceof Enemy)) {
@@ -90,15 +91,16 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
             // Won't affect the same entity again
             struckEntities.add(next.getId());
             // Lightning bolt
-            strike(level, player, next, midpoint(current), midpoint(next), lightningDamage * 0.5F, damageSource, false);
+            final float chainDamageMultiplier = OlympusConfig.INSTANCE.zeusBracersChainDamageMultiplier.get().floatValue();
+            strike(level, player, next, midpoint(current), midpoint(next), lightningDamage * chainDamageMultiplier, damageSource, false);
             current = next;
         }
 
     }
 
     private static Mob findNextTarget(ServerLevel level, ServerPlayer player, Mob origin, Set<Integer> struckEntities) {
-        return level.getEntitiesOfClass(Mob.class, origin.getBoundingBox().inflate(8),
-                        candidate -> candidate.isAlive() && !struckEntities.contains(candidate.getId()) && !player.isAlliedTo(candidate)
+        return level.getEntitiesOfClass(Mob.class, origin.getBoundingBox().inflate(OlympusConfig.INSTANCE.zeusBracersChainRange.get()),
+                        mob -> mob.isAlive() && !struckEntities.contains(mob.getId()) && !player.isAlliedTo(mob)
                 )
                 .stream()
                 .min(Comparator.comparingDouble(origin::distanceToSqr))
@@ -121,7 +123,14 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
         // Applying the actual damage and status effect
         if (target.isAlive()) {
             target.hurtServer(level, damageSource, damage);
-            target.addEffect(new MobEffectInstance(OlympusMobEffects.LIGHTNING_STUN, player.getRandom().nextInt(30, 70)), player);
+            final int configuredMin = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.zeusBracersMinimumStunSeconds.get());
+            final int configuredMax = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.zeusBracersMaximumStunSeconds.get());
+            final int minStunTicks = Math.min(configuredMin, configuredMax);
+            final int maxStunTicks = Math.max(configuredMin, configuredMax);
+            final int stunTicks = minStunTicks == maxStunTicks ? minStunTicks : player.getRandom().nextInt(minStunTicks, maxStunTicks);
+            if (stunTicks > 0) {
+                target.addEffect(new MobEffectInstance(OlympusMobEffects.LIGHTNING_STUN, stunTicks), player);
+            }
         }
 
     }

@@ -2,7 +2,6 @@ package dev.xylonity.olympus.common.block.entity;
 
 import dev.xylonity.olympus.registry.OlympusBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -41,6 +40,11 @@ public final class PoppyOfDemeterBlockEntity extends BlockEntity {
         return cycleTicks;
     }
 
+    public void resetCycle() {
+        cycleTicks = 0;
+        setChanged();
+    }
+
     public int recordAcceleration() {
         accelerations++;
         setChanged();
@@ -51,8 +55,8 @@ public final class PoppyOfDemeterBlockEntity extends BlockEntity {
     protected void loadAdditional(final ValueInput input) {
         super.loadAdditional(input);
         targetPos = input.getLong(TAG_TARGET_POS).map(BlockPos::of).orElse(null);
-        accelerations = Mth.clamp(input.getIntOr(TAG_ACCELERATIONS, 0), 0, 2);
-        cycleTicks = Mth.clamp(input.getIntOr(TAG_TICKS, accelerations * 40), 0, 119);
+        accelerations = Math.max(0, input.getIntOr(TAG_ACCELERATIONS, 0));
+        cycleTicks = Math.max(0, input.getIntOr(TAG_TICKS, 0));
     }
 
     @Override
