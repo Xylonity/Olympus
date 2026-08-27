@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.common.entity;
 
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
@@ -41,7 +42,6 @@ public final class SpearOfAresEntity extends ThrownTrident {
 
     private static final String TAG_COLLISION_START_TICK = "CollisionStartTick";
 
-    private static final double PINNED_ENTITY_DISTANCE = 10;
     private static final int DISSOLVE_DELAY = 60;
     private static final int DISSOLVE_DURATION = 20;
 
@@ -127,7 +127,7 @@ public final class SpearOfAresEntity extends ThrownTrident {
 
         // Releases pinned entities after the max length has been reached
         if (!(level() instanceof ServerLevel serverLevel)) {
-            if (pinDistanceTraveled >= PINNED_ENTITY_DISTANCE) {
+            if (pinDistanceTraveled >= OlympusConfig.INSTANCE.aresSpearPinnedEntityDistance.get()) {
                 releasePinnedEntities();
             }
 
@@ -151,7 +151,7 @@ public final class SpearOfAresEntity extends ThrownTrident {
             return;
         }
 
-        if (pinDistanceTraveled >= PINNED_ENTITY_DISTANCE) {
+        if (pinDistanceTraveled >= OlympusConfig.INSTANCE.aresSpearPinnedEntityDistance.get()) {
             releasePinnedEntities();
         }
 
@@ -191,7 +191,8 @@ public final class SpearOfAresEntity extends ThrownTrident {
         // Applies trident damage and enchantment effects
         final Entity currentOwner = getOwner();
         final DamageSource damageSource = damageSources().trident(this, currentOwner == null ? this : currentOwner);
-        final float damage = EnchantmentHelper.modifyDamage(serverLevel, getWeaponItem(), target, damageSource, 8);
+        final float configuredDamage = OlympusConfig.INSTANCE.aresSpearProjectileDamage.get().floatValue();
+        final float damage = EnchantmentHelper.modifyDamage(serverLevel, getWeaponItem(), target, damageSource, configuredDamage);
         if (target.hurtServer(serverLevel, damageSource, damage)) {
             if (currentOwner instanceof LivingEntity livingOwner) {
                 livingOwner.setLastHurtMob(target);
@@ -294,11 +295,14 @@ public final class SpearOfAresEntity extends ThrownTrident {
                 // Prevents invulnerability window from taking effect, so the damage on collision is applied properly
                 final int previousInvulnerableTime = entity.invulnerableTime;
                 entity.invulnerableTime = 0;
-                if (!entity.hurtServer(level, damageSource, 6)) {
+                if (!entity.hurtServer(level, damageSource, OlympusConfig.INSTANCE.aresSpearWallImpactDamage.get().floatValue())) {
                     entity.invulnerableTime = previousInvulnerableTime;
                 }
 
-                entity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 2, false, false, false));
+                final int slownessTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.aresSpearWallSlownessSeconds.get());
+                if (slownessTicks > 0) {
+                    entity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, slownessTicks, 2, false, false, false));
+                }
             }
 
         }
