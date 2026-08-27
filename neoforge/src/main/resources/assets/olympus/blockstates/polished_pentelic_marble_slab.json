@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=bottom": { "model": "olympus:block/polished_pentelic_marble_slab" },
+    "type=double": { "model": "olympus:block/polished_pentelic_marble" },
+    "type=top": { "model": "olympus:block/polished_pentelic_marble_slab_top" }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "olympus:block/parthenon_terracotta_tiles",
+    "side": "olympus:block/parthenon_terracotta_tiles",
+    "top": "olympus:block/parthenon_terracotta_tiles"
+  }
+}

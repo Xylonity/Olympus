@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "olympus:pentelic_marble",
+    "olympus:pentelic_marble_stairs",
+    "olympus:pentelic_marble_slab",
+    "olympus:pentelic_marble_wall",
+    "olympus:polished_pentelic_marble",
+    "olympus:polished_pentelic_marble_stairs",
+    "olympus:polished_pentelic_marble_slab",
+    "olympus:pentelic_marble_brick",
+    "olympus:pentelic_marble_brick_stairs",
+    "olympus:pentelic_marble_brick_slab",
+    "olympus:pentelic_marble_brick_wall",
+    "olympus:cracked_pentelic_marble_brick",
+    "olympus:pentelic_marble_column",
+    "olympus:parthenon_terracotta_tiles",
+    "olympus:parthenon_terracotta_tile_stairs",
+    "olympus:parthenon_terracotta_tile_slab"
+  ]
+}

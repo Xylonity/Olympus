@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x,part=base": { "model": "olympus:block/pentelic_marble_column_base_horizontal", "x": 90, "y": 90 },
+    "axis=x,part=capital": { "model": "olympus:block/pentelic_marble_column_capital_horizontal", "x": 90, "y": 90 },
+    "axis=x,part=middle": { "model": "olympus:block/pentelic_marble_column_horizontal", "x": 90, "y": 90 },
+    "axis=x,part=single": { "model": "olympus:block/pentelic_marble_column_horizontal", "x": 90, "y": 90 },
+    "axis=y,part=base": { "model": "olympus:block/pentelic_marble_column_base" },
+    "axis=y,part=capital": { "model": "olympus:block/pentelic_marble_column_capital" },
+    "axis=y,part=middle": { "model": "olympus:block/pentelic_marble_column" },
+    "axis=y,part=single": { "model": "olympus:block/pentelic_marble_column" },
+    "axis=z,part=base": { "model": "olympus:block/pentelic_marble_column_base_horizontal", "x": 90 },
+    "axis=z,part=capital": { "model": "olympus:block/pentelic_marble_column_capital_horizontal", "x": 90 },
+    "axis=z,part=middle": { "model": "olympus:block/pentelic_marble_column_horizontal", "x": 90 },
+    "axis=z,part=single": { "model": "olympus:block/pentelic_marble_column_horizontal", "x": 90 }
+  }
+}

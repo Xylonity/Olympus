@@ -1,0 +1,5 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "ambientocclusion": false,
+  "textures": { "all": "olympus:block/air_cloud_block" }
+}

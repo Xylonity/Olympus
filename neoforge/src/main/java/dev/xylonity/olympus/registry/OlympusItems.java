@@ -35,6 +35,24 @@ public class OlympusItems {
     public static final DeferredItem<InstrumentsOfHephaestusItem> INSTRUMENTS_OF_HEPHAESTUS = ITEMS.registerItem("instruments_of_hephaestus", InstrumentsOfHephaestusItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC));
     public static final DeferredItem<PersephoneCupItem> PERSEPHONE_CUP = ITEMS.registerItem("persephone_cup", PersephoneCupItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC));
     public static final DeferredItem<BlockItem> POPPY_OF_DEMETER = ITEMS.registerSimpleBlockItem(OlympusBlocks.POPPY_OF_DEMETER, properties -> properties.rarity(Rarity.EPIC));
+    public static final DeferredItem<BlockItem> PENTELIC_MARBLE = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE);
+    public static final DeferredItem<BlockItem> PENTELIC_MARBLE_STAIRS = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE_STAIRS);
+    public static final DeferredItem<BlockItem> PENTELIC_MARBLE_SLAB = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE_SLAB);
+    public static final DeferredItem<BlockItem> PENTELIC_MARBLE_WALL = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE_WALL);
+    public static final DeferredItem<BlockItem> POLISHED_PENTELIC_MARBLE = ITEMS.registerSimpleBlockItem(OlympusBlocks.POLISHED_PENTELIC_MARBLE);
+    public static final DeferredItem<BlockItem> POLISHED_PENTELIC_MARBLE_STAIRS = ITEMS.registerSimpleBlockItem(OlympusBlocks.POLISHED_PENTELIC_MARBLE_STAIRS);
+    public static final DeferredItem<BlockItem> POLISHED_PENTELIC_MARBLE_SLAB = ITEMS.registerSimpleBlockItem(OlympusBlocks.POLISHED_PENTELIC_MARBLE_SLAB);
+    public static final DeferredItem<BlockItem> PENTELIC_MARBLE_BRICK = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE_BRICK);
+    public static final DeferredItem<BlockItem> PENTELIC_MARBLE_BRICK_STAIRS = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE_BRICK_STAIRS);
+    public static final DeferredItem<BlockItem> PENTELIC_MARBLE_BRICK_SLAB = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE_BRICK_SLAB);
+    public static final DeferredItem<BlockItem> PENTELIC_MARBLE_BRICK_WALL = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE_BRICK_WALL);
+    public static final DeferredItem<BlockItem> CRACKED_PENTELIC_MARBLE_BRICK = ITEMS.registerSimpleBlockItem(OlympusBlocks.CRACKED_PENTELIC_MARBLE_BRICK);
+    public static final DeferredItem<BlockItem> PENTELIC_MARBLE_COLUMN = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE_COLUMN);
+    public static final DeferredItem<BlockItem> PARTHENON_TERRACOTTA_TILES = ITEMS.registerSimpleBlockItem(OlympusBlocks.PARTHENON_TERRACOTTA_TILES);
+    public static final DeferredItem<BlockItem> PARTHENON_TERRACOTTA_TILE_STAIRS = ITEMS.registerSimpleBlockItem(OlympusBlocks.PARTHENON_TERRACOTTA_TILE_STAIRS);
+    public static final DeferredItem<BlockItem> PARTHENON_TERRACOTTA_TILE_SLAB = ITEMS.registerSimpleBlockItem(OlympusBlocks.PARTHENON_TERRACOTTA_TILE_SLAB);
+    public static final DeferredItem<BlockItem> CLIMBING_ROSE = ITEMS.registerSimpleBlockItem(OlympusBlocks.CLIMBING_ROSE);
+    public static final DeferredItem<BlockItem> AIR_CLOUD_BLOCK = ITEMS.registerSimpleBlockItem(OlympusBlocks.AIR_CLOUD_BLOCK);
     public static final DeferredItem<PoseidonTridentItem> POSEIDON_TRIDENT = ITEMS.registerItem("poseidon_trident", PoseidonTridentItem::new, properties -> properties
                 .rarity(Rarity.EPIC)
                 .durability(2000)

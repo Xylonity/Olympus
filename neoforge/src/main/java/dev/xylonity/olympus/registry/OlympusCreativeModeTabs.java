@@ -27,6 +27,24 @@ public final class OlympusCreativeModeTabs {
                         output.accept(OlympusItems.POPPY_OF_DEMETER.get());
                         output.accept(OlympusItems.POSEIDON_TRIDENT.get());
                         output.accept(OlympusItems.SPEAR_OF_ARES.get());
+                        output.accept(OlympusItems.PENTELIC_MARBLE.get());
+                        output.accept(OlympusItems.PENTELIC_MARBLE_STAIRS.get());
+                        output.accept(OlympusItems.PENTELIC_MARBLE_SLAB.get());
+                        output.accept(OlympusItems.PENTELIC_MARBLE_WALL.get());
+                        output.accept(OlympusItems.POLISHED_PENTELIC_MARBLE.get());
+                        output.accept(OlympusItems.POLISHED_PENTELIC_MARBLE_STAIRS.get());
+                        output.accept(OlympusItems.POLISHED_PENTELIC_MARBLE_SLAB.get());
+                        output.accept(OlympusItems.PENTELIC_MARBLE_BRICK.get());
+                        output.accept(OlympusItems.PENTELIC_MARBLE_BRICK_STAIRS.get());
+                        output.accept(OlympusItems.PENTELIC_MARBLE_BRICK_SLAB.get());
+                        output.accept(OlympusItems.PENTELIC_MARBLE_BRICK_WALL.get());
+                        output.accept(OlympusItems.CRACKED_PENTELIC_MARBLE_BRICK.get());
+                        output.accept(OlympusItems.PENTELIC_MARBLE_COLUMN.get());
+                        output.accept(OlympusItems.PARTHENON_TERRACOTTA_TILES.get());
+                        output.accept(OlympusItems.PARTHENON_TERRACOTTA_TILE_STAIRS.get());
+                        output.accept(OlympusItems.PARTHENON_TERRACOTTA_TILE_SLAB.get());
+                        output.accept(OlympusItems.CLIMBING_ROSE.get());
+                        output.accept(OlympusItems.AIR_CLOUD_BLOCK.get());
                     })
                     .build()
     );

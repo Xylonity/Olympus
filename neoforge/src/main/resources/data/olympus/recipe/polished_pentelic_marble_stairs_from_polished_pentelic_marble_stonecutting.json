@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "olympus:polished_pentelic_marble",
+  "result": {
+    "id": "olympus:polished_pentelic_marble_stairs"
+  }
+}

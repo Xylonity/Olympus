@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "olympus:block/pentelic_marble_column_top_bottom",
+    "side": "olympus:block/pentelic_marble_column_capital"
+  }
+}
