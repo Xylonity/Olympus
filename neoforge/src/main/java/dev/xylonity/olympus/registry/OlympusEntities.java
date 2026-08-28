@@ -2,6 +2,8 @@ package dev.xylonity.olympus.registry;
 
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.common.entity.AbsorbedSoulEntity;
+import dev.xylonity.olympus.common.entity.HarpyEntity;
+import dev.xylonity.olympus.common.entity.HarpyProjectileEntity;
 import dev.xylonity.olympus.common.entity.PoseidonTridentEntity;
 import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
 import dev.xylonity.olympus.common.entity.SummoningSpearsEntity;
@@ -25,5 +27,11 @@ public final class OlympusEntities {
 
     public static final DeferredHolder<EntityType<?>, EntityType<SummoningSpearsEntity>> SUMMONING_SPEARS = ENTITIES.registerEntityType(
             "summoning_spears", SummoningSpearsEntity::new, MobCategory.MISC, builder -> builder.noLootTable().sized(9.0F, 5.0F).clientTrackingRange(10).updateInterval(1));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<HarpyEntity>> HARPY = ENTITIES.registerEntityType(
+            "harpy", HarpyEntity::new, MobCategory.MONSTER, builder -> builder.noLootTable().sized(0.9F, 1.8F).eyeHeight(1.55F).clientTrackingRange(8).updateInterval(2).notInPeaceful());
+
+    public static final DeferredHolder<EntityType<?>, EntityType<HarpyProjectileEntity>> HARPY_PROJECTILE = ENTITIES.registerEntityType(
+            "harpy_projectile", HarpyProjectileEntity::new, MobCategory.MISC, builder -> builder.noLootTable().noSave().sized(0.3F, 0.3F).clientTrackingRange(8).updateInterval(1));
 
 }
