@@ -1,11 +1,14 @@
 package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.config.OlympusConfig;
+import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
 import java.util.Optional;
+import java.util.function.Consumer;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -14,7 +17,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TooltipDisplay;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.CuriosSlotTypes;
 import top.theillusivec4.curios.api.SlotContext;
@@ -41,6 +46,18 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
     @Override
     public boolean canEquipFromUse(final SlotContext slotContext, final ItemStack stack) {
         return canEquip(slotContext, stack);
+    }
+
+    @Override
+    public void appendHoverText(final ItemStack stack, final TooltipContext context, final TooltipDisplay display, final Consumer<Component> tooltip, final TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        OlympusTooltip.append(tooltip, "instruments_of_hephaestus", 0xE8894D,
+                OlympusTooltip.ability(1,
+                        OlympusTooltip.property("repair_amount", Integer.toString(OlympusConfig.INSTANCE.hephaestusInstrumentsRepairAmount.get())),
+                        OlympusTooltip.property("repair_cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.hephaestusInstrumentsRepairCooldownSeconds.get())),
+                        OlympusTooltip.property("kill_reduction", OlympusTooltip.seconds(OlympusConfig.INSTANCE.hephaestusInstrumentsKillCooldownReductionSeconds.get()))
+                ));
+
     }
 
     @Override

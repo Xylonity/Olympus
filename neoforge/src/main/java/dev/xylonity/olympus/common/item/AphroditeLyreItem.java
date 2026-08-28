@@ -1,8 +1,10 @@
 package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.config.OlympusConfig;
+import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.network.payload.LyreMusicPayload;
 import dev.xylonity.olympus.registry.OlympusParticles;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -14,6 +16,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
@@ -23,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public final class AphroditeLyreItem extends Item {
 
@@ -110,6 +115,17 @@ public final class AphroditeLyreItem extends Item {
 
         // Stops the music
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new LyreMusicPayload(player.getId(), false));
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        OlympusTooltip.append(tooltip, "aphrodite_lyre", 0xE8A0BF,
+                OlympusTooltip.ability(1,
+                        OlympusTooltip.property("radius", OlympusTooltip.number(OlympusConfig.INSTANCE.aphroditeLyreBreedingRadius.get())),
+                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.aphroditeLyreCooldownSeconds.get()))
+                ));
+
     }
 
     private static void breedNearby(final ServerLevel level, final ServerPlayer player) {

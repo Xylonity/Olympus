@@ -8,6 +8,7 @@ import dev.xylonity.olympus.common.item.HelmetOfHadesItem;
 import dev.xylonity.olympus.common.item.HermesSandalsItem;
 import dev.xylonity.olympus.common.item.InstrumentsOfHephaestusItem;
 import dev.xylonity.olympus.common.item.PersephoneCupItem;
+import dev.xylonity.olympus.common.item.PoppyOfDemeterItem;
 import dev.xylonity.olympus.common.item.PoseidonTridentItem;
 import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import net.minecraft.core.component.DataComponents;
@@ -34,7 +35,7 @@ public class OlympusItems {
     public static final DeferredItem<HermesSandalsItem> HERMES_SANDALS = ITEMS.registerItem("hermes_sandals", HermesSandalsItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC));
     public static final DeferredItem<InstrumentsOfHephaestusItem> INSTRUMENTS_OF_HEPHAESTUS = ITEMS.registerItem("instruments_of_hephaestus", InstrumentsOfHephaestusItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC));
     public static final DeferredItem<PersephoneCupItem> PERSEPHONE_CUP = ITEMS.registerItem("persephone_cup", PersephoneCupItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC));
-    public static final DeferredItem<BlockItem> POPPY_OF_DEMETER = ITEMS.registerSimpleBlockItem(OlympusBlocks.POPPY_OF_DEMETER, properties -> properties.rarity(Rarity.EPIC));
+    public static final DeferredItem<PoppyOfDemeterItem> POPPY_OF_DEMETER = ITEMS.registerItem("poppy_of_demeter", properties -> new PoppyOfDemeterItem(OlympusBlocks.POPPY_OF_DEMETER.get(), properties), properties -> properties.rarity(Rarity.EPIC));
     public static final DeferredItem<BlockItem> PENTELIC_MARBLE = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE);
     public static final DeferredItem<BlockItem> PENTELIC_MARBLE_STAIRS = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE_STAIRS);
     public static final DeferredItem<BlockItem> PENTELIC_MARBLE_SLAB = ITEMS.registerSimpleBlockItem(OlympusBlocks.PENTELIC_MARBLE_SLAB);

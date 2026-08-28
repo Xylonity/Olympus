@@ -1,6 +1,7 @@
 package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.config.OlympusConfig;
+import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.network.payload.CameraShakePayload;
 import dev.xylonity.olympus.network.payload.LightningBoltPayload;
 import dev.xylonity.olympus.registry.OlympusDamageTypes;
@@ -12,6 +13,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -22,6 +25,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -44,6 +49,23 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
     @Override
     public boolean canEquipFromUse(final SlotContext slotContext, final ItemStack stack) {
         return canEquip(slotContext, stack);
+    }
+
+    @Override
+    public void appendHoverText(final ItemStack stack, final TooltipContext context, final TooltipDisplay display, final Consumer<Component> tooltip, final TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        final double minimumStun = OlympusConfig.INSTANCE.zeusBracersMinimumStunSeconds.get();
+        final double maximumStun = OlympusConfig.INSTANCE.zeusBracersMaximumStunSeconds.get();
+        final String stunDuration = OlympusTooltip.number(Math.min(minimumStun, maximumStun)) + "–" + OlympusTooltip.seconds(Math.max(minimumStun, maximumStun));
+        OlympusTooltip.append(tooltip, "bracers_of_zeus", 0xF2D35E,
+                OlympusTooltip.ability(1,
+                        OlympusTooltip.property("damage", OlympusTooltip.number(OlympusConfig.INSTANCE.zeusBracersDamage.get())),
+                        OlympusTooltip.property("chain_targets", Integer.toString(OlympusConfig.INSTANCE.zeusBracersChainJumps.get())),
+                        OlympusTooltip.property("chain_range", OlympusTooltip.number(OlympusConfig.INSTANCE.zeusBracersChainRange.get())),
+                        OlympusTooltip.property("stun_duration", stunDuration),
+                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.zeusBracersCooldownSeconds.get()))
+                ));
+
     }
 
     /// Applies the special effect of the bracers (thunder damage)

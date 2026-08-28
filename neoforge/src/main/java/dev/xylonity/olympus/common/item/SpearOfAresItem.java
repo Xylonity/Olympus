@@ -8,14 +8,13 @@ import com.geckolib.renderer.GeoItemRenderer;
 import com.geckolib.util.GeckoLibUtil;
 import dev.xylonity.olympus.client.item.renderer.SpearOfAresItemRenderer;
 import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
+import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.common.entity.SummoningSpearsEntity;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.payload.CameraShakePayload;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -24,7 +23,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -360,51 +358,14 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, display, tooltip, flag);
-
-        tooltip.accept(Component.translatable("tooltip.olympus.spear_of_ares.flavor")
-                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
-
-        tooltip.accept(Component.empty());
-
-        if (Minecraft.getInstance().hasShiftDown()) {
-
-            tooltip.accept(Component.translatable("tooltip.olympus.spear_of_ares.abilities")
-                    .withStyle(ChatFormatting.DARK_GRAY));
-
-            tooltip.accept(Component.translatable("tooltip.olympus.spear_of_ares.ability_title_1")
-                    .withStyle(s -> s.withColor(TextColor.fromRgb(0xE06C6C))));
-
-            tooltip.accept(Component.translatable("tooltip.olympus.spear_of_ares.ability_description_1")
-                    .withStyle(ChatFormatting.GRAY));
-
-            tooltip.accept(Component.translatable("tooltip.olympus.properties")
-                    .withStyle(ChatFormatting.DARK_GRAY));
-
-            final Component blocks = Component.literal(OlympusConfig.INSTANCE.aresSpearAbilityMinimumFallDistance.get().toString()).withStyle(s -> s.withColor(TextColor.fromRgb(0xF5C97B)));
-            tooltip.accept(Component.literal("  ● ").withStyle(ChatFormatting.DARK_GRAY)
-                    .append(Component.translatable("tooltip.olympus.spear_of_ares.properties.fall_distance", blocks).withStyle(ChatFormatting.GRAY)));
-
-            final Component cooldown1 = Component.literal(OlympusConfig.INSTANCE.aresSpearAbilityCooldownSeconds.get() + "s").withStyle(s -> s.withColor(TextColor.fromRgb(0xF5C97B)));
-            tooltip.accept(Component.literal("  ● ").withStyle(ChatFormatting.DARK_GRAY)
-                    .append(Component.translatable("tooltip.olympus.spear_of_ares.properties.cooldown", cooldown1).withStyle(ChatFormatting.GRAY)));
-
-            tooltip.accept(Component.translatable("tooltip.olympus.spear_of_ares.ability_title_2")
-                    .withStyle(s -> s.withColor(TextColor.fromRgb(0xE06C6C))));
-            tooltip.accept(Component.translatable("tooltip.olympus.spear_of_ares.ability_description_2")
-                    .withStyle(ChatFormatting.GRAY));
-
-            tooltip.accept(Component.translatable("tooltip.olympus.properties")
-                    .withStyle(ChatFormatting.DARK_GRAY));
-            final Component cooldown2 = Component.literal(OlympusConfig.INSTANCE.aresSpearThrowCooldownSeconds.get() + "s").withStyle(s -> s.withColor(TextColor.fromRgb(0xF5C97B)));
-            tooltip.accept(Component.literal("  ● ").withStyle(ChatFormatting.DARK_GRAY)
-                    .append(Component.translatable("tooltip.olympus.spear_of_ares.properties.cooldown", cooldown2).withStyle(ChatFormatting.GRAY)));
-        }
-        else {
-            final Component shift = Component.literal("[Shift]").withStyle(ChatFormatting.GRAY);
-            tooltip.accept(Component.translatable("tooltip.olympus.hold_shift", shift)
-                    .withStyle(ChatFormatting.DARK_GRAY));
-        }
-
+        OlympusTooltip.append(tooltip, "spear_of_ares", 0xE06C6C,
+                OlympusTooltip.ability(1,
+                        OlympusTooltip.property("fall_distance", OlympusTooltip.number(OlympusConfig.INSTANCE.aresSpearAbilityMinimumFallDistance.get())),
+                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.aresSpearAbilityCooldownSeconds.get()))
+                ),
+                OlympusTooltip.ability(2,
+                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.aresSpearThrowCooldownSeconds.get()))
+                ));
 
     }
 

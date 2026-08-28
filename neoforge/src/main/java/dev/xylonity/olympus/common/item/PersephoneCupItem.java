@@ -2,6 +2,7 @@ package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.common.entity.AbsorbedSoulEntity;
+import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.payload.SoulSalvationPayload;
 import dev.xylonity.olympus.registry.OlympusItems;
@@ -79,7 +80,18 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
     @Override
     public void appendHoverText(final ItemStack stack, final TooltipContext context, final TooltipDisplay display, final Consumer<Component> builder, final TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, display, builder, tooltipFlag);
-        builder.accept(Component.translatable("item.olympus.persephone_cup.soul_charges", getSoulCharges(stack), MAX_SOUL_CHARGES).withStyle(ChatFormatting.DARK_PURPLE));
+        final Component soulCharges = Component.translatable("item.olympus.persephone_cup.soul_charges", getSoulCharges(stack), MAX_SOUL_CHARGES).withStyle(ChatFormatting.DARK_PURPLE);
+        OlympusTooltip.appendWithStatus(builder, "persephone_cup", 0xC987D4, soulCharges,
+                OlympusTooltip.ability(1,
+                        OlympusTooltip.property("damage_per_soul", "+" + OlympusTooltip.number(OlympusConfig.INSTANCE.persephoneCupDamagePerSoul.get())),
+                        OlympusTooltip.property("maximum_souls", Integer.toString(MAX_SOUL_CHARGES))
+                ),
+                OlympusTooltip.ability(2,
+                        OlympusTooltip.property("charge_cost", Integer.toString(OlympusConfig.INSTANCE.persephoneCupDeathProtectionChargeCost.get())),
+                        OlympusTooltip.property("restored_health", OlympusTooltip.percent(OlympusConfig.INSTANCE.persephoneCupRestoredHealthPercentage.get())),
+                        OlympusTooltip.property("regeneration", OlympusTooltip.seconds(OlympusConfig.INSTANCE.persephoneCupRegenerationSeconds.get()))
+                ));
+
     }
 
     /// Applies the special effect of the cup (increased damage and canceled first mortal hit on max charge amount)

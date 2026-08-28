@@ -11,9 +11,12 @@ import com.geckolib.util.GeckoLibUtil;
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.client.item.renderer.PoseidonTridentItemRenderer;
 import dev.xylonity.olympus.common.entity.PoseidonTridentEntity;
+import dev.xylonity.olympus.common.util.OlympusTooltip;
+import dev.xylonity.olympus.config.OlympusConfig;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -29,7 +32,9 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TridentItem;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
@@ -118,6 +123,21 @@ public final class PoseidonTridentItem extends TridentItem implements GeoItem {
                 || enchantment.is(Enchantments.KNOCKBACK)
                 || enchantment.is(Enchantments.UNBREAKING)
                 || enchantment.is(Enchantments.LOOTING);
+    }
+
+    @Override
+    public void appendHoverText(final ItemStack stack, final TooltipContext context, final TooltipDisplay display, final Consumer<Component> tooltip, final TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        OlympusTooltip.append(tooltip, "poseidon_trident", 0x64B5E8,
+                OlympusTooltip.ability(1,
+                        OlympusTooltip.property("swim_speed", "+" + OlympusTooltip.percent(OlympusConfig.INSTANCE.poseidonTridentSwimSpeedBonus.get()))
+                ),
+                OlympusTooltip.ability(2,
+                        OlympusTooltip.property("projectile_damage", OlympusTooltip.number(OlympusConfig.INSTANCE.poseidonTridentProjectileDamage.get())),
+                        OlympusTooltip.property("splash_damage", OlympusTooltip.number(OlympusConfig.INSTANCE.poseidonTridentSplashDamage.get())),
+                        OlympusTooltip.property("splash_radius", OlympusTooltip.number(OlympusConfig.INSTANCE.poseidonTridentSplashRadius.get()))
+                ));
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.xylonity.olympus.mixins;
 
 import dev.xylonity.olympus.common.util.ArtemisArrow;
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusAttachments;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import net.minecraft.core.particles.ParticleOptions;
@@ -102,7 +103,7 @@ public abstract class AbstractArrowMixin implements ArtemisArrow {
             }
 
             // Heal and sound
-            pet.heal(damage * 0.35F);
+            pet.heal(damage * OlympusConfig.INSTANCE.artemisBowTamedHealingMultiplier.get().floatValue());
             player.level().playSound(null, pet.blockPosition(), SoundEvents.AMETHYST_BLOCK_FALL, SoundSource.AMBIENT, 1, 1.5F);
 
             // Particles

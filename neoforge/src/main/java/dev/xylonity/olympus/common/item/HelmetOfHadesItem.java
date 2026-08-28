@@ -1,11 +1,14 @@
 package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.Olympus;
+import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.payload.SoulSalvationPayload;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusMobEffects;
 import java.util.Optional;
+import java.util.function.Consumer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -14,6 +17,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.neoforged.neoforge.network.PacketDistributor;
 import top.theillusivec4.curios.api.CurioAttributeModifiers;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -36,6 +41,19 @@ public class HelmetOfHadesItem extends Item implements ICurioItem {
     @Override
     public boolean canEquipFromUse(final SlotContext slotContext, final ItemStack stack) {
         return canEquip(slotContext, stack);
+    }
+
+    @Override
+    public void appendHoverText(final ItemStack stack, final TooltipContext context, final TooltipDisplay display, final Consumer<Component> tooltip, final TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        OlympusTooltip.append(tooltip, "helmet_of_hades", 0x9B7FD3,
+                OlympusTooltip.ability(1,
+                        OlympusTooltip.property("armor", "+" + OlympusTooltip.number(OlympusConfig.INSTANCE.helmetOfHadesArmor.get())),
+                        OlympusTooltip.property("restored_health", OlympusTooltip.percent(OlympusConfig.INSTANCE.helmetOfHadesRestoredHealthPercentage.get())),
+                        OlympusTooltip.property("invisibility", OlympusTooltip.seconds(OlympusConfig.INSTANCE.helmetOfHadesInvisibilitySeconds.get())),
+                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.helmetOfHadesCooldownSeconds.get()))
+                ));
+
     }
 
     @Override

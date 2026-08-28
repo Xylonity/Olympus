@@ -1,11 +1,16 @@
 package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.common.util.ArtemisArrow;
+import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.config.OlympusConfig;
+import java.util.function.Consumer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 
 public final class ArtemisBowItem extends BowItem {
@@ -33,6 +38,20 @@ public final class ArtemisBowItem extends BowItem {
     @Override
     public int getDefaultProjectileRange() {
         return 22;
+    }
+
+    @Override
+    public void appendHoverText(final ItemStack stack, final TooltipContext context, final TooltipDisplay display, final Consumer<Component> tooltip, final TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        OlympusTooltip.append(tooltip, "bow_of_artemis", 0x8FD17F,
+                OlympusTooltip.ability(1,
+                        OlympusTooltip.property("projectile_speed", OlympusTooltip.number(OlympusConfig.INSTANCE.artemisBowProjectileSpeedMultiplier.get()) + "x"),
+                        OlympusTooltip.property("looting_bonus", "+" + OlympusConfig.INSTANCE.artemisBowLootingBonus.get())
+                ),
+                OlympusTooltip.ability(2,
+                        OlympusTooltip.property("tamed_healing", OlympusTooltip.percent(OlympusConfig.INSTANCE.artemisBowTamedHealingMultiplier.get()))
+                ));
+
     }
 
 }

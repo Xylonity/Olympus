@@ -13,6 +13,7 @@ public final class OlympusConfig {
 
     public final ModConfigSpec.DoubleValue artemisBowProjectileSpeedMultiplier;
     public final ModConfigSpec.IntValue artemisBowLootingBonus;
+    public final ModConfigSpec.DoubleValue artemisBowTamedHealingMultiplier;
 
     public final ModConfigSpec.DoubleValue zeusBracersDamage;
     public final ModConfigSpec.DoubleValue zeusBracersCooldownSeconds;
@@ -78,6 +79,9 @@ public final class OlympusConfig {
         artemisBowLootingBonus = builder
                 .comment("Extra Looting levels applied to kills made with the Bow of Artemis")
                 .defineInRange("lootingBonus", 1, 0, 100);
+        artemisBowTamedHealingMultiplier = builder
+                .comment("Fraction of the arrow's damage restored as health when hitting one of the shooter's tamed animals (0.35 = 35%)")
+                .defineInRange("tamedHealingMultiplier", 0.5D, 0.0D, 100.0D);
         builder.pop();
 
         builder.push("bracersOfZeus");
