@@ -1,6 +1,6 @@
 package dev.xylonity.olympus.client.particle;
 
-import dev.xylonity.olympus.common.entity.AbsorbedSoulEntity;
+import dev.xylonity.olympus.common.entity.HarpyProjectileEntity;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,19 +14,18 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-/// Based off my own ribbon trail particle implementation, although a big chunk of the code has changed to honor the render rework
-/// https://github.com/Xylonity/Knight-Lib/blob/1.20.1/common/src/main/java/dev/xylonity/knightlib/client/particle/AbstractRibbonTrailParticle.java
-public final class SoulTrailParticle extends Particle {
+/// Same logic as {@link SoulTrailParticle}
+public final class HarpyProjectileTrailParticle extends Particle {
 
     private static final float WIDTH = 0.09F;
 
     private final ArrayDeque<Vec3> trailPositions = new ArrayDeque<>();
 
-    private final int soulEntityId;
+    private final int projectileEntityId;
 
-    public SoulTrailParticle(final ClientLevel level, final AbsorbedSoulEntity soul) {
-        super(level, soul.getX(), soul.getY() + soul.getBbHeight() * 0.5D, soul.getZ());
-        soulEntityId = soul.getId();
+    public HarpyProjectileTrailParticle(final ClientLevel level, final HarpyProjectileEntity projectile) {
+        super(level, projectile.getX(), projectile.getY() + projectile.getBbHeight() * 0.5D, projectile.getZ());
+        projectileEntityId = projectile.getId();
         hasPhysics = false;
         trailPositions.addFirst(new Vec3(x, y, z));
         updateBounds();
@@ -34,8 +33,8 @@ public final class SoulTrailParticle extends Particle {
 
     @Override
     public void tick() {
-        final Entity entity = level.getEntity(soulEntityId);
-        if (!(entity instanceof AbsorbedSoulEntity soul) || !soul.isAlive()) {
+        final Entity entity = level.getEntity(projectileEntityId);
+        if (!(entity instanceof HarpyProjectileEntity projectile) || !projectile.isAlive()) {
             remove();
             return;
         }
@@ -46,13 +45,13 @@ public final class SoulTrailParticle extends Particle {
 
         // Saving the old head position or the first segment would overlap
         rememberPosition(new Vec3(xo, yo, zo));
-        setPos(soul.getX(), soul.getY() + soul.getBbHeight() * 0.5D, soul.getZ());
+        setPos(projectile.getX(), projectile.getY() + projectile.getBbHeight() * 0.5D, projectile.getZ());
         updateBounds();
     }
 
     @Override
     public ParticleRenderType getGroup() {
-        return SoulTrailParticleGroup.TYPE;
+        return HarpyProjectileTrailParticleGroup.TYPE;
     }
 
     public @Nullable RenderSnapshot extractSnapshot(final Camera camera, final float partialTick) {
@@ -86,7 +85,7 @@ public final class SoulTrailParticle extends Particle {
         }
 
         trailPositions.addFirst(position);
-        while (trailPositions.size() > 16 || trailLength() > 5) {
+        while (trailPositions.size() > 16 || trailLength() > 5.0D) {
             trailPositions.removeLast();
         }
 
@@ -114,6 +113,7 @@ public final class SoulTrailParticle extends Particle {
         double maxX = x;
         double maxY = y;
         double maxZ = z;
+
         for (final Vec3 position : trailPositions) {
             minX = Math.min(minX, position.x);
             minY = Math.min(minY, position.y);

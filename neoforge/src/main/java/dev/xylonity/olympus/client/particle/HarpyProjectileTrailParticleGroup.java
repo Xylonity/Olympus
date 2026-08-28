@@ -19,25 +19,23 @@ import net.minecraft.client.renderer.state.level.ParticleGroupRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.NonNull;
 import org.joml.Matrix4fc;
+import org.jspecify.annotations.NonNull;
 
-/// Based off my own ribbon trail particle implementation, although a big chunk of the code has changed to honor the render rework
-/// https://github.com/Xylonity/Knight-Lib/blob/1.20.1/common/src/main/java/dev/xylonity/knightlib/client/particle/AbstractRibbonTrailParticle.java
-public final class SoulTrailParticleGroup extends ParticleGroup<SoulTrailParticle> {
+/// Same logic as {@link SoulTrailParticleGroup}
+public final class HarpyProjectileTrailParticleGroup extends ParticleGroup<HarpyProjectileTrailParticle> {
 
-    public static final ParticleRenderType TYPE = new ParticleRenderType("OLYMPUS_SOUL_TRAILS");
+    public static final ParticleRenderType TYPE = new ParticleRenderType("OLYMPUS_HARPY_PROJECTILE_TRAILS");
 
-    private static final RenderType RENDERTYPE = OlympusRenderTypes.translucentEntityComposite(Olympus.of("textures/particle/soul_trail.png"));
+    private static final RenderType RENDER_TYPE = OlympusRenderTypes.translucentEntityComposite(Olympus.of("textures/particle/harpy_projectile_trail.png"));
 
-    public SoulTrailParticleGroup(final ParticleEngine engine) {
+    public HarpyProjectileTrailParticleGroup(final ParticleEngine engine) {
         super(engine);
     }
 
     @Override
     public @NonNull ParticleGroupRenderState extractRenderState(final Frustum frustum, final Camera camera, final float partialTickTime) {
-        // Freezes visible trails
-        final List<SoulTrailParticle.RenderSnapshot> snapshots = particles.stream()
+        final List<HarpyProjectileTrailParticle.RenderSnapshot> snapshots = particles.stream()
                 .filter(particle -> frustum.isVisible(particle.getBoundingBox()))
                 .map(particle -> particle.extractSnapshot(camera, partialTickTime))
                 .filter(Objects::nonNull)
@@ -46,7 +44,7 @@ public final class SoulTrailParticleGroup extends ParticleGroup<SoulTrailParticl
         return new RenderState(snapshots);
     }
 
-    private static void render(final Matrix4fc pose, final VertexConsumer buffer, final SoulTrailParticle.RenderSnapshot snapshot) {
+    private static void render(final Matrix4fc pose, final VertexConsumer buffer, final HarpyProjectileTrailParticle.RenderSnapshot snapshot) {
         final List<Vec3> points = snapshot.points();
         if (points.size() < 2) {
             return;
@@ -60,14 +58,13 @@ public final class SoulTrailParticleGroup extends ParticleGroup<SoulTrailParticl
             addSegment(pose, buffer, from, to, false);
             addSegment(pose, buffer, from, to, true);
         }
-
     }
 
     private static List<CrossSection> buildSections(final List<Vec3> points, final float baseWidth) {
         final double totalLength = pathLength(points);
         final List<CrossSection> sections = new ArrayList<>(points.size());
         Vec3 previousRight = null;
-        double distance = 0;
+        double distance = 0.0D;
 
         for (int index = 0; index < points.size(); index++) {
             final Vec3 point = points.get(index);
@@ -88,21 +85,20 @@ public final class SoulTrailParticleGroup extends ParticleGroup<SoulTrailParticl
             }
 
             final Vec3 direction = line.normalize();
-            Vec3 right = direction.cross(point.scale(-1D));
+            Vec3 right = direction.cross(point.scale(-1.0D));
             if (right.lengthSqr() < 1.0E-8D) {
-                right = direction.cross(Math.abs(direction.y) > 0.9 ? Vec3.X_AXIS : Vec3.Y_AXIS);
+                right = direction.cross(Math.abs(direction.y) > 0.9D ? Vec3.X_AXIS : Vec3.Y_AXIS);
             }
 
             right = right.normalize();
             // Keeping the same side along the path so the ribbon doesn't randomly twist
-            if (previousRight != null && previousRight.dot(right) < 0D) {
-                right = right.scale(-1D);
+            if (previousRight != null && previousRight.dot(right) < 0.0D) {
+                right = right.scale(-1.0D);
             }
 
             previousRight = right;
 
-            final float progress = totalLength < 1.0E-5D ? 0F : (float) (distance / totalLength);
-            // The trail width decreases based on the distance
+            final float progress = totalLength < 1.0E-5D ? 0.0F : (float) (distance / totalLength);
             final float width = baseWidth * (1F - progress * 0.55F);
             sections.add(new CrossSection(point, right, width, progress));
         }
@@ -142,15 +138,15 @@ public final class SoulTrailParticleGroup extends ParticleGroup<SoulTrailParticl
 
     private static void addVertex(final Matrix4fc pose, final VertexConsumer buffer, final Vec3 position, final float u, final float v) {
         buffer.addVertex(pose, (float) position.x, (float) position.y, (float) position.z)
-                .setColor(0xBD, 0x00, 0x1A, 255)
+                .setColor(0xAC, 0xC8, 0xE2, 255)
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(LightCoordsUtil.FULL_BRIGHT)
-                .setNormal(0, 1, 0);
+                .setNormal(0.0F, 1.0F, 0.0F);
     }
 
     private record RenderState(
-            List<SoulTrailParticle.RenderSnapshot> snapshots
+            List<HarpyProjectileTrailParticle.RenderSnapshot> snapshots
     ) implements ParticleGroupRenderState {
 
         @Override
@@ -160,7 +156,7 @@ public final class SoulTrailParticleGroup extends ParticleGroup<SoulTrailParticl
             }
 
             // Every trail shares a render type, so one geometry submission should be enough for the whole group
-            submitNodeCollector.submitCustomGeometry(new PoseStack(), RENDERTYPE,
+            submitNodeCollector.submitCustomGeometry(new PoseStack(), RENDER_TYPE,
                     (pose, buffer) -> snapshots.forEach(snapshot -> render(pose.pose(), buffer, snapshot))
             );
 
