@@ -2,6 +2,7 @@ package dev.xylonity.olympus.common.event;
 
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.common.effect.InvisibilityOfHadesEffect;
+import dev.xylonity.olympus.common.entity.HarpyEntity;
 import dev.xylonity.olympus.common.util.ArtemisArrow;
 import dev.xylonity.olympus.common.item.BracersOfZeusItem;
 import dev.xylonity.olympus.common.item.HelmetOfHadesItem;
@@ -11,6 +12,7 @@ import dev.xylonity.olympus.common.item.PersephoneCupItem;
 import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusDamageTypes;
+import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -22,11 +24,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -37,6 +44,16 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = Olympus.MOD_ID)
 public final class OlympusServerEvents {
+
+    @SubscribeEvent
+    public static void registerAttributes(final EntityAttributeCreationEvent event) {
+        event.put(OlympusEntities.HARPY.get(), HarpyEntity.createAttributes().build());
+    }
+
+    @SubscribeEvent
+    public static void registerSpawnPlacements(final RegisterSpawnPlacementsEvent event) {
+        event.register(OlympusEntities.HARPY.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkAnyLightMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+    }
 
     @SubscribeEvent
     public static void onItemAttributeModifiers(final ItemAttributeModifierEvent event) {
