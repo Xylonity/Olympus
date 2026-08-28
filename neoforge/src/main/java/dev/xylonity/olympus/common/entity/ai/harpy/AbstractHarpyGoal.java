@@ -3,6 +3,8 @@ package dev.xylonity.olympus.common.entity.ai.harpy;
 import dev.xylonity.olympus.common.entity.HarpyEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 
+import java.util.EnumSet;
+
 public abstract class AbstractHarpyGoal extends Goal {
 
     protected final HarpyEntity harpy;
@@ -15,6 +17,7 @@ public abstract class AbstractHarpyGoal extends Goal {
         this.harpy = harpy;
         this.attackDuration = attackDuration;
         this.cooldown = cooldown;
+        setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
     @Override
@@ -30,16 +33,16 @@ public abstract class AbstractHarpyGoal extends Goal {
 
     @Override
     public void tick() {
-
         if (attackTicks == momentumTicks()) {
             doAttack();
         }
 
-        if (attackTicks >= harpy.stateMaxAnimationTicks.get(attackState())) {
-            stop();
-        }
-
         attackTicks++;
+    }
+
+    @Override
+    public boolean canContinueToUse() {
+        return attackTicks < attackDuration;
     }
 
     @Override
