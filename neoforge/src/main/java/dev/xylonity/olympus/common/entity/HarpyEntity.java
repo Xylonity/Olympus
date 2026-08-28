@@ -8,15 +8,24 @@ import com.geckolib.animation.RawAnimation;
 import com.geckolib.animation.object.PlayState;
 import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.util.GeckoLibUtil;
+import dev.xylonity.olympus.common.entity.ai.harpy.internal.MeleeHarpyGoal;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class HarpyEntity extends Monster implements GeoEntity {
 
@@ -32,25 +41,27 @@ public class HarpyEntity extends Monster implements GeoEntity {
     private static final RawAnimation ANIMATION_DASH = RawAnimation.begin().thenLoop("dash");
     private static final RawAnimation ANIMATION_DASH_ENDING = RawAnimation.begin().thenPlay("dash_ending").thenLoop("idle");
 
-    private static final int TICKS_ANIMATION_IDLE = 35;
-    private static final int TICKS_ANIMATION_FLY = 25;
-    private static final int TICKS_ANIMATION_MELEE = 20;
-    private static final int TICKS_ANIMATION_SHOT = 30;
-    private static final int TICKS_ANIMATION_DASH_PREPARING = 15;
-    private static final int TICKS_ANIMATION_DASH = 10;
-    private static final int TICKS_ANIMATION_DASH_ENDING = 15;
+    public static final int STATE_IDLE = 0;
+    public static final int STATE_FLY = 1;
+    public static final int STATE_MELEE = 2;
+    public static final int STATE_SHOT = 3;
+    public static final int STATE_DASH_PREPARING = 4;
+    public static final int STATE_DASHING = 5;
+    public static final int STATE_DASH_ENDING = 6;
 
-    private static final int STATE_IDLE = 0;
-    private static final int STATE_MELEE = 1;
-    private static final int STATE_SHOT = 2;
-    private static final int STATE_DASH_PREPARING = 3;
-    private static final int STATE_DASHING = 4;
-    private static final int STATE_DASH_ENDING = 5;
+    public final Map<Integer, Integer> stateMaxAnimationTicks = new ConcurrentHashMap<>();
 
     private int attackStateTicks;
 
     public HarpyEntity(EntityType<? extends Monster> type, Level level) {
         super(type, level);
+        stateMaxAnimationTicks.putIfAbsent(STATE_IDLE, 35);
+        stateMaxAnimationTicks.putIfAbsent(STATE_FLY, 25);
+        stateMaxAnimationTicks.putIfAbsent(STATE_MELEE, 20);
+        stateMaxAnimationTicks.putIfAbsent(STATE_SHOT, 30);
+        stateMaxAnimationTicks.putIfAbsent(STATE_DASH_PREPARING, 15);
+        stateMaxAnimationTicks.putIfAbsent(STATE_DASHING, 10);
+        stateMaxAnimationTicks.putIfAbsent(STATE_DASH_ENDING, 15);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -65,12 +76,24 @@ public class HarpyEntity extends Monster implements GeoEntity {
     }
 
     @Override
+    protected void registerGoals() {
+        super.registerGoals();
+
+        goalSelector.addGoal(1, new MeleeHarpyGoal(this, stateMaxAnimationTicks.get(STATE_MELEE), 20));
+
+        targetSelector.addGoal(1, new HurtByTargetGoal(this, HarpyEntity.class).setAlertOthers());
+        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
+        targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+    }
+
+    @Override
     protected void defineSynchedData(final SynchedEntityData.@NonNull Builder builder) {
         super.defineSynchedData(builder);
         builder.define(ATTACK_STATE, STATE_IDLE);
     }
 
-    private void setAttackState(final int state) {
+    public void setAttackState(final int state) {
         entityData.set(ATTACK_STATE, state);
         attackStateTicks = 0;
     }
@@ -92,6 +115,9 @@ public class HarpyEntity extends Monster implements GeoEntity {
         if (getAttackState() == STATE_IDLE) {
             event.setAnimation(ANIMATION_IDLE);
         }
+        else if (getAttackState() == STATE_FLY) {
+            event.setAnimation(ANIMATION_FLY);
+        }
         else if (getAttackState() == STATE_SHOT) {
             event.setAnimation(ANIMATION_SHOT);
         }
@@ -109,7 +135,7 @@ public class HarpyEntity extends Monster implements GeoEntity {
     }
 
     @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
+    public @NonNull AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
     }
 
