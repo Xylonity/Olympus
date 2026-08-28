@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.client.entity.model.HarpyProjectileModel;
-import dev.xylonity.olympus.common.entity.HarpyProjectileEntity;
+import dev.xylonity.olympus.common.entity.projectile.HarpyProjectileEntity;
 import dev.xylonity.olympus.registry.OlympusRenderTypes;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;

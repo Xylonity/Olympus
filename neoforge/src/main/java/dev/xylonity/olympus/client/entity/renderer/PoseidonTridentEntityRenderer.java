@@ -2,7 +2,7 @@ package dev.xylonity.olympus.client.entity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dev.xylonity.olympus.common.entity.PoseidonTridentEntity;
+import dev.xylonity.olympus.common.entity.projectile.PoseidonTridentEntity;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

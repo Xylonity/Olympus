@@ -10,7 +10,7 @@ import com.geckolib.renderer.GeoItemRenderer;
 import com.geckolib.util.GeckoLibUtil;
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.client.item.renderer.PoseidonTridentItemRenderer;
-import dev.xylonity.olympus.common.entity.PoseidonTridentEntity;
+import dev.xylonity.olympus.common.entity.projectile.PoseidonTridentEntity;
 import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.config.OlympusConfig;
 import net.minecraft.core.Direction;

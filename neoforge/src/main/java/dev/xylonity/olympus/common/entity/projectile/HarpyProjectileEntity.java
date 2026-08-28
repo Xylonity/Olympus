@@ -1,5 +1,6 @@
-package dev.xylonity.olympus.common.entity;
+package dev.xylonity.olympus.common.entity.projectile;
 
+import dev.xylonity.olympus.common.entity.HarpyEntity;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;

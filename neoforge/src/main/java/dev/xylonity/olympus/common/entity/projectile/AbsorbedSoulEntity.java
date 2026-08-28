@@ -1,4 +1,4 @@
-package dev.xylonity.olympus.common.entity;
+package dev.xylonity.olympus.common.entity.projectile;
 
 import dev.xylonity.olympus.common.item.PersephoneCupItem;
 import dev.xylonity.olympus.network.payload.SoulSalvationPayload;

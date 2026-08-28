@@ -1,6 +1,6 @@
 package dev.xylonity.olympus.client.particle;
 
-import dev.xylonity.olympus.common.entity.HarpyProjectileEntity;
+import dev.xylonity.olympus.common.entity.projectile.HarpyProjectileEntity;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;

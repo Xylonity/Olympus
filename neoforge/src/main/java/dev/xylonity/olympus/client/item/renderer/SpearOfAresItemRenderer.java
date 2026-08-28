@@ -11,7 +11,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.xylonity.olympus.client.item.model.SpearOfAresModel;
 import dev.xylonity.olympus.client.texture.SpearDissolveTextures;
-import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
+import dev.xylonity.olympus.common.entity.projectile.SpearOfAresEntity;
 import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import dev.xylonity.olympus.registry.OlympusRenderTypes;
 import net.minecraft.client.Minecraft;

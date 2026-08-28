@@ -1,7 +1,7 @@
 package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.Olympus;
-import dev.xylonity.olympus.common.entity.AbsorbedSoulEntity;
+import dev.xylonity.olympus.common.entity.projectile.AbsorbedSoulEntity;
 import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.payload.SoulSalvationPayload;

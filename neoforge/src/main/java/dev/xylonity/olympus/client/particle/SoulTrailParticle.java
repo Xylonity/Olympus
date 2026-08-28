@@ -1,6 +1,6 @@
 package dev.xylonity.olympus.client.particle;
 
-import dev.xylonity.olympus.common.entity.AbsorbedSoulEntity;
+import dev.xylonity.olympus.common.entity.projectile.AbsorbedSoulEntity;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;

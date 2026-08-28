@@ -7,7 +7,7 @@ import com.geckolib.renderer.base.GeoRenderState;
 import com.geckolib.renderer.base.RenderPassInfo;
 import dev.xylonity.olympus.client.entity.model.SummoningSpearsModel;
 import dev.xylonity.olympus.client.texture.SpearDissolveTextures;
-import dev.xylonity.olympus.common.entity.SummoningSpearsEntity;
+import dev.xylonity.olympus.common.entity.projectile.SummoningSpearsEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;

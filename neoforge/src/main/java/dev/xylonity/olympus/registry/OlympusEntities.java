@@ -1,12 +1,12 @@
 package dev.xylonity.olympus.registry;
 
 import dev.xylonity.olympus.Olympus;
-import dev.xylonity.olympus.common.entity.AbsorbedSoulEntity;
+import dev.xylonity.olympus.common.entity.projectile.AbsorbedSoulEntity;
 import dev.xylonity.olympus.common.entity.HarpyEntity;
-import dev.xylonity.olympus.common.entity.HarpyProjectileEntity;
-import dev.xylonity.olympus.common.entity.PoseidonTridentEntity;
-import dev.xylonity.olympus.common.entity.SpearOfAresEntity;
-import dev.xylonity.olympus.common.entity.SummoningSpearsEntity;
+import dev.xylonity.olympus.common.entity.projectile.HarpyProjectileEntity;
+import dev.xylonity.olympus.common.entity.projectile.PoseidonTridentEntity;
+import dev.xylonity.olympus.common.entity.projectile.SpearOfAresEntity;
+import dev.xylonity.olympus.common.entity.projectile.SummoningSpearsEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.registries.DeferredHolder;

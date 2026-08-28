@@ -3,7 +3,7 @@ package dev.xylonity.olympus.client.entity.model;
 import com.geckolib.model.DefaultedEntityGeoModel;
 import com.geckolib.renderer.base.GeoRenderState;
 import dev.xylonity.olympus.Olympus;
-import dev.xylonity.olympus.common.entity.SummoningSpearsEntity;
+import dev.xylonity.olympus.common.entity.projectile.SummoningSpearsEntity;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
