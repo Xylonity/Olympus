@@ -5,6 +5,7 @@ import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.keyframehandler.AutoPlayingSoundKeyframeHandler;
 import com.geckolib.animation.object.PlayState;
 import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.util.GeckoLibUtil;
@@ -16,9 +17,12 @@ import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyProjectileDodge
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyRetreatGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.MeleeHarpyGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.ProjectileHarpyGoal;
+import dev.xylonity.olympus.registry.OlympusEntities;
+import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -39,6 +43,7 @@ public class HarpyEntity extends Monster implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private static final EntityDataAccessor<Integer> ATTACK_STATE = SynchedEntityData.defineId(HarpyEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> ELITE = SynchedEntityData.defineId(HarpyEntity.class, EntityDataSerializers.BOOLEAN);
 
     private static final RawAnimation ANIMATION_IDLE = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation ANIMATION_FLY = RawAnimation.begin().thenLoop("walk");
@@ -72,6 +77,11 @@ public class HarpyEntity extends Monster implements GeoEntity {
 
     public HarpyEntity(final EntityType<? extends HarpyEntity> type, final Level level) {
         super(type, level);
+        entityData.set(ELITE, type == OlympusEntities.ELITE_HARPY.get());
+        if (isElite()) {
+            xpReward = 14;
+        }
+
         moveControl = new HarpyFlyingMoveControl(this);
         setNoGravity(true);
     }
@@ -85,6 +95,18 @@ public class HarpyEntity extends Monster implements GeoEntity {
                 .add(Attributes.FLYING_SPEED, 0.5)
                 .add(Attributes.ATTACK_DAMAGE, 5.0D)
                 .add(Attributes.FOLLOW_RANGE, 32.0D);
+    }
+
+    public static AttributeSupplier.Builder createEliteAttributes() {
+        return Monster.createMonsterAttributes()
+                .add(Attributes.MAX_HEALTH, 70.0D)
+                .add(Attributes.ARMOR, 8.0D)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.6D)
+                .add(Attributes.MOVEMENT_SPEED, 0.32D)
+                .add(Attributes.FLYING_SPEED, 0.5D)
+                .add(Attributes.ATTACK_DAMAGE, 8.0D)
+                .add(Attributes.FOLLOW_RANGE, 32.0D)
+                .add(Attributes.SCALE, 1.1D);
     }
 
     @Override
@@ -119,6 +141,7 @@ public class HarpyEntity extends Monster implements GeoEntity {
     protected void defineSynchedData(final SynchedEntityData.@NonNull Builder builder) {
         super.defineSynchedData(builder);
         builder.define(ATTACK_STATE, STATE_IDLE);
+        builder.define(ELITE, false);
     }
 
     @Override
@@ -141,6 +164,10 @@ public class HarpyEntity extends Monster implements GeoEntity {
         return entityData.get(ATTACK_STATE);
     }
 
+    public boolean isElite() {
+        return entityData.get(ELITE);
+    }
+
     public boolean canStartSpecialAttack() {
         return level().getGameTime() >= specialAttackDelayEndGameTime;
     }
@@ -151,7 +178,8 @@ public class HarpyEntity extends Monster implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>("maincontroller", TICKS_ANIMATION_TRANSITION, this::mainPredicate));
+        controllers.add(new AnimationController<>("maincontroller", TICKS_ANIMATION_TRANSITION, this::mainPredicate)
+                .setSoundKeyframeHandler(new AutoPlayingSoundKeyframeHandler<>()));
         controllers.add(new AnimationController<>("meleecontroller", TICKS_ANIMATION_TRANSITION, state ->
                 getAttackState() == STATE_MELEE ? state.setAndContinue(ANIMATION_MELEE) : PlayState.STOP
         ));
@@ -177,6 +205,11 @@ public class HarpyEntity extends Monster implements GeoEntity {
         }
 
         return PlayState.CONTINUE;
+    }
+
+    @Override
+    protected @NonNull SoundEvent getDeathSound() {
+        return OlympusSounds.HARPY_DEATH.get();
     }
 
     @Override

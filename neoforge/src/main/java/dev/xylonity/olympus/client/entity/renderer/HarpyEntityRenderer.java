@@ -9,7 +9,11 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 public final class HarpyEntityRenderer extends GeoEntityRenderer<HarpyEntity, EntityRenderState> {
 
     public HarpyEntityRenderer(final EntityRendererProvider.Context context) {
-        super(context, new HarpyModel());
+        this(context, false);
+    }
+
+    public HarpyEntityRenderer(final EntityRendererProvider.Context context, final boolean elite) {
+        super(context, new HarpyModel(elite));
         withScale(0.9F);
         shadowRadius = 0.45F;
     }

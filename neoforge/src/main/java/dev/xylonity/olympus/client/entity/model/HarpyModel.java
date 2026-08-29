@@ -7,7 +7,15 @@ import dev.xylonity.olympus.common.entity.HarpyEntity;
 public final class HarpyModel extends DefaultedEntityGeoModel<HarpyEntity> {
 
     public HarpyModel() {
-        super(Olympus.of("harpy"));
+        this(false);
+    }
+
+    public HarpyModel(final boolean elite) {
+        super(Olympus.of(elite ? "elite_harpy" : "harpy"));
+        if (elite) {
+            withAltAnimations(Olympus.of("harpy"));
+        }
+
     }
 
 }
