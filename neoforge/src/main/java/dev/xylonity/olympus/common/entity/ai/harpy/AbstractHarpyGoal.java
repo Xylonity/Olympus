@@ -8,55 +8,121 @@ import java.util.EnumSet;
 public abstract class AbstractHarpyGoal extends Goal {
 
     protected final HarpyEntity harpy;
-    protected final int attackDuration;
-    protected final int cooldown;
 
-    protected int attackTicks;
+    private final int attackDuration;
+    private final int cooldownTicks;
 
-    public AbstractHarpyGoal(final HarpyEntity harpy, int attackDuration, int cooldown) {
+    private int attackTicks;
+    private int activeAttackTick;
+    private long cooldownEndGameTime;
+    private boolean attackPerformed;
+    private boolean cooldownStarted;
+
+    protected AbstractHarpyGoal(final HarpyEntity harpy, final int attackDuration, final int cooldownTicks) {
+        if (attackDuration <= 0) {
+            throw new IllegalArgumentException("Attack duration must be positive");
+        }
+        if (cooldownTicks < 0) {
+            throw new IllegalArgumentException("Attack cooldown cannot be negative");
+        }
+
         this.harpy = harpy;
         this.attackDuration = attackDuration;
-        this.cooldown = cooldown;
+        this.cooldownTicks = cooldownTicks;
+
         setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
     @Override
-    public boolean canUse() {
-        return false;
+    public final boolean canUse() {
+        return harpy.level().getGameTime() >= cooldownEndGameTime && canStartAttack();
     }
 
     @Override
-    public void start() {
-        harpy.setAttackState(attackState());
-        attackTicks = 0;
-    }
-
-    @Override
-    public void tick() {
-        if (attackTicks == momentumTicks()) {
-            doAttack();
+    public final void start() {
+        activeAttackTick = attackTick();
+        if (activeAttackTick < 1 || activeAttackTick > attackDuration) {
+            throw new IllegalStateException(getClass().getSimpleName() + " incorrect attack tick");
         }
 
-        attackTicks++;
-    }
-
-    @Override
-    public boolean canContinueToUse() {
-        return attackTicks < attackDuration;
-    }
-
-    @Override
-    public void stop() {
         attackTicks = 0;
+        attackPerformed = false;
+        cooldownStarted = false;
+        harpy.setAttackState(attackState());
+        onAttackStarted();
     }
 
     @Override
-    public boolean requiresUpdateEveryTick() {
+    public final void tick() {
+        tickAttack();
+        attackTicks++;
+
+        if (attackTicks == activeAttackTick && performAttack()) {
+            attackPerformed = true;
+            if (startsCooldownOnAttack()) {
+                startCooldown();
+            }
+
+        }
+
+    }
+
+    @Override
+    public final boolean canContinueToUse() {
+        return attackTicks < attackDuration && shouldContinueAttack();
+    }
+
+    @Override
+    public final void stop() {
+        onAttackStopped();
+
+        if (attackPerformed && !cooldownStarted) {
+            startCooldown();
+        }
+
+        if (harpy.getAttackState() == attackState()) {
+            harpy.setAttackState(HarpyEntity.STATE_IDLE);
+        }
+
+        attackTicks = 0;
+        activeAttackTick = 0;
+        attackPerformed = false;
+        cooldownStarted = false;
+    }
+
+    @Override
+    public final boolean requiresUpdateEveryTick() {
         return true;
     }
 
+    protected abstract boolean canStartAttack();
     protected abstract int attackState();
-    protected abstract int momentumTicks();
-    protected abstract void doAttack();
+    protected abstract int attackTick();
+    protected abstract boolean performAttack();
+
+    protected boolean shouldContinueAttack() {
+        return true;
+    }
+
+    protected boolean startsCooldownOnAttack() {
+        return false;
+    }
+
+    protected void onAttackStarted() {
+        ;;
+    }
+
+    protected void tickAttack() {
+        ;;
+    }
+
+    protected void onAttackStopped() {
+        ;;
+    }
+
+    private void startCooldown() {
+        cooldownEndGameTime = harpy.level().getGameTime() + cooldownTicks;
+        cooldownStarted = true;
+    }
 
 }
