@@ -1,6 +1,7 @@
 package dev.xylonity.olympus.common.entity.projectile;
 
 import dev.xylonity.olympus.common.entity.HarpyEntity;
+import dev.xylonity.olympus.common.entity.HarpyEntity2;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -32,7 +33,7 @@ public final class HarpyProjectileEntity extends Projectile {
         setNoGravity(true);
     }
 
-    public HarpyProjectileEntity(final ServerLevel level, final HarpyEntity owner, final LivingEntity target) {
+    public HarpyProjectileEntity(final ServerLevel level, final LivingEntity owner, final LivingEntity target) {
         this(OlympusEntities.HARPY_PROJECTILE.get(), level);
         setOwner(owner);
         entityData.set(TARGET_ID, target.getId());
@@ -90,7 +91,7 @@ public final class HarpyProjectileEntity extends Projectile {
 
     @Override
     protected boolean canHitEntity(final Entity entity) {
-        final boolean friendlyHarpy = entity instanceof HarpyEntity && getOwner() instanceof HarpyEntity;
+        final boolean friendlyHarpy = isHarpy(entity) && isHarpy(getOwner());
         return entity instanceof LivingEntity && !friendlyHarpy && super.canHitEntity(entity);
     }
 
@@ -101,7 +102,7 @@ public final class HarpyProjectileEntity extends Projectile {
             final LivingEntity livingOwner = owner instanceof LivingEntity living ? living : null;
             final Entity target = hitResult.getEntity();
 
-            final boolean harpy = target instanceof HarpyEntity && owner instanceof HarpyEntity;
+            final boolean harpy = isHarpy(target) && isHarpy(owner);
             if (!harpy && target.hurtServer(serverLevel, damageSources().mobProjectile(this, livingOwner), 4) && livingOwner != null) {
                 livingOwner.setLastHurtMob(target);
             }
@@ -109,6 +110,10 @@ public final class HarpyProjectileEntity extends Projectile {
             discard();
         }
 
+    }
+
+    private static boolean isHarpy(final @Nullable Entity entity) {
+        return entity instanceof HarpyEntity || entity instanceof HarpyEntity2;
     }
 
     @Override
