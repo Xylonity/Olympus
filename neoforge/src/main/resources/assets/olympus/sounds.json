@@ -45,5 +45,37 @@
     "sounds": [
       "minecraft:block/smithing_table/smithing_table2"
     ]
+  },
+  "harpy_death": {
+    "subtitle": "subtitles.olympus.harpy_death",
+    "sounds": [
+      "olympus:harpy_death"
+    ]
+  },
+  "harpy_dash": {
+    "subtitle": "subtitles.olympus.harpy_dash",
+    "sounds": [
+      "olympus:harpy_dash"
+    ]
+  },
+  "harpy_hit": {
+    "subtitle": "subtitles.olympus.harpy_hit",
+    "sounds": [
+      "olympus:harpy_hit1",
+      "olympus:harpy_hit2"
+    ]
+  },
+  "harpy_shot": {
+    "subtitle": "subtitles.olympus.harpy_shot",
+    "sounds": [
+      "olympus:harpy_shot"
+    ]
+  },
+  "harpys_wings_flapping": {
+    "subtitle": "subtitles.olympus.harpys_wings_flapping",
+    "sounds": [
+      "olympus:harpys_wings_flapping1",
+      "olympus:harpys_wings_flapping2"
+    ]
   }
 }

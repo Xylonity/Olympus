@@ -12,9 +12,12 @@
   "item.olympus.spear_of_ares": "Spear of Ares",
   "item.olympus.aphrodite_lyre": "Aphrodite's Lyre",
   "item.olympus.poppy_of_demeter": "Poppy of Demeter",
+  "item.olympus.harpy_spawn_egg": "Harpy Spawn Egg",
+  "item.olympus.elite_harpy_spawn_egg": "Elite Harpy Spawn Egg",
 
   "entity.olympus.absorbed_soul": "Absorbed Soul",
   "entity.olympus.harpy": "Harpy",
+  "entity.olympus.elite_harpy": "Elite Harpy",
 
   "curios.identifier.feet": "Feet",
   "curios.modifiers.feet": "When worn on feet:",
@@ -50,6 +53,11 @@
   "subtitles.olympus.ares_spear_nailing": "Ares's spear impales",
   "subtitles.olympus.lyre_music": "Aphrodite's lyre plays",
   "subtitles.olympus.hephaestus_forging": "The instruments of Hephaestus forge",
+  "subtitles.olympus.harpy_death": "Harpy dies",
+  "subtitles.olympus.harpy_dash": "Harpy dashes",
+  "subtitles.olympus.harpy_hit": "Harpy attacks",
+  "subtitles.olympus.harpy_shot": "Harpy fires",
+  "subtitles.olympus.harpys_wings_flapping": "Harpy wings flap",
 
   "death.attack.olympus.lightning": "%1$s was electrocuted by %2$s",
   "death.attack.olympus.lightning.item": "%1$s was electrocuted by %2$s using %3$s",
