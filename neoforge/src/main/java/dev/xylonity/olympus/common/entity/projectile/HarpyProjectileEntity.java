@@ -1,12 +1,15 @@
 package dev.xylonity.olympus.common.entity.projectile;
 
 import dev.xylonity.olympus.common.entity.HarpyEntity;
-import dev.xylonity.olympus.common.entity.HarpyEntity2;
 import dev.xylonity.olympus.registry.OlympusEntities;
+import dev.xylonity.olympus.registry.OlympusParticles;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -98,13 +101,31 @@ public final class HarpyProjectileEntity extends Projectile {
     @Override
     protected void onHitEntity(final EntityHitResult hitResult) {
         if (level() instanceof ServerLevel serverLevel) {
+            playImpactEffects(serverLevel, hitResult.getLocation());
             final Entity owner = getOwner();
             final LivingEntity livingOwner = owner instanceof LivingEntity living ? living : null;
-            final Entity target = hitResult.getEntity();
+            final Entity hitEntity = hitResult.getEntity();
 
-            final boolean harpy = isHarpy(target) && isHarpy(owner);
-            if (!harpy && target.hurtServer(serverLevel, damageSources().mobProjectile(this, livingOwner), 4) && livingOwner != null) {
-                livingOwner.setLastHurtMob(target);
+            // Damage computation per harpy projectile ignores invulnerability ticks
+            final boolean harpy = isHarpy(hitEntity) && isHarpy(owner);
+            if (!harpy && hitEntity instanceof LivingEntity target) {
+                final DamageSource damageSource = damageSources().mobProjectile(this, livingOwner);
+                final boolean ignoresInvulnerabilityTicks = livingOwner instanceof HarpyEntity ownerHarpy && ownerHarpy.isElite();
+                final int previousInvulnerableTime = target.invulnerableTime;
+                if (ignoresInvulnerabilityTicks) {
+                    target.invulnerableTime = 0;
+                }
+
+                if (target.hurtServer(serverLevel, damageSource, 4.0F)) {
+                    if (livingOwner != null) {
+                        livingOwner.setLastHurtMob(target);
+                    }
+
+                }
+                else if (ignoresInvulnerabilityTicks) {
+                    target.invulnerableTime = previousInvulnerableTime;
+                }
+
             }
 
             discard();
@@ -113,13 +134,14 @@ public final class HarpyProjectileEntity extends Projectile {
     }
 
     private static boolean isHarpy(final @Nullable Entity entity) {
-        return entity instanceof HarpyEntity || entity instanceof HarpyEntity2;
+        return entity instanceof HarpyEntity;
     }
 
     @Override
     protected void onHitBlock(final BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
-        if (!level().isClientSide()) {
+        if (level() instanceof ServerLevel serverLevel) {
+            playImpactEffects(serverLevel, hitResult.getLocation());
             discard();
         }
 
@@ -147,6 +169,11 @@ public final class HarpyProjectileEntity extends Projectile {
     @Override
     protected void addAdditionalSaveData(final ValueOutput output) {
         super.addAdditionalSaveData(output);
+    }
+
+    private static void playImpactEffects(final ServerLevel level, final Vec3 position) {
+        level.sendParticles(OlympusParticles.HARPY_MAGIC.get(), position.x, position.y, position.z, 10, 0.08D, 0.08D, 0.08D, 0.16D);
+        level.playSound(null, position.x, position.y, position.z, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.HOSTILE, 0.8F, 1.5F + level.getRandom().nextFloat() * 0.2F);
     }
 
 }
