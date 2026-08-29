@@ -14,6 +14,7 @@ public final class OlympusParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SOUL_SALVATION = PARTICLES.register("soul_salvation", () -> new SimpleParticleType(true));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> POPPY_GROWTH = PARTICLES.register("poppy_growth", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> LIGHTNING_SPARKS = PARTICLES.register("lightning_sparks", () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> HARPY_MAGIC = PARTICLES.register("harpy_magic", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> TRIDENT_SPLASH_OF_WATER = PARTICLES.register("trident_splash_of_water", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> TRIDENT_WATER_DROP = PARTICLES.register("trident_water_drop", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> TRIDENT_SMALL_SPLASH_OF_WATER = PARTICLES.register("trident_small_splash_of_water", () -> new SimpleParticleType(false));
