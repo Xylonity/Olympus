@@ -15,7 +15,7 @@ import dev.xylonity.olympus.common.entity.ai.harpy.internal.DashHarpyGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyFlightGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyProjectileDodgeGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyRetreatGoal;
-import dev.xylonity.olympus.common.entity.ai.harpy.internal.MeleeHarpyGoal;
+import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyMeleeGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.ProjectileHarpyGoal;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusSounds;
@@ -114,7 +114,7 @@ public class HarpyEntity extends Monster implements GeoEntity {
         super.registerGoals();
 
         goalSelector.addGoal(0, new HarpyProjectileDodgeGoal(this));
-        goalSelector.addGoal(1, new MeleeHarpyGoal(this, TICKS_MELEE_ANIMATION, 20));
+        goalSelector.addGoal(1, new HarpyMeleeGoal(this, TICKS_MELEE_ANIMATION, 20));
         goalSelector.addGoal(2, new ProjectileHarpyGoal(this, TICKS_SHOT_ANIMATION, TICK_SHOT_RELEASE, TICKS_SHOT_COOLDOWN));
         goalSelector.addGoal(2, new DashHarpyGoal(this, TICKS_DASH_PREPARATION, TICKS_DASH_ENDING));
         goalSelector.addGoal(3, new HarpyRetreatGoal(this));
