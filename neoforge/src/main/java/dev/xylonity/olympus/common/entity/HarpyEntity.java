@@ -11,12 +11,12 @@ import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.util.GeckoLibUtil;
 import dev.xylonity.olympus.common.entity.ai.navigation.HarpyFlyingMoveControl;
 import dev.xylonity.olympus.common.entity.ai.navigation.HarpyFlyingNavigation;
-import dev.xylonity.olympus.common.entity.ai.harpy.internal.DashHarpyGoal;
+import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyDashGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyFlightGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyProjectileDodgeGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyRetreatGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyMeleeGoal;
-import dev.xylonity.olympus.common.entity.ai.harpy.internal.ProjectileHarpyGoal;
+import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyProjectileGoal;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -105,7 +105,7 @@ public class HarpyEntity extends Monster implements GeoEntity {
                 .add(Attributes.MOVEMENT_SPEED, 0.32D)
                 .add(Attributes.FLYING_SPEED, 0.5D)
                 .add(Attributes.ATTACK_DAMAGE, 8.0D)
-                .add(Attributes.FOLLOW_RANGE, 32.0D)
+                .add(Attributes.FOLLOW_RANGE, 28.0D)
                 .add(Attributes.SCALE, 1.1D);
     }
 
@@ -115,8 +115,8 @@ public class HarpyEntity extends Monster implements GeoEntity {
 
         goalSelector.addGoal(0, new HarpyProjectileDodgeGoal(this));
         goalSelector.addGoal(1, new HarpyMeleeGoal(this, TICKS_MELEE_ANIMATION, 20));
-        goalSelector.addGoal(2, new ProjectileHarpyGoal(this, TICKS_SHOT_ANIMATION, TICK_SHOT_RELEASE, TICKS_SHOT_COOLDOWN));
-        goalSelector.addGoal(2, new DashHarpyGoal(this, TICKS_DASH_PREPARATION, TICKS_DASH_ENDING));
+        goalSelector.addGoal(2, new HarpyProjectileGoal(this, TICKS_SHOT_ANIMATION, TICK_SHOT_RELEASE, TICKS_SHOT_COOLDOWN));
+        goalSelector.addGoal(2, new HarpyDashGoal(this, TICKS_DASH_PREPARATION, TICKS_DASH_ENDING));
         goalSelector.addGoal(3, new HarpyRetreatGoal(this));
         goalSelector.addGoal(8, new HarpyFlightGoal(this));
 
@@ -177,6 +177,16 @@ public class HarpyEntity extends Monster implements GeoEntity {
     }
 
     @Override
+    protected @NonNull SoundEvent getDeathSound() {
+        return OlympusSounds.HARPY_DEATH.get();
+    }
+
+    @Override
+    protected @NonNull SoundEvent getHurtSound(@NonNull DamageSource source) {
+        return OlympusSounds.HARPY_HIT.get();
+    }
+
+    @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>("maincontroller", TICKS_ANIMATION_TRANSITION, this::mainPredicate)
                 .setSoundKeyframeHandler(new AutoPlayingSoundKeyframeHandler<>()));
@@ -205,11 +215,6 @@ public class HarpyEntity extends Monster implements GeoEntity {
         }
 
         return PlayState.CONTINUE;
-    }
-
-    @Override
-    protected @NonNull SoundEvent getDeathSound() {
-        return OlympusSounds.HARPY_DEATH.get();
     }
 
     @Override
