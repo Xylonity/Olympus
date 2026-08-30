@@ -11,6 +11,7 @@ public record HermesJumpPayload() implements CustomPacketPayload {
     public static final HermesJumpPayload INSTANCE = new HermesJumpPayload();
 
     public static final Type<HermesJumpPayload> TYPE = new Type<>(Olympus.of("hermes_jump"));
+
     public static final StreamCodec<RegistryFriendlyByteBuf, HermesJumpPayload> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override

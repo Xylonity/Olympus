@@ -17,13 +17,16 @@ public final class OlympusNetwork {
                 .playToClient(LightningBoltPayload.TYPE, LightningBoltPayload.STREAM_CODEC)
                 .playToClient(LyreMusicPayload.TYPE, LyreMusicPayload.STREAM_CODEC)
                 .playToClient(SoulSalvationPayload.TYPE, SoulSalvationPayload.STREAM_CODEC)
-                .playToServer(HermesJumpPayload.TYPE, HermesJumpPayload.STREAM_CODEC, (ignoredPayload, context) ->
-                        context.enqueueWork(() -> {
-                            if (context.player() instanceof ServerPlayer player) {
-                                HermesSandalsItem.tryActiveAbility(player);
-                            }
-                        })
+                .playToServer(HermesJumpPayload.TYPE, HermesJumpPayload.STREAM_CODEC, (_, context) ->
+                    context.enqueueWork(() -> {
+                        if (context.player() instanceof ServerPlayer player) {
+                            HermesSandalsItem.tryActiveAbility(player);
+                        }
+
+                    })
+
                 );
+
     }
 
 }
