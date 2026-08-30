@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jspecify.annotations.NonNull;
 
@@ -21,10 +22,11 @@ public final class PentelicMarbleColumnBlock extends RotatedPillarBlock {
     public static final MapCodec<PentelicMarbleColumnBlock> CODEC = simpleCodec(PentelicMarbleColumnBlock::new);
 
     public static final EnumProperty<ColumnPart> PART = EnumProperty.create("part", ColumnPart.class);
+    public static final BooleanProperty REVERSED = BooleanProperty.create("reversed");
 
     public PentelicMarbleColumnBlock(final BlockBehaviour.Properties properties) {
         super(properties);
-        this.registerDefaultState(this.defaultBlockState().setValue(PART, ColumnPart.SINGLE));
+        this.registerDefaultState(this.defaultBlockState().setValue(PART, ColumnPart.SINGLE).setValue(REVERSED, false));
     }
 
     @Override
@@ -35,12 +37,14 @@ public final class PentelicMarbleColumnBlock extends RotatedPillarBlock {
     @Override
     protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(PART);
+        builder.add(PART, REVERSED);
     }
 
     @Override
     public @NonNull BlockState getStateForPlacement(final BlockPlaceContext context) {
-        final BlockState state = super.getStateForPlacement(context);
+        final Direction placementDirection = context.getClickedFace();
+        final boolean reversed = placementDirection.getAxis() != Direction.Axis.Y && placementDirection.getAxisDirection() == Direction.AxisDirection.NEGATIVE;
+        final BlockState state = super.getStateForPlacement(context).setValue(REVERSED, reversed);
         return updatePart(state, context.getLevel(), context.getClickedPos());
     }
 
@@ -55,19 +59,19 @@ public final class PentelicMarbleColumnBlock extends RotatedPillarBlock {
 
     private static BlockState updatePart(final BlockState state, final LevelReader level, final BlockPos pos) {
         final Direction.Axis axis = state.getValue(AXIS);
-        final Direction negative = Direction.fromAxisAndDirection(axis, Direction.AxisDirection.NEGATIVE);
-        final Direction positive = negative.getOpposite();
-        final boolean connectedNegative = connects(level.getBlockState(pos.relative(negative)), axis);
-        final boolean connectedPositive = connects(level.getBlockState(pos.relative(positive)), axis);
+        final Direction forward = Direction.fromAxisAndDirection(axis, state.getValue(REVERSED) ? Direction.AxisDirection.NEGATIVE : Direction.AxisDirection.POSITIVE);
+        final Direction backward = forward.getOpposite();
+        final boolean connectedBackward = connects(level.getBlockState(pos.relative(backward)), axis);
+        final boolean connectedForward = connects(level.getBlockState(pos.relative(forward)), axis);
         final ColumnPart part;
 
-        if (connectedNegative && connectedPositive) {
+        if (connectedBackward && connectedForward) {
             part = ColumnPart.MIDDLE;
         }
-        else if (connectedPositive) {
+        else if (connectedForward) {
             part = ColumnPart.BASE;
         }
-        else if (connectedNegative) {
+        else if (connectedBackward) {
             part = ColumnPart.CAPITAL;
         }
         else {
