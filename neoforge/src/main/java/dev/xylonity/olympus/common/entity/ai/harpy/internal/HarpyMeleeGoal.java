@@ -6,7 +6,7 @@ import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 
-public final class HarpyMeleeGoal extends AbstractHarpyGoal {
+public class HarpyMeleeGoal extends AbstractHarpyGoal {
 
     public HarpyMeleeGoal(final HarpyEntity harpy, final int attackDuration, final int cooldown) {
         super(harpy, attackDuration, cooldown);

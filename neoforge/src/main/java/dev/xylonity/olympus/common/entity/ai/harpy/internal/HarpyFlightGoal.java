@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 
-public final class HarpyFlightGoal extends Goal {
+public class HarpyFlightGoal extends Goal {
 
     private static final double MIN_HEIGHT = 3;
     private static final int RANGE = 6;
