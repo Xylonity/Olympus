@@ -3,10 +3,8 @@ package dev.xylonity.olympus.common.entity.ai.harpy.internal;
 import dev.xylonity.olympus.common.entity.HarpyEntity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -14,7 +12,7 @@ import java.util.EnumSet;
 
 public final class HarpyFlightGoal extends Goal {
 
-    private static final double MIN_HEIGHT = 2.75D;
+    private static final double MIN_HEIGHT = 3;
     private static final int RANGE = 6;
     private static final int MIN_HOVER_TICKS = 25;
     private static final int MIN_TRAVEL_TICKS = 30;
@@ -27,17 +25,17 @@ public final class HarpyFlightGoal extends Goal {
 
     public HarpyFlightGoal(final HarpyEntity harpy) {
         this.harpy = harpy;
-        setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+        setFlags(EnumSet.of(Flag.MOVE));
     }
 
     @Override
     public boolean canUse() {
-        return isInFlightState();
+        return hasNoTarget() && isInFlightState();
     }
 
     @Override
     public boolean canContinueToUse() {
-        return isInFlightState();
+        return hasNoTarget() && isInFlightState();
     }
 
     @Override
@@ -50,7 +48,6 @@ public final class HarpyFlightGoal extends Goal {
         if (destination != null) {
             if (canKeepTravelling()) {
                 travelTicks--;
-                flyTowards(destination);
                 return;
             }
 
@@ -61,11 +58,8 @@ public final class HarpyFlightGoal extends Goal {
 
         hoverInPlace();
 
-        final Vec3 destination = findRequiredLiftDestination();
-        if (destination != null) {
-            this.destination = destination;
-            travelTicks = MIN_TRAVEL_TICKS;
-            flyTowards(this.destination);
+        final Vec3 liftDestination = findRequiredLiftDestination();
+        if (liftDestination != null && startTravelling(liftDestination, MIN_TRAVEL_TICKS)) {
             return;
         }
 
@@ -73,15 +67,11 @@ public final class HarpyFlightGoal extends Goal {
             return;
         }
 
-        this.destination = findDestination();
-        if (this.destination == null) {
+        final Vec3 destination = findDestination();
+        if (destination == null || !startTravelling(destination, MIN_TRAVEL_TICKS + harpy.getRandom().nextInt(31))) {
             hoverTicks = MIN_HOVER_TICKS;
-            return;
         }
 
-        travelTicks = MIN_TRAVEL_TICKS + harpy.getRandom().nextInt(31);
-
-        flyTowards(this.destination);
     }
 
     @Override
@@ -92,24 +82,34 @@ public final class HarpyFlightGoal extends Goal {
 
     private boolean isInFlightState() {
         final int state = harpy.getAttackState();
-        return state == HarpyEntity.STATE_IDLE || state == HarpyEntity.STATE_FLY;
+        return state == HarpyEntity.STATE_IDLE || state == HarpyEntity.STATE_FLY || state == HarpyEntity.STATE_DASH_ENDING;
+    }
+
+    private boolean hasNoTarget() {
+        return harpy.getTarget() == null || !harpy.getTarget().isAlive();
     }
 
     private boolean canKeepTravelling() {
-        return travelTicks > 0 && !harpy.horizontalCollision && !harpy.verticalCollision && harpy.distanceToSqr(destination) > 0.6;
+        return travelTicks > 0 && !harpy.getNavigation().isDone() && destination != null && harpy.distanceToSqr(destination) > 0.6;
     }
 
-    private void flyTowards(final Vec3 target) {
+    private boolean startTravelling(final Vec3 target, final int duration) {
+        if (!harpy.getNavigation().moveTo(target.x, target.y, target.z, 1)) {
+            return false;
+        }
+
+        destination = target;
+        travelTicks = duration;
         if (harpy.getAttackState() != HarpyEntity.STATE_FLY) {
             harpy.setAttackState(HarpyEntity.STATE_FLY);
         }
 
-        harpy.getMoveControl().setWantedPosition(target.x, target.y, target.z, 1.0D);
-        harpy.getLookControl().setLookAt(target.x, target.y, target.z, 20.0F, 20.0F);
+        return true;
     }
 
     private void hoverInPlace() {
-        if (harpy.getAttackState() == HarpyEntity.STATE_FLY) {
+        final int state = harpy.getAttackState();
+        if (state == HarpyEntity.STATE_FLY || state == HarpyEntity.STATE_DASH_ENDING) {
             harpy.setAttackState(HarpyEntity.STATE_IDLE);
         }
 
@@ -118,6 +118,7 @@ public final class HarpyFlightGoal extends Goal {
     }
 
     private void stopTravelling() {
+        harpy.getNavigation().stop();
         destination = null;
         travelTicks = 0;
         hoverInPlace();
@@ -129,11 +130,11 @@ public final class HarpyFlightGoal extends Goal {
             final double x = harpy.getX() + harpy.getRandom().nextInt(RANGE * 2 + 1) - RANGE;
             final double z = harpy.getZ() + harpy.getRandom().nextInt(RANGE * 2 + 1) - RANGE;
             final int groundY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mth.floor(x), Mth.floor(z));
-            final double y = Mth.clamp(harpy.getY() + (harpy.getRandom().nextDouble() - 0.5D) * 4.0D, groundY + MIN_HEIGHT, groundY + 7);
-            final Vec3 candidate = new Vec3(x, y, z);
+            final double y = Mth.clamp(harpy.getY() + (harpy.getRandom().nextDouble() - 0.5D) * 4.0D, groundY + MIN_HEIGHT, groundY + 6);
+            final Vec3 possibility = new Vec3(x, y, z);
 
-            if (isClearPath(candidate)) {
-                return candidate;
+            if (isValidDestination(possibility)) {
+                return possibility;
             }
 
         }
@@ -148,16 +149,13 @@ public final class HarpyFlightGoal extends Goal {
             return null;
         }
 
-        final Vec3 candidate = new Vec3(harpy.getX(), minimumY, harpy.getZ());
-        return isClearPath(candidate) ? candidate : null;
+        final Vec3 possibility = new Vec3(harpy.getX(), minimumY, harpy.getZ());
+        return isValidDestination(possibility) ? possibility : null;
     }
 
-    private boolean isClearPath(final Vec3 candidate) {
-        final Level level = harpy.level();
+    private boolean isValidDestination(final Vec3 candidate) {
         final Vec3 offset = candidate.subtract(harpy.position());
-
-        return level.noCollision(harpy, harpy.getBoundingBox().move(offset)) && level.clip(new ClipContext(harpy.getBoundingBox().getCenter(), candidate.add(0.0D, harpy.getBbHeight() * 0.5D, 0.0D),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, harpy)).getType() == HitResult.Type.MISS;
+        return harpy.level().noCollision(harpy, harpy.getBoundingBox().move(offset));
     }
 
 }
