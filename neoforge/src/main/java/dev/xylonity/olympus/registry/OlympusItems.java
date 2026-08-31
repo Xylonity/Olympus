@@ -30,6 +30,9 @@ public class OlympusItems {
 
     public static final DeferredItem<SpawnEggItem> HARPY_SPAWN_EGG = ITEMS.registerItem("harpy_spawn_egg", SpawnEggItem::new, properties -> properties.spawnEgg(OlympusEntities.HARPY.get()));
     public static final DeferredItem<SpawnEggItem> ELITE_HARPY_SPAWN_EGG = ITEMS.registerItem("elite_harpy_spawn_egg", SpawnEggItem::new, properties -> properties.spawnEgg(OlympusEntities.ELITE_HARPY.get()));
+    public static final DeferredItem<Item> PARTHENON_KEY = ITEMS.registerSimpleItem("parthenon_key", properties -> properties.rarity(Rarity.RARE));
+    public static final DeferredItem<BlockItem> PARTHENON_SPAWNER = ITEMS.registerSimpleBlockItem(OlympusBlocks.PARTHENON_SPAWNER);
+    public static final DeferredItem<BlockItem> LOCKED_CHEST = ITEMS.registerSimpleBlockItem(OlympusBlocks.LOCKED_CHEST);
     public static final DeferredItem<BracersOfZeusItem> BRACERS_OF_ZEUS = ITEMS.registerItem("bracers_of_zeus", BracersOfZeusItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC));
     public static final DeferredItem<ArtemisBowItem> BOW_OF_ARTEMIS = ITEMS.registerItem("bow_of_artemis", ArtemisBowItem::new, properties -> properties.durability(384).enchantable(1).rarity(Rarity.EPIC));
     public static final DeferredItem<AphroditeLyreItem> APHRODITE_LYRE = ITEMS.registerItem("aphrodite_lyre", AphroditeLyreItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC));

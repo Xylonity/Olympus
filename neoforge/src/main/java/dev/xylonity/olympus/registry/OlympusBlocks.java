@@ -6,6 +6,8 @@ import dev.xylonity.olympus.common.block.ClimbingRoseBlock;
 import dev.xylonity.olympus.common.block.OlympusStairBlock;
 import dev.xylonity.olympus.common.block.PentelicMarbleColumnBlock;
 import dev.xylonity.olympus.common.block.PoppyOfDemeterBlock;
+import dev.xylonity.olympus.common.block.LockedChestBlock;
+import dev.xylonity.olympus.common.block.ParthenonSpawnerBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
@@ -63,5 +65,21 @@ public final class OlympusBlocks {
     );
 
     public static final DeferredBlock<AirCloudBlock> AIR_CLOUD_BLOCK = BLOCKS.registerBlock("air_cloud_block", AirCloudBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.POWDER_SNOW));
+
+    public static final DeferredBlock<ParthenonSpawnerBlock> PARTHENON_SPAWNER = BLOCKS.registerBlock("parthenon_spawner", ParthenonSpawnerBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.STONE)
+                    .strength(50.0F, 1200.0F)
+                    .sound(SoundType.TRIAL_SPAWNER)
+                    .lightLevel(state -> state.getValue(ParthenonSpawnerBlock.ACTIVE) || state.getValue(ParthenonSpawnerBlock.REWARD) ? 8 : 0)
+                    .noOcclusion()
+                    .isViewBlocking((state, level, pos) -> false));
+
+    public static final DeferredBlock<LockedChestBlock> LOCKED_CHEST = BLOCKS.registerBlock("locked_chest", LockedChestBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.WOOD)
+                    .strength(50.0F, 1200.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion());
 
 }

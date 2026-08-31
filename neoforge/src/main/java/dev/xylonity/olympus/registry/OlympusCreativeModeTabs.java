@@ -29,6 +29,9 @@ public final class OlympusCreativeModeTabs {
                         output.accept(OlympusItems.SPEAR_OF_ARES.get());
                         output.accept(OlympusItems.HARPY_SPAWN_EGG.get());
                         output.accept(OlympusItems.ELITE_HARPY_SPAWN_EGG.get());
+                        output.accept(OlympusItems.PARTHENON_KEY.get());
+                        output.accept(OlympusItems.PARTHENON_SPAWNER.get());
+                        output.accept(OlympusItems.LOCKED_CHEST.get());
                         output.accept(OlympusItems.PENTELIC_MARBLE.get());
                         output.accept(OlympusItems.PENTELIC_MARBLE_STAIRS.get());
                         output.accept(OlympusItems.PENTELIC_MARBLE_SLAB.get());

@@ -18,6 +18,7 @@ import dev.xylonity.olympus.client.particle.ForgingSparkParticle;
 import dev.xylonity.olympus.client.particle.HarpyProjectileTrailParticle;
 import dev.xylonity.olympus.client.particle.HarpyProjectileTrailParticleGroup;
 import dev.xylonity.olympus.client.particle.HarpyMagicParticle;
+import dev.xylonity.olympus.client.particle.HarpyFeatherParticle;
 import dev.xylonity.olympus.client.particle.LightningBoltParticle;
 import dev.xylonity.olympus.client.particle.LightningParticleGroup;
 import dev.xylonity.olympus.client.particle.LightningSparksParticle;
@@ -170,6 +171,8 @@ public final class OlympusClientEvents {
         event.registerSpriteSet(OlympusParticles.POPPY_GROWTH.get(), PoppyGrowthParticle.Provider::new);
         event.registerSpriteSet(OlympusParticles.LIGHTNING_SPARKS.get(), LightningSparksParticle.Provider::new);
         event.registerSpriteSet(OlympusParticles.HARPY_MAGIC.get(), HarpyMagicParticle.Provider::new);
+        event.registerSpriteSet(OlympusParticles.HARPY_FEATHER.get(), HarpyFeatherParticle.Provider::new);
+        event.registerSpriteSet(OlympusParticles.ELITE_HARPY_FEATHER.get(), HarpyFeatherParticle.Provider::new);
         event.registerSpriteSet(OlympusParticles.TRIDENT_SPLASH_OF_WATER.get(), TridentSplashParticle.MainProvider::new);
         event.registerSpriteSet(OlympusParticles.TRIDENT_WATER_DROP.get(), TridentWaterDropParticle.Provider::new);
         event.registerSpriteSet(OlympusParticles.TRIDENT_SMALL_SPLASH_OF_WATER.get(), TridentSplashParticle.SmallProvider::new);
