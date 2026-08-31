@@ -1,0 +1,98 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 4,
+        "max": 7
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_ingot",
+          "weight": 18,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": { "type": "minecraft:uniform", "min": 2, "max": 7 }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:gold_ingot",
+          "weight": 14,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": { "type": "minecraft:uniform", "min": 2, "max": 6 }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:emerald",
+          "weight": 10,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": { "type": "minecraft:uniform", "min": 1, "max": 4 }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:experience_bottle",
+          "weight": 12,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": { "type": "minecraft:uniform", "min": 2, "max": 6 }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_carrot",
+          "weight": 8,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": { "type": "minecraft:uniform", "min": 2, "max": 5 }
+            }
+          ]
+        },
+        { "type": "minecraft:item", "name": "minecraft:golden_apple", "weight": 4 },
+        { "type": "minecraft:item", "name": "minecraft:diamond", "weight": 3 },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:ender_pearl",
+          "weight": 7,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": { "type": "minecraft:uniform", "min": 1, "max": 3 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "minecraft:item", "name": "olympus:aphrodite_lyre" },
+        { "type": "minecraft:item", "name": "olympus:bracers_of_zeus" },
+        { "type": "minecraft:item", "name": "olympus:bow_of_artemis" },
+        { "type": "minecraft:item", "name": "olympus:helmet_of_hades" },
+        { "type": "minecraft:item", "name": "olympus:hermes_sandals" },
+        { "type": "minecraft:item", "name": "olympus:instruments_of_hephaestus" },
+        { "type": "minecraft:item", "name": "olympus:persephone_cup" },
+        { "type": "minecraft:item", "name": "olympus:poppy_of_demeter" },
+        { "type": "minecraft:item", "name": "olympus:poseidon_trident" },
+        { "type": "minecraft:item", "name": "olympus:spear_of_ares" }
+      ]
+    }
+  ],
+  "random_sequence": "olympus:chests/parthenon_chest"
+}

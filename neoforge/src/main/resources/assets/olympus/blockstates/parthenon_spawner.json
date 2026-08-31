@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "active=false,reward=false": { "model": "olympus:block/parthenon_spawner" },
+    "active=false,reward=true": { "model": "olympus:block/parthenon_spawner_reward" },
+    "active=true,reward=false": { "model": "olympus:block/parthenon_spawner_active" },
+    "active=true,reward=true": { "model": "olympus:block/parthenon_spawner_reward" }
+  }
+}

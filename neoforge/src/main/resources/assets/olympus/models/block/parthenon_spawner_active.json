@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top_inner_faces",
+  "textures": {
+    "bottom": "olympus:block/parthenon_spawner_bottom",
+    "side": "olympus:block/parthenon_spawner_sides_active",
+    "top": "olympus:block/parthenon_spawner_top"
+  }
+}
