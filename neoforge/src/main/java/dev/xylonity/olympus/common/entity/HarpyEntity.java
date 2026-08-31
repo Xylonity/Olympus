@@ -18,13 +18,20 @@ import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyRetreatGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyMeleeGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyProjectileGoal;
 import dev.xylonity.olympus.registry.OlympusEntities;
+import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -36,7 +43,10 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class HarpyEntity extends Monster implements GeoEntity {
 
@@ -72,6 +82,14 @@ public class HarpyEntity extends Monster implements GeoEntity {
     private static final int TICK_SHOT_RELEASE = 17;
 
     private static final double SPEED_THRESHOLD = 0.0025D;
+
+    private static final double[] COMBAT_VERTICAL_SEARCH_OFFSETS = {
+            0.0D, -0.5D, 0.5D, -1.0D, 1.0D, -1.5D, 1.5D, -2.0D, 2.0D, -2.5D
+    };
+    private static final double[] ESCAPE_VERTICAL_SEARCH_OFFSETS = {
+            0.0D, -0.5D, 0.5D, -1.0D, 1.0D, -1.5D, 1.5D, -2.0D, 2.0D,
+            -2.5D, 2.5D, -3.0D, 3.0D, -3.5D, 3.5D, -4.0D, 4.0D
+    };
 
     private long specialAttackDelayEndGameTime;
 
@@ -123,7 +141,7 @@ public class HarpyEntity extends Monster implements GeoEntity {
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 25));
 
         targetSelector.addGoal(1, new HurtByTargetGoal(this, HarpyEntity.class).setAlertOthers());
-        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false));
         targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
         targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
     }
@@ -147,8 +165,21 @@ public class HarpyEntity extends Monster implements GeoEntity {
     @Override
     public void tick() {
         super.tick();
+
         setNoGravity(true);
         resetFallDistance();
+
+        if (!level().isClientSide()) {
+            if (!noPhysics) {
+                escapeFromBlocks();
+            }
+
+            if (getAttackState() == STATE_DASHING) {
+                spawnFeatherParticles(1 + random.nextInt(2));
+            }
+
+        }
+
     }
 
     @Override
@@ -174,6 +205,79 @@ public class HarpyEntity extends Monster implements GeoEntity {
 
     public void delaySpecialAttacks() {
         specialAttackDelayEndGameTime = Math.max(specialAttackDelayEndGameTime, level().getGameTime() + TICKS_SPECIAL_ATTACK_CHAIN_DELAY);
+    }
+
+    public @Nullable Vec3 findFreeCombatPosition(final LivingEntity target, final double x, final double preferredY, final double z) {
+        final double minimumY = target.getBoundingBox().minY + 0.35D;
+        final double maximumY = target.getEyeY() + 3.0D;
+        final double y = Mth.clamp(preferredY, minimumY, maximumY);
+        return findFreePositionNear(x, y, z, minimumY, maximumY, COMBAT_VERTICAL_SEARCH_OFFSETS, 3);
+    }
+
+    public void escapeFromBlocks() {
+        final AABB currentBox = getBoundingBox().deflate(1.0E-4D);
+        if (noPhysics || level().isClientSide() || level().noBlockCollision(this, currentBox)) {
+            return;
+        }
+
+        final Vec3 pos = findFreePositionNear(getX(), getY(), getZ(), getY() - 4, getY() + 4, ESCAPE_VERTICAL_SEARCH_OFFSETS, 5);
+        if (pos == null) {
+            return;
+        }
+
+        getNavigation().stop();
+        getMoveControl().setWait();
+        setDeltaMovement(Vec3.ZERO);
+        setPos(pos);
+
+    }
+
+    private @Nullable Vec3 findFreePositionNear(final double centerX, final double baseY, final double centerZ, final double minimumY, final double maximumY, final double[] verticalOffsets, final int horizontalRings) {
+        for (int ring = 0; ring <= horizontalRings; ring++) {
+            final int attempt = ring == 0 ? 1 : ring * 8;
+            final double radius = ring * 0.75D;
+            for (int sample = 0; sample < attempt; sample++) {
+                final double angle = Mth.TWO_PI * sample / attempt;
+                final double x = centerX + Mth.cos((float) angle) * radius;
+                final double z = centerZ + Mth.sin((float) angle) * radius;
+
+                for (final double verticalOffset : verticalOffsets) {
+                    final double y = Mth.clamp(baseY + verticalOffset, minimumY, maximumY);
+                    final AABB destinationBox = getBoundingBox().move(x - getX(), y - getY(), z - getZ()).deflate(1.0E-4D);
+                    if (level().noBlockCollision(this, destinationBox)) {
+                        return new Vec3(x, y, z);
+                    }
+
+                }
+
+            }
+
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        if (source.getDirectEntity() != null) {
+            spawnFeatherParticles(5 + random.nextInt(10));
+        }
+
+        return super.hurtServer(level, source, damage);
+    }
+
+    private void spawnFeatherParticles(int amount) {
+        for (int i = 0; i < amount; i++) {
+            final double dx = (this.random.nextDouble() - 0.5) * 0.5;
+            final double dy = (this.random.nextDouble() - 0.5) * 0.5;
+            final double dz = (this.random.nextDouble() - 0.5) * 0.5;
+            if (this.level() instanceof ServerLevel level) {
+                final ParticleOptions particleType = isElite() ? OlympusParticles.ELITE_HARPY_FEATHER.get() : OlympusParticles.HARPY_FEATHER.get();
+                level.sendParticles(particleType, this.getX(), this.getY() + getBbHeight() * 0.5f, this.getZ(), 1, dx, dy, dz, 0.1);
+            }
+
+        }
+
     }
 
     @Override
