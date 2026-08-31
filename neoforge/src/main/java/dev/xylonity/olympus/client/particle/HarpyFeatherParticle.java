@@ -23,7 +23,7 @@ public final class HarpyFeatherParticle extends SingleQuadParticle {
         gravity = 0.035F;
         friction = 0.975F;
         lifetime = 65 + random.nextInt(36);
-        initialSize = 0.11F + random.nextFloat() * 0.08F;
+        initialSize = 0.08F + random.nextFloat() * 0.16F;
         quadSize = initialSize;
         spinSpeed = (random.nextBoolean() ? 1.0F : -1.0F) * (0.018F + random.nextFloat() * 0.025F);
         sway = random.nextDouble() * Mth.TWO_PI;
