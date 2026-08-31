@@ -4,8 +4,6 @@ import dev.xylonity.olympus.common.entity.HarpyEntity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -83,7 +81,7 @@ public class HarpyRetreatGoal extends Goal {
             final Vec3 destination = findCombatDestination(target, attempt);
             final double horizontalDistance = horizontalDistanceTo(target);
             final double speedModifier = horizontalDistance < INNER_ORBIT_DISTANCE ? 1.8 : horizontalDistance > OUTER_ORBIT_DISTANCE ? 1 : 0.82;
-            if (steerTowards(destination, speedModifier)) {
+            if (destination != null && steerTowards(destination, speedModifier)) {
                 return;
             }
 
@@ -93,7 +91,7 @@ public class HarpyRetreatGoal extends Goal {
         coastInPlace();
     }
 
-    private Vec3 findCombatDestination(final LivingEntity target, final int attempt) {
+    private @Nullable Vec3 findCombatDestination(final LivingEntity target, final int attempt) {
         // Direction to the target
         Vec3 direction = new Vec3(harpy.getX() - target.getX(), 0, harpy.getZ() - target.getZ());
         if (direction.lengthSqr() < 1.0E-6D) {
@@ -127,14 +125,10 @@ public class HarpyRetreatGoal extends Goal {
         final double x = harpy.getX() + flightDirection.x * look;
         final double z = harpy.getZ() + flightDirection.z * look;
 
-        final Level level = harpy.level();
-        final int groundY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mth.floor(x), Mth.floor(z));
-        final double heightWave = Mth.sin((harpy.tickCount + getHarpyPhase()) * 0.09F) * 0.8;
-        final double desiredY = target.getEyeY() + 2.25 + heightWave;
-        // Min/max altitude distance
-        final double y = Mth.clamp(Mth.clamp(desiredY, harpy.getY() - 2.0, harpy.getY() + 2.0), groundY + 3, groundY + 8);
-
-        return new Vec3(x, y, z);
+        // Altitude depends on the target's position rather than the height map
+        final double height = Mth.sin((harpy.tickCount + getHarpyPhase()) * 0.09F) * 0.65D;
+        final double y = target.getEyeY() + 1.25D + height;
+        return harpy.findFreeCombatPosition(target, x, y, z);
     }
 
     private double getRadialCorrection(final double horizontalDistance) {

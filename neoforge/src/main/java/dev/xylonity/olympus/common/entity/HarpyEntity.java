@@ -229,7 +229,6 @@ public class HarpyEntity extends Monster implements GeoEntity {
         getMoveControl().setWait();
         setDeltaMovement(Vec3.ZERO);
         setPos(pos);
-
     }
 
     private @Nullable Vec3 findFreePositionNear(final double centerX, final double baseY, final double centerZ, final double minimumY, final double maximumY, final double[] verticalOffsets, final int horizontalRings) {

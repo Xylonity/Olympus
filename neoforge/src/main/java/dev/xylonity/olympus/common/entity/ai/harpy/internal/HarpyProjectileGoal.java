@@ -127,15 +127,16 @@ public class HarpyProjectileGoal extends AbstractHarpyGoal {
     private void startAttackStrafe(final LivingEntity currentTarget) {
         Vec3 away = new Vec3(harpy.getX() - currentTarget.getX(), 0, harpy.getZ() - currentTarget.getZ());
         if (away.lengthSqr() < 1.0E-6D) {
-            away = new Vec3(1.0D, 0.0D, 0.0D);
+            away = new Vec3(1, 0, 0);
         }
         else {
             away = away.normalize();
         }
 
         final Vec3 tangent = strafeClockwise ? new Vec3(-away.z, 0.0D, away.x) : new Vec3(away.z, 0.0D, -away.x);
-        final Vec3 strafe = harpy.position().add(tangent.scale(4));
-        if (!harpy.getNavigation().moveTo(strafe.x, harpy.getY(), strafe.z, 0.65)) {
+        final Vec3 horizontalStrafe = harpy.position().add(tangent.scale(4.0D));
+        final Vec3 strafe = harpy.findFreeCombatPosition(currentTarget, horizontalStrafe.x, currentTarget.getEyeY() + 1.25D, horizontalStrafe.z);
+        if (strafe == null || !harpy.getNavigation().moveTo(strafe.x, strafe.y, strafe.z, 0.65D)) {
             strafeClockwise = !strafeClockwise;
         }
 

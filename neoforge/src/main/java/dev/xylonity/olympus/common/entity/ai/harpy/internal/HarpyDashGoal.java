@@ -12,7 +12,6 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlocksAttacks;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -113,6 +112,7 @@ public class HarpyDashGoal extends Goal {
         harpy.getMoveControl().setWait();
         harpy.setDeltaMovement(Vec3.ZERO);
         harpy.noPhysics = false;
+        harpy.escapeFromBlocks();
 
         final boolean waitingForPostDash = dashLaunched && phase == Phase.ENDING;
         if (isDashState() && !waitingForPostDash) {
@@ -183,8 +183,12 @@ public class HarpyDashGoal extends Goal {
             difference = difference.normalize();
         }
 
-        final Vec3 destination = new Vec3(currentTarget.getX() + difference.x * 4, Math.max(currentTarget.getEyeY() + 1.0D, harpy.getY() - 1.0D), currentTarget.getZ() + difference.z * 4);
-        harpy.getNavigation().moveTo(destination.x, destination.y, destination.z, 0.55);
+        final double x = currentTarget.getX() + difference.x * 4.0D;
+        final double z = currentTarget.getZ() + difference.z * 4.0D;
+        final Vec3 destination = harpy.findFreeCombatPosition(currentTarget, x, currentTarget.getEyeY() + 1.5D, z);
+        if (destination != null) {
+            harpy.getNavigation().moveTo(destination.x, destination.y, destination.z, 0.55D);
+        }
 
         preparationTicks = 4;
     }
@@ -195,30 +199,29 @@ public class HarpyDashGoal extends Goal {
         final double lowestY = findLowestY(targetCenter.x, targetCenter.z, currentTarget.getBoundingBox().minY + 0.2);
         curveBottom = new Vec3(targetCenter.x, lowestY, targetCenter.z);
 
-        Vec3 horizontalDistance1 = new Vec3(curveBottom.x - curveStart.x, 0, curveBottom.z - curveStart.z);
-        if (horizontalDistance1.lengthSqr() < 1.0E-6D) {
-            horizontalDistance1 = new Vec3(harpy.getLookAngle().x, 0.0D, harpy.getLookAngle().z);
+        Vec3 horizontalDistance = new Vec3(curveBottom.x - curveStart.x, 0, curveBottom.z - curveStart.z);
+        if (horizontalDistance.lengthSqr() < 1.0E-6D) {
+            horizontalDistance = new Vec3(harpy.getLookAngle().x, 0.0D, harpy.getLookAngle().z);
         }
 
-        if (horizontalDistance1.lengthSqr() < 1.0E-6D) {
-            horizontalDistance1 = Vec3.Z_AXIS;
+        if (horizontalDistance.lengthSqr() < 1.0E-6D) {
+            horizontalDistance = Vec3.Z_AXIS;
         }
         else {
-            horizontalDistance1 = horizontalDistance1.normalize();
+            horizontalDistance = horizontalDistance.normalize();
         }
 
+        // Altitude depends on the target's position rather than the height map
         final double horizontalDistance2 = Math.max(1.0D, horizontalDistance(curveStart, curveBottom));
-        final double x = curveBottom.x + horizontalDistance1.x * horizontalDistance2;
-        final double z = curveBottom.z + horizontalDistance1.z * horizontalDistance2;
-        final int groundY = harpy.level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mth.floor(x), Mth.floor(z));
-        // Min/max altitude distance
-        final double y = Mth.clamp(Math.max(curveStart.y, curveBottom.y + 4.0D), groundY + 3, groundY + 8);
-
-        curveEnd = new Vec3(x, y, z);
+        final double x = curveBottom.x + horizontalDistance.x * horizontalDistance2;
+        final double z = curveBottom.z + horizontalDistance.z * horizontalDistance2;
+        final double y = currentTarget.getEyeY() + 1.75D;
+        final Vec3 curveEnd = harpy.findFreeCombatPosition(currentTarget, x, y, z);
+        this.curveEnd = curveEnd != null ? curveEnd : curveStart;
 
         final double distance = Mth.clamp(horizontalDistance2 * 0.45D, 2, 5);
-        inboundControl = curveBottom.subtract(horizontalDistance1.scale(distance));
-        outboundControl = curveBottom.add(horizontalDistance1.scale(distance));
+        inboundControl = curveBottom.subtract(horizontalDistance.scale(distance));
+        outboundControl = curveBottom.add(horizontalDistance.scale(distance));
 
         curveLength = approximateCurveLength();
         curveProgress = 0.0D;
@@ -440,6 +443,7 @@ public class HarpyDashGoal extends Goal {
         harpy.getMoveControl().setWait();
         harpy.setDeltaMovement(Vec3.ZERO);
         harpy.noPhysics = false;
+        harpy.escapeFromBlocks();
     }
 
     private boolean isInFlightState() {
