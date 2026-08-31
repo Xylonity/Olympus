@@ -12,6 +12,7 @@ import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusMobEffects;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
+import dev.xylonity.olympus.registry.OlympusStructureTypes;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -31,6 +32,7 @@ public class OlympusNeoForge {
         OlympusMobEffects.MOB_EFFECTS.register(eventBus);
         OlympusParticles.PARTICLES.register(eventBus);
         OlympusSounds.SOUND_EVENTS.register(eventBus);
+        OlympusStructureTypes.STRUCTURE_TYPES.register(eventBus);
 
         eventBus.addListener(OlympusNetwork::registerPayloads);
 
