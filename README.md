@@ -1,32 +1,4 @@
-# MultiLoader Template
-
-This project provides a Gradle project template that can compile Minecraft mods for multiple modloaders using a common project for the sources. This project does not require any third party libraries or dependencies. If you have any questions or want to discuss the project, please join our [Discord](https://discord.myceliummod.network).
-
-## Getting Started
-
-### IntelliJ IDEA
-This guide will show how to import the MultiLoader Template into IntelliJ IDEA. The setup process is roughly equivalent to setting up the modloaders independently and should be very familiar to anyone who has worked with their MDKs.
-
-1. Clone or download this repository to your computer.
-2. Configure the project by setting the properties in the `gradle.properties` file. You will also need to change the `rootProject.name`  property in `settings.gradle`, this should match the folder name of your project, or else IDEA may complain.
-3. Open the template's root folder as a new project in IDEA. This is the folder that contains this README.md file and the gradlew executable.
-4. If your default JVM/JDK is not Java 25 you will encounter an error when opening the project. This error is fixed by going to `File > Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle JVM` and changing the value to a valid Java 25 JVM. You will also need to set the Project SDK to Java 25. This can be done by going to `File > Project Structure > Project SDK`. Once both have been set open the Gradle tab in IDEA and click the refresh button to reload the project.
-5. Open your Run/Debug Configurations. Under the `Application` category there should now be options to run Fabric and NeoForge projects. Select one of the client options and try to run it.
-6. Assuming you were able to run the game in step 5 your workspace should now be set up.
-
-### Eclipse
-While it is possible to use this template in Eclipse it is not recommended. During the development of this template multiple critical bugs and quirks related to Eclipse were found at nearly every level of the required build tools. While we continue to work with these tools to report and resolve issues support for projects like these are not there yet. For now Eclipse is considered unsupported by this project. The development cycle for build tools is notoriously slow so there are no ETAs available.
-
-## Development Guide
-When using this template the majority of your mod should be developed in the `common` project. The `common` project is compiled against the vanilla game and is used to hold code that is shared between the different loader-specific versions of your mod. The `common` project has no knowledge or access to ModLoader specific code, apis, or concepts. Code that requires something from a specific loader must be done through the project that is specific to that loader, such as the `fabric` or `neoforge` projects.
-
-Loader specific projects such as the `fabric` and `neoforge` project are used to load the `common` project into the game. These projects also define code that is specific to that loader. Loader specific projects can access all the code in the `common` project. It is important to remember that the `common` project can not access code from loader specific projects.
-
-## Removing Platforms and Loaders
-While this template has support for many modloaders, new loaders may appear in the future, and existing loaders may become less relevant.
-
-Removing loader specific projects is as easy as deleting the folder, and removing the `include("projectname")` line from the `settings.gradle` file.
-For example if you wanted to remove support for `forge` you would follow the following steps:
-
-1. Delete the subproject folder. For example, delete `MultiLoader-Template/forge`.
-2. Remove the project from `settings.gradle`. For example, remove `include("forge")`. 
+<p><img src="https://i.imgur.com/ibQFISb.png" width="1124" height="258"></p>
+<p style="text-align: center;"><a href="https://discord.gg/Pxj3gdhGj8" target="_blank" rel="nofollow noopener"><img src="https://media.forgecdn.net/attachments/description/1018043/description_a255b953-62ec-43d7-b4b3-8a1a94b36bac.png" alt=""></a> &nbsp;<a href="https://www.curseforge.com/minecraft/mc-mods/curios" target="_blank" rel="nofollow noopener"><img src="https://media.forgecdn.net/attachments/description/1667111/description_07ca6e33-5cf2-473a-a519-d95733922700.png" width="190" height="64"></a> &nbsp;<a href="https://www.curseforge.com/minecraft/mc-mods/geckolib" target="_blank" rel="nofollow noopener"><img src="https://media.forgecdn.net/attachments/description/1018043/description_1b32b3dd-8aa3-4fa4-b6f4-d7c186884e91.png" alt=""></a> &nbsp;<a href="https://www.curseforge.com/minecraft/mc-mods/olympus-mythology" target="_blank" rel="nofollow noopener"><img src="https://media.forgecdn.net/attachments/description/1018043/description_d108d080-9787-40f4-9eab-b5a715e7826b.png" alt=""></a> &nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>Olympus!</strong> is a mod that adds artifacts from the Greek mythological pantheon to the game, each with its own unique abilities and properties. Each artifact you acquire during your adventures, grants you new abilities in combat, quality of life, and farming. The mod also provides new decorative blocks, mobs for battle, and themed structures.<br><br><em>The mod requires <a href="Curios API" target="_blank" rel="nofollow noopener">Curios API</a> and <a href="https://www.curseforge.com/minecraft/mc-mods/geckolib" target="_blank" rel="nofollow noopener">GeckoLib</a> (on 26.1.2) to work.</em><br><br>This mod is <strong>highly configurable</strong> through the config file. For any questions, problems, contributions, new ideas about content/mods, and more, you can join our <a href="https://www.curseforge.com/linkout?remoteUrl=https://discord.com/invite/Pxj3gdhGj8" target="_blank" rel="nofollow noopener">official Discord</a> and comment in the appropriate channels.<br><br></p>
