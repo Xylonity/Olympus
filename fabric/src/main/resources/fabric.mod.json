@@ -26,6 +26,7 @@
     "depends": {
         "fabricloader": ">=${fabric_loader_version}",
         "fabric-api": "*",
+        "knightlib": ">=${knightlib_version}",
         "minecraft": "~${minecraft_version}",
         "java": ">=${java_version}"
     },
@@ -33,4 +34,3 @@
         "another-mod": "*"
     }
 }
-  
