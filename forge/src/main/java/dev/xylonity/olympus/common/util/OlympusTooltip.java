@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 
@@ -29,7 +29,7 @@ public class OlympusTooltip {
 
         tooltip.accept(Component.empty());
 
-        if (!Minecraft.getInstance().hasShiftDown()) {
+        if (!Screen.hasShiftDown()) {
             final Component shift = Component.literal("[Shift]").withStyle(ChatFormatting.GRAY);
             tooltip.accept(Component.translatable("tooltip.olympus.hold_shift", shift)
                     .withStyle(ChatFormatting.DARK_GRAY));
