@@ -49,8 +49,10 @@ dependencies {
     compileOnly project(":common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
     modImplementation "dev.xylonity.knightlib:knightlib-forge-${minecraft_version}:${knightlib_version}"
-    compileOnly "top.theillusivec4.curios:curios-forge:${curios_version}:api"
-    runtimeOnly "top.theillusivec4.curios:curios-forge:${curios_version}"
+    compileOnly "org.jspecify:jspecify:1.0.0"
+    compileOnly "org.jetbrains:annotations:24.1.0"
+    modCompileOnly "top.theillusivec4.curios:curios-forge:${curios_version}:api"
+    modRuntimeOnly "top.theillusivec4.curios:curios-forge:${curios_version}"
 }
 
 jar {

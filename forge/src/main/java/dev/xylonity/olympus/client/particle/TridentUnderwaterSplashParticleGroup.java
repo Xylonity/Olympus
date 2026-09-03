@@ -1,42 +1,42 @@
 package dev.xylonity.olympus.client.particle;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.xylonity.olympus.registry.OlympusRenderTypes;
-import java.util.List;
-import net.minecraft.client.Camera;
-import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.client.particle.ParticleGroup;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.state.level.ParticleGroupRenderState;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4fc;
-import org.jspecify.annotations.NonNull;
 
-public final class TridentUnderwaterSplashParticleGroup extends ParticleGroup<TridentUnderwaterSplashParticle> {
+public final class TridentUnderwaterSplashParticleGroup {
 
-    public static final ParticleRenderType TYPE = new ParticleRenderType("OLYMPUS_TRIDENT_UNDERWATER_SPLASHES");
+    private static final RenderType RENDER_TYPE = OlympusRenderTypes.underwaterSplash();
+
+    public static final ParticleRenderType TYPE = new ParticleRenderType() {
+
+        @Override
+        public void begin(final BufferBuilder buffer, final TextureManager textureManager) {
+            buffer.begin(RENDER_TYPE.mode(), RENDER_TYPE.format());
+        }
+
+        @Override
+        public void end(final Tesselator tesselator) {
+            RENDER_TYPE.end(tesselator.getBuilder(), RenderSystem.getVertexSorting());
+        }
+
+        @Override
+        public String toString() {
+            return "OLYMPUS_TRIDENT_UNDERWATER_SPLASH";
+        }
+
+    };
 
     private static final int LATITUDE_SEGMENTS = 12;
     private static final int LONGITUDE_SEGMENTS = 24;
 
-    public TridentUnderwaterSplashParticleGroup(final ParticleEngine engine) {
-        super(engine);
-    }
-
-    @Override
-    public @NonNull ParticleGroupRenderState extractRenderState(final Frustum frustum, final Camera camera, final float partialTickTime) {
-        final List<TridentUnderwaterSplashParticle.RenderSnapshot> snapshots = particles.stream()
-                .filter(particle -> frustum.isVisible(particle.getBoundingBox()))
-                .map(particle -> particle.extractSnapshot(camera, partialTickTime))
-                .toList();
-        return new RenderState(snapshots);
-    }
-
-    private static void render(final Matrix4fc pose, final VertexConsumer buffer, final TridentUnderwaterSplashParticle.RenderSnapshot snapshot) {
+    public static void render(final VertexConsumer buffer, final TridentUnderwaterSplashParticle.RenderSnapshot snapshot) {
         if (snapshot.alpha() <= 0.001F) {
             return;
         }
@@ -49,10 +49,10 @@ public final class TridentUnderwaterSplashParticleGroup extends ParticleGroup<Tr
                 final double longitudeFrom = Math.PI * 2.0D * longitude / LONGITUDE_SEGMENTS;
                 final double longitudeTo = Math.PI * 2.0D * (longitude + 1) / LONGITUDE_SEGMENTS;
 
-                addVertex(pose, buffer, spherePoint(snapshot, latitudeFrom, longitudeFrom), snapshot);
-                addVertex(pose, buffer, spherePoint(snapshot, latitudeTo, longitudeFrom), snapshot);
-                addVertex(pose, buffer, spherePoint(snapshot, latitudeTo, longitudeTo), snapshot);
-                addVertex(pose, buffer, spherePoint(snapshot, latitudeFrom, longitudeTo), snapshot);
+                addVertex(buffer, spherePoint(snapshot, latitudeFrom, longitudeFrom), snapshot);
+                addVertex(buffer, spherePoint(snapshot, latitudeTo, longitudeFrom), snapshot);
+                addVertex(buffer, spherePoint(snapshot, latitudeTo, longitudeTo), snapshot);
+                addVertex(buffer, spherePoint(snapshot, latitudeFrom, longitudeTo), snapshot);
             }
 
         }
@@ -60,29 +60,16 @@ public final class TridentUnderwaterSplashParticleGroup extends ParticleGroup<Tr
     }
 
     private static Vec3 spherePoint(final TridentUnderwaterSplashParticle.RenderSnapshot snapshot, final double latitude, final double longitude) {
-        final double wave = 1d + Math.sin(longitude * 3d + latitude * 5d - snapshot.progress() * Math.PI * 4d) * 0.012;
+        final double wave = 1.0D + Math.sin(longitude * 3.0D + latitude * 5.0D - snapshot.progress() * Math.PI * 4.0D) * 0.012D;
         final double radius = snapshot.radius() * wave;
         final double horizontalRadius = Math.cos(latitude) * radius;
         return snapshot.center().add(Math.cos(longitude) * horizontalRadius, Math.sin(latitude) * radius, Math.sin(longitude) * horizontalRadius);
     }
 
-    private static void addVertex(final Matrix4fc pose, final VertexConsumer buffer, final Vec3 position, final TridentUnderwaterSplashParticle.RenderSnapshot snapshot) {
-        buffer.addVertex(pose, (float) position.x, (float) position.y, (float) position.z).setColor(snapshot.red(), snapshot.green(), snapshot.blue(), snapshot.alpha());
-    }
-
-    private record RenderState(
-            List<TridentUnderwaterSplashParticle.RenderSnapshot> snapshots
-    ) implements ParticleGroupRenderState {
-
-        @Override
-        public void submit(final @NonNull SubmitNodeCollector submitNodeCollector, final @NonNull CameraRenderState camera) {
-            if (snapshots.isEmpty()) {
-                return;
-            }
-
-            submitNodeCollector.submitCustomGeometry(new PoseStack(), OlympusRenderTypes.underwaterSplash(), (pose, buffer) -> snapshots.forEach(snapshot -> render(pose.pose(), buffer, snapshot)));
-        }
-
+    private static void addVertex(final VertexConsumer buffer, final Vec3 position, final TridentUnderwaterSplashParticle.RenderSnapshot snapshot) {
+        buffer.vertex(position.x, position.y, position.z)
+                .color(snapshot.red(), snapshot.green(), snapshot.blue(), snapshot.alpha())
+                .endVertex();
     }
 
 }

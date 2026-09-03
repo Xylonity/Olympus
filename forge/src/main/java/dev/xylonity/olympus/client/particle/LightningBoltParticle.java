@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.client.particle;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Camera;
@@ -84,8 +85,17 @@ public final class LightningBoltParticle extends Particle {
     }
 
     @Override
-    public @NonNull ParticleRenderType getGroup() {
+    public @NonNull ParticleRenderType getRenderType() {
         return LightningParticleGroup.TYPE;
+    }
+
+    @Override
+    public void render(final VertexConsumer buffer, final Camera camera, final float partialTick) {
+        final RenderSnapshot snapshot = extractSnapshot(camera, partialTick);
+        if (snapshot != null) {
+            LightningParticleGroup.render(buffer, snapshot);
+        }
+
     }
 
     public @Nullable RenderSnapshot extractSnapshot(final Camera camera, final float partialTick) {
@@ -97,7 +107,7 @@ public final class LightningBoltParticle extends Particle {
         final float life = Mth.clamp((age + partialTick) / lifetime, 0, 1);
         final float width = baseWidth * Mth.lerp(life, 1.85F, 0.12F);
         final float alpha = 1.0F - life * life;
-        final Vec3 cameraPos = camera.position();
+        final Vec3 cameraPos = camera.getPosition();
         final List<Vec3> cameraPath = path.stream().map(point -> point.subtract(cameraPos)).toList();
         return new RenderSnapshot(cameraPath, width, alpha);
     }
@@ -171,7 +181,7 @@ public final class LightningBoltParticle extends Particle {
         }
 
         final Vec3 direction = delta.scale(1.0D / distance);
-        final Vec3 reference = Math.abs(direction.y) > 0.9D ? Vec3.X_AXIS : Vec3.Y_AXIS;
+        final Vec3 reference = Math.abs(direction.y) > 0.9D ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
 
         // Builds a plane around the bolt so the same offsets work in any direction
         final Vec3 side = direction.cross(reference).normalize();
@@ -184,7 +194,7 @@ public final class LightningBoltParticle extends Particle {
         }
 
         final List<Vec3> result = new ArrayList<>(hopCount + 18);
-        result.add(points.getFirst());
+        result.add(points.get(0));
 
         for (int index = 1; index < hopCount - 1; index++) {
             final Vec3 corner = points.get(index);
@@ -214,7 +224,7 @@ public final class LightningBoltParticle extends Particle {
             result.add(out);
         }
 
-        result.add(points.getLast());
+        result.add(points.get(points.size() - 1));
 
         return List.copyOf(result);
     }

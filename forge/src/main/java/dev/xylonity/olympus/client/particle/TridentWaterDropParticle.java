@@ -4,8 +4,9 @@ import dev.xylonity.olympus.registry.OlympusParticles;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.tags.FluidTags;
@@ -13,10 +14,11 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.material.FluidState;
 import org.jspecify.annotations.NonNull;
 
-public final class TridentWaterDropParticle extends SingleQuadParticle {
+public final class TridentWaterDropParticle extends TextureSheetParticle {
 
     private TridentWaterDropParticle(final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed, final SpriteSet sprites) {
-        super(level, x, y, z, sprites.first());
+        super(level, x, y, z);
+        setSprite(sprites.get(0, 1));
 
         friction = 0.98F;
         gravity = 0.7F;
@@ -49,8 +51,8 @@ public final class TridentWaterDropParticle extends SingleQuadParticle {
     }
 
     @Override
-    protected @NonNull Layer getLayer() {
-        return Layer.TRANSLUCENT;
+    public @NonNull ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     public static final class Provider implements ParticleProvider<SimpleParticleType> {
@@ -62,7 +64,7 @@ public final class TridentWaterDropParticle extends SingleQuadParticle {
         }
 
         @Override
-        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed, final RandomSource random) {
+        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed) {
             return new TridentWaterDropParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites);
         }
 

@@ -3,21 +3,23 @@ package dev.xylonity.olympus.client.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.NonNull;
 
-public final class HarpyFeatherParticle extends SingleQuadParticle {
+public final class HarpyFeatherParticle extends TextureSheetParticle {
 
     private final float initialSize;
     private final float spinSpeed;
     private final double sway;
 
     private HarpyFeatherParticle(final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed, final SpriteSet sprites, final RandomSource random) {
-        super(level, x, y, z, sprites.get(random));
+        super(level, x, y, z);
+        setSprite(sprites.get(random));
 
         hasPhysics = true;
         gravity = 0.035F;
@@ -53,8 +55,8 @@ public final class HarpyFeatherParticle extends SingleQuadParticle {
     }
 
     @Override
-    protected @NonNull Layer getLayer() {
-        return Layer.TRANSLUCENT;
+    public @NonNull ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     public static final class Provider implements ParticleProvider<SimpleParticleType> {
@@ -66,8 +68,8 @@ public final class HarpyFeatherParticle extends SingleQuadParticle {
         }
 
         @Override
-        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed, final RandomSource random) {
-            return new HarpyFeatherParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, random);
+        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed) {
+            return new HarpyFeatherParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, level.getRandom());
         }
 
     }

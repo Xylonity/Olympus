@@ -1,7 +1,6 @@
 package dev.xylonity.olympus.client.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.FallingLeavesParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
@@ -143,8 +142,8 @@ public final class ArtemisLeafParticle extends FallingLeavesParticle {
         }
 
         @Override
-        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed, final RandomSource random) {
-            return new ArtemisLeafParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, random, false);
+        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed) {
+            return new ArtemisLeafParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, level.getRandom(), false);
         }
 
     }
@@ -158,8 +157,8 @@ public final class ArtemisLeafParticle extends FallingLeavesParticle {
         }
 
         @Override
-        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed, final RandomSource random) {
-            return new ArtemisLeafParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, random, true);
+        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed) {
+            return new ArtemisLeafParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, level.getRandom(), true);
         }
 
     }

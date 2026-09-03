@@ -3,22 +3,23 @@ package dev.xylonity.olympus.client.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.NonNull;
 
 /// Mostly the same logic as {@link LightningSparksParticle}
-public final class HarpyMagicParticle extends SingleQuadParticle {
+public final class HarpyMagicParticle extends TextureSheetParticle {
 
     private final SpriteSet sprites;
     private final float initialSize;
 
     private HarpyMagicParticle(final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed, final SpriteSet sprites, final RandomSource random) {
-        super(level, x, y, z, sprites.first());
+        super(level, x, y, z);
         this.sprites = sprites;
 
         hasPhysics = false;
@@ -43,13 +44,13 @@ public final class HarpyMagicParticle extends SingleQuadParticle {
     }
 
     @Override
-    protected int getLightCoords(final float partialTick) {
-        return LightCoordsUtil.FULL_BRIGHT;
+    protected int getLightColor(final float partialTick) {
+        return LightTexture.FULL_BRIGHT;
     }
 
     @Override
-    protected @NonNull Layer getLayer() {
-        return Layer.TRANSLUCENT;
+    public @NonNull ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     private void updateSprite() {
@@ -66,8 +67,8 @@ public final class HarpyMagicParticle extends SingleQuadParticle {
         }
 
         @Override
-        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed, final RandomSource random) {
-            return new HarpyMagicParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, random);
+        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed) {
+            return new HarpyMagicParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, level.getRandom());
         }
 
     }

@@ -3,15 +3,16 @@ package dev.xylonity.olympus.client.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.NonNull;
 
-public final class LyreNoteParticle extends SingleQuadParticle {
+public final class LyreNoteParticle extends TextureSheetParticle {
 
     private final double baseXSpeed;
     private final double baseZSpeed;
@@ -21,7 +22,7 @@ public final class LyreNoteParticle extends SingleQuadParticle {
     private final float initialSize;
 
     private LyreNoteParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, SpriteSet sprites, RandomSource random) {
-        super(level, x, y, z, sprites.first());
+        super(level, x, y, z);
 
         hasPhysics = false;
         friction = 0.96F;
@@ -36,7 +37,7 @@ public final class LyreNoteParticle extends SingleQuadParticle {
         alpha = 0;
 
         setParticleSpeed(xSpeed, ySpeed, zSpeed);
-        setSprite(sprites.first());
+        setSprite(sprites.get(0, 1));
         setRandomColor(random);
     }
 
@@ -59,13 +60,13 @@ public final class LyreNoteParticle extends SingleQuadParticle {
     }
 
     @Override
-    protected int getLightCoords(final float partialTick) {
-        return LightCoordsUtil.FULL_BRIGHT;
+    protected int getLightColor(final float partialTick) {
+        return LightTexture.FULL_BRIGHT;
     }
 
     @Override
-    protected @NonNull Layer getLayer() {
-        return Layer.TRANSLUCENT;
+    public @NonNull ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     private void setRandomColor(final RandomSource random) {
@@ -87,8 +88,8 @@ public final class LyreNoteParticle extends SingleQuadParticle {
         }
 
         @Override
-        public Particle createParticle(final SimpleParticleType options, final @NonNull ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed, final RandomSource random) {
-            return new LyreNoteParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, random);
+        public Particle createParticle(final SimpleParticleType options, final @NonNull ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed) {
+            return new LyreNoteParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, level.getRandom());
         }
 
     }

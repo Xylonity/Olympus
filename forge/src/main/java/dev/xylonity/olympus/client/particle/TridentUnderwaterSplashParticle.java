@@ -1,23 +1,22 @@
 package dev.xylonity.olympus.client.particle;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.fluid.FluidTintSource;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import org.jspecify.annotations.NonNull;
 
+/// Literal structure port from 26.1 i'm done with rewriting things
 public final class TridentUnderwaterSplashParticle extends Particle {
 
     private static final int FALLBACK_COLOR = 0x48DDE7;
@@ -52,8 +51,13 @@ public final class TridentUnderwaterSplashParticle extends Particle {
     }
 
     @Override
-    public @NonNull ParticleRenderType getGroup() {
+    public @NonNull ParticleRenderType getRenderType() {
         return TridentUnderwaterSplashParticleGroup.TYPE;
+    }
+
+    @Override
+    public void render(final @NonNull VertexConsumer buffer, final @NonNull Camera camera, final float partialTick) {
+        TridentUnderwaterSplashParticleGroup.render(buffer, extractSnapshot(camera, partialTick));
     }
 
     public RenderSnapshot extractSnapshot(final Camera camera, final float partialTick) {
@@ -67,7 +71,7 @@ public final class TridentUnderwaterSplashParticle extends Particle {
         // Short fade in prevents the sphere from suddenly appearing at full opacity
         final float appear = Mth.clamp(progress * 6f, 0, 1);
         final float alpha = 0.3F * appear * inverseProgress;
-        return new RenderSnapshot(getPos().subtract(camera.position()), radius, red, green, blue, alpha, progress);
+        return new RenderSnapshot(getPos().subtract(camera.getPosition()), radius, red, green, blue, alpha, progress);
     }
 
     private static int resolveFluidColor(final ClientLevel level, final BlockPos origin) {
@@ -77,14 +81,8 @@ public final class TridentUnderwaterSplashParticle extends Particle {
         }
 
         final FluidState fluidState = level.getFluidState(fluidPos);
-        final FluidModel fluidModel = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluidState);
-        final FluidTintSource tintSource = fluidModel.fluidTintSource();
-        if (tintSource == null) {
-            return FALLBACK_COLOR;
-        }
-
-        final int color = tintSource.colorInWorld(fluidState, level.getBlockState(fluidPos), level, fluidPos);
-        return color == -1 ? FALLBACK_COLOR : color;
+        final int color = IClientFluidTypeExtensions.of(fluidState).getTintColor(fluidState, level, fluidPos);
+        return color == -1 ? FALLBACK_COLOR : color & 0xFFFFFF;
     }
 
     private static BlockPos findFluidPosition(final ClientLevel level, final BlockPos origin) {
@@ -135,7 +133,7 @@ public final class TridentUnderwaterSplashParticle extends Particle {
     public static final class Provider implements ParticleProvider<SimpleParticleType> {
 
         @Override
-        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed, final RandomSource random) {
+        public Particle createParticle(final SimpleParticleType options, final ClientLevel level, final double x, final double y, final double z, final double xSpeed, final double ySpeed, final double zSpeed) {
             return new TridentUnderwaterSplashParticle(level, x, y, z, xSpeed);
         }
 
