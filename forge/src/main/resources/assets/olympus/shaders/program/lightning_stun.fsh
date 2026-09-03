@@ -1,15 +1,12 @@
-#version 330
+#version 150
 
-#moj_import <minecraft:globals.glsl>
+uniform sampler2D DiffuseSampler;
 
-uniform sampler2D InSampler;
+uniform vec2 InSize;
+uniform vec2 OutSize;
+uniform float Time;
 
 in vec2 texCoord;
-
-layout(std140) uniform SamplerInfo {
-    vec2 OutSize;
-    vec2 InSize;
-};
 
 out vec4 fragColor;
 
@@ -18,7 +15,7 @@ out vec4 fragColor;
 void main() {
 
     vec2 texel = 1.0 / max(InSize, vec2(1.0));
-    float time = GameTime * 24000.0;
+    float time = Time * 400.0;
     float pulse = 0.5 + 0.5 * sin(time * 0.74 + sin(time * 0.19) * 2.0);
 
     vec2 shakePixels = vec2(
@@ -33,13 +30,13 @@ void main() {
     vec2 splitOffset = splitDirection * texel * (2.6 + pulse * 3.0);
 
     vec3 aberrated = vec3(
-        texture(InSampler, uv + splitOffset).r,
-        texture(InSampler, uv).g,
-        texture(InSampler, uv - splitOffset).b
+        texture(DiffuseSampler, uv + splitOffset).r,
+        texture(DiffuseSampler, uv).g,
+        texture(DiffuseSampler, uv - splitOffset).b
     );
 
     vec2 blurOffset = vec2(-splitDirection.y, splitDirection.x) * texel * (1.4 + pulse * 1.6);
-    vec3 blurred = texture(InSampler, uv + blurOffset).rgb + texture(InSampler, uv - blurOffset).rgb;
+    vec3 blurred = texture(DiffuseSampler, uv + blurOffset).rgb + texture(DiffuseSampler, uv - blurOffset).rgb;
     vec3 color = aberrated * 0.68 + blurred * 0.16;
 
     float luminance = dot(color, vec3(0.299, 0.587, 0.114));
