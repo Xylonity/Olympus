@@ -7,10 +7,10 @@
   "start_height": {
     "type": "minecraft:uniform",
     "min_inclusive": {
-      "absolute": 180
+      "absolute": 155
     },
     "max_inclusive": {
-      "absolute": 220
+      "absolute": 190
     }
   },
   "start_pool": "olympus:celestial_parthenon",
