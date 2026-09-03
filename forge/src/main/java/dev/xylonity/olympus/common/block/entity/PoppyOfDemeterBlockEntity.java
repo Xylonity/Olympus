@@ -2,10 +2,9 @@ package dev.xylonity.olympus.common.block.entity;
 
 import dev.xylonity.olympus.registry.OlympusBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 /// Saves relevant logic for the ticks per cycle and the current block where applying the growth acceleration
@@ -52,15 +51,15 @@ public final class PoppyOfDemeterBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(final ValueInput input) {
-        super.loadAdditional(input);
-        targetPos = input.getLong(TAG_TARGET_POS).map(BlockPos::of).orElse(null);
-        accelerations = Math.max(0, input.getIntOr(TAG_ACCELERATIONS, 0));
-        cycleTicks = Math.max(0, input.getIntOr(TAG_TICKS, 0));
+    public void load(final CompoundTag input) {
+        super.load(input);
+        targetPos = input.contains(TAG_TARGET_POS) ? BlockPos.of(input.getLong(TAG_TARGET_POS)) : null;
+        accelerations = Math.max(0, input.getInt(TAG_ACCELERATIONS));
+        cycleTicks = Math.max(0, input.getInt(TAG_TICKS));
     }
 
     @Override
-    protected void saveAdditional(final ValueOutput output) {
+    protected void saveAdditional(final CompoundTag output) {
         super.saveAdditional(output);
         if (targetPos != null) {
             output.putLong(TAG_TARGET_POS, targetPos.asLong());

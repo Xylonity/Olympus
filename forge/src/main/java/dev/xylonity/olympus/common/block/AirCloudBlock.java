@@ -1,9 +1,7 @@
 package dev.xylonity.olympus.common.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HalfTransparentBlock;
@@ -18,30 +16,23 @@ import org.jspecify.annotations.NonNull;
 
 public final class AirCloudBlock extends HalfTransparentBlock {
 
-    public static final MapCodec<AirCloudBlock> CODEC = simpleCodec(AirCloudBlock::new);
-
     public AirCloudBlock(final BlockBehaviour.Properties properties) {
         super(properties);
     }
 
     @Override
-    protected @NonNull MapCodec<? extends AirCloudBlock> codec() {
-        return CODEC;
-    }
-
-    @Override
-    protected void entityInside(final BlockState state, final Level level, final BlockPos pos, final Entity entity, final InsideBlockEffectApplier effectApplier, final boolean isPrecise) {
+    public void entityInside(final BlockState state, final Level level, final BlockPos pos, final Entity entity) {
         entity.makeStuckInBlock(state, new Vec3(0.9225D, 0.3225D, 0.9225D));
     }
 
     @Override
-    public void fallOn(final Level level, final BlockState state, final BlockPos pos, final Entity entity, final double fallDistance) {
+    public void fallOn(final Level level, final BlockState state, final BlockPos pos, final Entity entity, final float fallDistance) {
         entity.resetFallDistance();
     }
 
     @Override
-    protected VoxelShape getCollisionShape(final BlockState state, final BlockGetter level, final BlockPos pos, final CollisionContext context) {
-        if (!context.isPlacement() && context instanceof EntityCollisionContext entityContext) {
+    public VoxelShape getCollisionShape(final BlockState state, final BlockGetter level, final BlockPos pos, final CollisionContext context) {
+        if (context instanceof EntityCollisionContext entityContext) {
             final Entity entity = entityContext.getEntity();
             if (entity != null && entity.fallDistance > 2.5) {
                 return Shapes.box(0.0D, 0.0D, 0.0D, 1.0D, 0.9D, 1.0D);
@@ -53,7 +44,7 @@ public final class AirCloudBlock extends HalfTransparentBlock {
     }
 
     @Override
-    protected VoxelShape getVisualShape(final BlockState state, final BlockGetter level, final BlockPos pos, final CollisionContext context) {
+    public VoxelShape getVisualShape(final BlockState state, final BlockGetter level, final BlockPos pos, final CollisionContext context) {
         return Shapes.empty();
     }
 

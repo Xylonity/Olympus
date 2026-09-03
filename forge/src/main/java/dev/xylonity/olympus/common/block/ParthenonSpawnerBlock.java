@@ -1,17 +1,17 @@
 package dev.xylonity.olympus.common.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.xylonity.olympus.common.block.entity.ParthenonSpawnerBlockEntity;
 import dev.xylonity.olympus.registry.OlympusBlockEntities;
+import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -24,8 +24,6 @@ import org.jspecify.annotations.Nullable;
 
 public final class ParthenonSpawnerBlock extends BaseEntityBlock {
 
-    public static final MapCodec<ParthenonSpawnerBlock> CODEC = simpleCodec(ParthenonSpawnerBlock::new);
-
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final BooleanProperty REWARD = BooleanProperty.create("reward");
 
@@ -35,13 +33,13 @@ public final class ParthenonSpawnerBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NonNull MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
+    public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
+        return new ParthenonSpawnerBlockEntity(pos, state);
     }
 
     @Override
-    public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
-        return new ParthenonSpawnerBlockEntity(pos, state);
+    public @NonNull RenderShape getRenderShape(final BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Override
@@ -65,7 +63,7 @@ public final class ParthenonSpawnerBlock extends BaseEntityBlock {
         }
 
         if (random.nextInt(75) == 0) {
-            level.playLocalSound(pos, SoundEvents.TRIAL_SPAWNER_AMBIENT, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+            level.playLocalSound(pos, OlympusSounds.PARTHENON_SPAWNER_AMBIENT.get(), SoundSource.BLOCKS, 1.0F, 1.0F, false);
         }
 
     }

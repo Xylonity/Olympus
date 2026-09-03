@@ -1,6 +1,5 @@
 package dev.xylonity.olympus.common.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.xylonity.olympus.common.block.entity.PoppyOfDemeterBlockEntity;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusParticles;
@@ -8,7 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.component.SuspiciousStewEffects;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.EntityBlock;
@@ -24,15 +23,8 @@ import java.util.List;
 
 public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBlock {
 
-    public static final MapCodec<PoppyOfDemeterBlock> CODEC = simpleCodec(PoppyOfDemeterBlock::new);
-
     public PoppyOfDemeterBlock(final BlockBehaviour.Properties properties) {
-        super(SuspiciousStewEffects.EMPTY, properties);
-    }
-
-    @Override
-    public MapCodec<PoppyOfDemeterBlock> codec() {
-        return CODEC;
+        super(MobEffects.REGENERATION, 0, properties);
     }
 
     @Override
@@ -41,7 +33,7 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
     }
 
     @Override
-    protected void onPlace(final BlockState state, final Level level, final BlockPos pos, final BlockState oldState, final boolean movedByPiston) {
+    public void onPlace(final BlockState state, final Level level, final BlockPos pos, final BlockState oldState, final boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
 
         if (!level.isClientSide() && !oldState.is(this)) {
@@ -51,7 +43,7 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
     }
 
     @Override
-    protected void tick(final BlockState state, final ServerLevel level, final BlockPos pos, final RandomSource random) {
+    public void tick(final BlockState state, final ServerLevel level, final BlockPos pos, final RandomSource random) {
         if (level.getBlockEntity(pos) instanceof PoppyOfDemeterBlockEntity poppy) {
             updateBlockCycle(level, pos, random, poppy);
         }
@@ -74,14 +66,14 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
         }
 
         // Performs bone meal acceleration once the cycle is reached and looks for a new block
-        final int growthIntervalTicks = Math.max(4, OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.demeterPoppyGrowthIntervalSeconds.get()));
+        final int growthIntervalTicks = Math.max(4, OlympusConfig.secondsToTicks(OlympusConfig.DEMETER_POPPY_GROWTH_INTERVAL_SECONDS));
         if (!newlyAttached && poppy.advanceCycle(4) >= growthIntervalTicks) {
             poppy.resetCycle();
             final BlockState targetState = level.getBlockState(target);
             final BonemealableBlock bonemealable = (BonemealableBlock) targetState.getBlock();
             bonemealable.performBonemeal(level, random, target, targetState);
 
-            if (poppy.recordAcceleration() >= OlympusConfig.INSTANCE.demeterPoppyGrowthsPerTarget.get() || !isValidBlock(level, origin, target)) {
+            if (poppy.recordAcceleration() >= OlympusConfig.DEMETER_POPPY_GROWTHS_PER_TARGET || !isValidBlock(level, origin, target)) {
                 target = findRandomBlock(level, origin, random, target);
                 poppy.attachTo(target);
             }
@@ -98,7 +90,7 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
     }
 
     private static @Nullable BlockPos findRandomBlock(final ServerLevel level, final BlockPos origin, final RandomSource random, final @Nullable BlockPos excludedTarget) {
-        final int radius = OlympusConfig.INSTANCE.demeterPoppyRadius.get();
+        final int radius = OlympusConfig.DEMETER_POPPY_RADIUS;
         final double radiusSqr = radius * radius;
         final BlockPos min = origin.offset(-radius, -radius, -radius);
         final BlockPos max = origin.offset(radius, radius, radius);
@@ -110,7 +102,7 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
             }
 
             final BlockState targetState = level.getBlockState(target);
-            if (targetState.getBlock() instanceof BonemealableBlock bonemealable && bonemealable.isValidBonemealTarget(level, target, targetState)) {
+            if (targetState.getBlock() instanceof BonemealableBlock bonemealable && bonemealable.isValidBonemealTarget(level, target, targetState, false)) {
                 possiblePositions.add(target.immutable());
             }
 
@@ -128,17 +120,17 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
     }
 
     private static boolean isValidBlock(final ServerLevel level, final BlockPos origin, final @Nullable BlockPos target) {
-        final int radius = OlympusConfig.INSTANCE.demeterPoppyRadius.get();
+        final int radius = OlympusConfig.DEMETER_POPPY_RADIUS;
         if (target == null || origin.distSqr(target) > radius * radius || !level.hasChunkAt(target)) {
             return false;
         }
 
         final BlockState state = level.getBlockState(target);
-        return state.getBlock() instanceof BonemealableBlock bonemealable && bonemealable.isValidBonemealTarget(level, target, state);
+        return state.getBlock() instanceof BonemealableBlock bonemealable && bonemealable.isValidBonemealTarget(level, target, state, false);
     }
 
     private static void spawnGrowthParticle(final ServerLevel level, final BlockPos target, final BlockState state, final BonemealableBlock bonemealable, final RandomSource random) {
-        final BlockPos particlePos = bonemealable.getParticlePos(target);
+        final BlockPos particlePos = target;
         final double y;
         if (!particlePos.equals(target)) {
             y = particlePos.getY() + 0.15D;

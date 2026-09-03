@@ -5,16 +5,16 @@ import dev.xylonity.olympus.common.entity.HarpyEntity;
 import dev.xylonity.olympus.registry.OlympusBlockEntities;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
+import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -22,8 +22,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -115,8 +113,8 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
         mode = Mode.FIRST_WAVE;
 
         setVisualState(level, pos, state, true, false);
-        level.playSound(null, pos, SoundEvents.TRIAL_SPAWNER_DETECT_PLAYER, SoundSource.BLOCKS, 1.0F, 1.0F);
-        level.playSound(null, pos, SoundEvents.TRIAL_SPAWNER_OPEN_SHUTTER, SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.playSound(null, pos, OlympusSounds.PARTHENON_SPAWNER_DETECT_PLAYER.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.playSound(null, pos, OlympusSounds.PARTHENON_SPAWNER_OPEN_SHUTTER.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
 
         spawnWave(level, pos, 2, 0);
 
@@ -137,7 +135,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
     }
 
     private void spawnHarpy(final ServerLevel level, final BlockPos pos, final EntityType<HarpyEntity> type, final double angle) {
-        final HarpyEntity harpy = type.create(level, EntitySpawnReason.SPAWNER);
+        final HarpyEntity harpy = type.create(level);
         if (harpy == null) {
             return;
         }
@@ -146,7 +144,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
         final double y = pos.getY() + 1.5D;
         final double z = pos.getZ() + 0.5D + Math.sin(angle) * 2.5D;
 
-        harpy.snapTo(x, y, z, level.getRandom().nextFloat() * 360, 0);
+        harpy.moveTo(x, y, z, level.getRandom().nextFloat() * 360, 0);
         harpy.setPersistenceRequired();
 
         final Player player = findTargetPlayer(level, x, y, z);
@@ -160,7 +158,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
 
         trackedHarpies.add(harpy.getUUID());
         level.sendParticles(ParticleTypes.POOF, x, y + harpy.getBbHeight() * 0.5D, z, 24, 0.35D, 0.45D, 0.35D, 0.08D);
-        level.playSound(null, x, y, z, SoundEvents.TRIAL_SPAWNER_SPAWN_MOB, SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.playSound(null, x, y, z, OlympusSounds.PARTHENON_SPAWNER_SPAWN_MOB.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
     private @Nullable Player findTargetPlayer(final ServerLevel level, final double x, final double y, final double z) {
@@ -188,7 +186,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
         rewardDropped = false;
         nextActionGameTime = level.getGameTime() + 20;
         setVisualState(level, pos, state, false, true);
-        level.playSound(null, pos, SoundEvents.TRIAL_SPAWNER_SPAWN_ITEM_BEGIN, SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.playSound(null, pos, OlympusSounds.PARTHENON_SPAWNER_SPAWN_ITEM_BEGIN.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
         markUpdated();
     }
 
@@ -211,7 +209,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
         nextActionGameTime = level.getGameTime() + (60 * 60 * 20);
         targetPlayer = null;
         setVisualState(level, pos, state, false, false);
-        level.playSound(null, pos, SoundEvents.TRIAL_SPAWNER_CLOSE_SHUTTER, SoundSource.BLOCKS, 1, 1);
+        level.playSound(null, pos, OlympusSounds.PARTHENON_SPAWNER_CLOSE_SHUTTER.get(), SoundSource.BLOCKS, 1, 1);
 
         markUpdated();
     }
@@ -233,7 +231,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
     private static void dropReward(final ServerLevel level, final BlockPos pos, final ItemStack stack) {
         Block.popResource(level, pos.above(), stack);
         level.sendParticles(ParticleTypes.POOF, pos.getX() + 0.5D, pos.getY() + 1.15D, pos.getZ() + 0.5D, 8, 0.2D, 0.15D, 0.2D, 0.04D);
-        level.playSound(null, pos, SoundEvents.TRIAL_SPAWNER_EJECT_ITEM, SoundSource.BLOCKS, 0.9F, 1.0F);
+        level.playSound(null, pos, OlympusSounds.PARTHENON_SPAWNER_EJECT_ITEM.get(), SoundSource.BLOCKS, 0.9F, 1.0F);
     }
 
     private static void setVisualState(final ServerLevel level, final BlockPos pos, final BlockState currentState, final boolean active, final boolean reward) {
@@ -253,20 +251,20 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(final ValueInput input) {
-        super.loadAdditional(input);
+    public void load(final CompoundTag input) {
+        super.load(input);
 
-        final int idx = Mth.clamp(input.getIntOr(TAG_MODE, 0), 0, Mode.values().length - 1);
+        final int idx = Mth.clamp(input.getInt(TAG_MODE), 0, Mode.values().length - 1);
         mode = Mode.values()[idx];
-        nextActionGameTime = Math.max(0L, input.getLongOr(TAG_NEXT_ACTION, 0L));
-        rewardDropped = input.getBooleanOr(TAG_REWARD_DROPPED, false);
-        targetPlayer = parseUuid(input.getStringOr(TAG_TARGET_PLAYER, ""));
+        nextActionGameTime = Math.max(0L, input.getLong(TAG_NEXT_ACTION));
+        rewardDropped = input.getBoolean(TAG_REWARD_DROPPED);
+        targetPlayer = parseUuid(input.getString(TAG_TARGET_PLAYER));
 
         trackedHarpies.clear();
 
-        final int mobCount = Math.max(0, input.getIntOr(TAG_MOB_COUNT, 0));
+        final int mobCount = Math.max(0, input.getInt(TAG_MOB_COUNT));
         for (int index = 0; index < mobCount; index++) {
-            final UUID uuid = parseUuid(input.getStringOr(TAG_MOB_PREFIX + index, ""));
+            final UUID uuid = parseUuid(input.getString(TAG_MOB_PREFIX + index));
             if (uuid != null) {
                 trackedHarpies.add(uuid);
             }
@@ -276,7 +274,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(final ValueOutput output) {
+    protected void saveAdditional(final CompoundTag output) {
         super.saveAdditional(output);
         output.putInt(TAG_MODE, mode.ordinal());
         output.putLong(TAG_NEXT_ACTION, nextActionGameTime);
@@ -296,7 +294,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
         try {
             return value.isEmpty() ? null : UUID.fromString(value);
         }
-        catch (Exception _) {
+        catch (Exception exception) {
             return null;
         }
 

@@ -1,13 +1,11 @@
 package dev.xylonity.olympus.common.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -19,19 +17,12 @@ import org.jspecify.annotations.NonNull;
 
 public final class PentelicMarbleColumnBlock extends RotatedPillarBlock {
 
-    public static final MapCodec<PentelicMarbleColumnBlock> CODEC = simpleCodec(PentelicMarbleColumnBlock::new);
-
     public static final EnumProperty<ColumnPart> PART = EnumProperty.create("part", ColumnPart.class);
     public static final BooleanProperty REVERSED = BooleanProperty.create("reversed");
 
     public PentelicMarbleColumnBlock(final BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState().setValue(PART, ColumnPart.SINGLE).setValue(REVERSED, false));
-    }
-
-    @Override
-    public @NonNull MapCodec<PentelicMarbleColumnBlock> codec() {
-        return CODEC;
     }
 
     @Override
@@ -49,7 +40,7 @@ public final class PentelicMarbleColumnBlock extends RotatedPillarBlock {
     }
 
     @Override
-    protected @NonNull BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {
+    public @NonNull BlockState updateShape(final BlockState state, final Direction directionToNeighbour, final BlockState neighbourState, final LevelAccessor level, final BlockPos pos, final BlockPos neighbourPos) {
         if (directionToNeighbour.getAxis() != state.getValue(AXIS)) {
             return state;
         }
