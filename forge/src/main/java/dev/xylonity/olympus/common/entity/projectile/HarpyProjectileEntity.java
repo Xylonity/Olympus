@@ -3,6 +3,9 @@ package dev.xylonity.olympus.common.entity.projectile;
 import dev.xylonity.olympus.common.entity.HarpyEntity;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusParticles;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimatable;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationHandler;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -16,16 +19,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.EventHooks;
+import net.minecraftforge.event.ForgeEventFactory;
 import org.jspecify.annotations.Nullable;
 
-public final class HarpyProjectileEntity extends Projectile {
+public final class HarpyProjectileEntity extends Projectile implements KnightLibAnimatable {
+
+    private final KnightLibAnimationHandler animations = KnightLibAnimationHandler.of(this);
 
     private static final EntityDataAccessor<Integer> TARGET_ID = SynchedEntityData.defineId(HarpyProjectileEntity.class, EntityDataSerializers.INT);
 
@@ -43,8 +46,8 @@ public final class HarpyProjectileEntity extends Projectile {
     }
 
     @Override
-    protected void defineSynchedData(final SynchedEntityData.Builder builder) {
-        builder.define(TARGET_ID, -1);
+    protected void defineSynchedData() {
+        entityData.define(TARGET_ID, -1);
     }
 
     @Override
@@ -54,7 +57,7 @@ public final class HarpyProjectileEntity extends Projectile {
 
         final Vec3 movement = getDeltaMovement();
         final HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-        final boolean impacted = hitResult.getType() != HitResult.Type.MISS && !EventHooks.onProjectileImpact(this, hitResult);
+        final boolean impacted = hitResult.getType() != HitResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, hitResult);
 
         setPos(impacted ? hitResult.getLocation() : position().add(movement));
         updateRotation();
@@ -62,10 +65,10 @@ public final class HarpyProjectileEntity extends Projectile {
         super.tick();
 
         if (impacted && isAlive()) {
-            hitTargetOrDeflectSelf(hitResult);
+            onHit(hitResult);
         }
 
-        if (!level().isClientSide() && tickCount >= 200) {
+        if (!level().isClientSide && tickCount >= 200) {
             discard();
         }
 
@@ -99,6 +102,42 @@ public final class HarpyProjectileEntity extends Projectile {
     }
 
     @Override
+    public boolean isPickable() {
+        return true;
+    }
+
+    @Override
+    public float getPickRadius() {
+        return 1.0F;
+    }
+
+    @Override
+    public boolean hurt(final DamageSource source, final float amount) {
+        if (isInvulnerableTo(source)) {
+            return false;
+        }
+
+        final Entity attacker = source.getEntity();
+        if (attacker == null) {
+            return false;
+        }
+
+        markHurt();
+
+        if (!level().isClientSide) {
+            final Vec3 direction = attacker.getLookAngle();
+            if (direction.lengthSqr() > 1.0E-6D) {
+                setOwner(attacker);
+                entityData.set(TARGET_ID, -1);
+                setDeltaMovement(direction.normalize().scale(SPEED));
+            }
+
+        }
+
+        return true;
+    }
+
+    @Override
     protected void onHitEntity(final EntityHitResult hitResult) {
         if (level() instanceof ServerLevel serverLevel) {
             playImpactEffects(serverLevel, hitResult.getLocation());
@@ -116,7 +155,7 @@ public final class HarpyProjectileEntity extends Projectile {
                     target.invulnerableTime = 0;
                 }
 
-                if (target.hurtServer(serverLevel, damageSource, 4.0F)) {
+                if (target.hurt(damageSource, 4.0F)) {
                     if (livingOwner != null) {
                         livingOwner.setLastHurtMob(target);
                     }
@@ -148,32 +187,23 @@ public final class HarpyProjectileEntity extends Projectile {
     }
 
     @Override
-    protected void onDeflection(final boolean byAttack) {
-        super.onDeflection(byAttack);
-        if (byAttack) {
-            entityData.set(TARGET_ID, -1);
-            final Vec3 movement = getDeltaMovement();
-            if (movement.lengthSqr() > 1.0E-6D) {
-                setDeltaMovement(movement.normalize().scale(SPEED));
-            }
-
-        }
-
-    }
-
-    @Override
-    protected void readAdditionalSaveData(final ValueInput input) {
+    protected void readAdditionalSaveData(final CompoundTag input) {
         super.readAdditionalSaveData(input);
     }
 
     @Override
-    protected void addAdditionalSaveData(final ValueOutput output) {
+    protected void addAdditionalSaveData(final CompoundTag output) {
         super.addAdditionalSaveData(output);
     }
 
     private static void playImpactEffects(final ServerLevel level, final Vec3 position) {
         level.sendParticles(OlympusParticles.HARPY_MAGIC.get(), position.x, position.y, position.z, 10, 0.08D, 0.08D, 0.08D, 0.16D);
         level.playSound(null, position.x, position.y, position.z, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.HOSTILE, 0.8F, 1.5F + level.getRandom().nextFloat() * 0.2F);
+    }
+
+    @Override
+    public KnightLibAnimationHandler getAnimationHandler() {
+        return animations;
     }
 
 }

@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.common.entity.ai.navigation;
 
+import dev.xylonity.olympus.common.entity.HarpyEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.level.Level;
@@ -57,7 +58,7 @@ public final class HarpyFlyingNavigation extends FlyingPathNavigation {
 
         if (mob.distanceToSqr(target) <= 0.36) {
             target = null;
-            mob.getMoveControl().setWait();
+            ((HarpyEntity) mob).getMoveControl().setWait();
             return;
         }
 

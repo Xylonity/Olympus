@@ -1,14 +1,16 @@
 package dev.xylonity.olympus.common.entity.projectile;
 
+import dev.xylonity.knightlib.api.animation.KnightLibAnimatable;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationControllerRegistrar;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationHandler;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -22,17 +24,13 @@ import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileDeflection;
-import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
-import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -41,9 +39,13 @@ import net.minecraft.world.phys.EntityHitResult;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public final class PoseidonTridentEntity extends ThrownTrident {
+public final class PoseidonTridentEntity extends ThrownTrident implements KnightLibAnimatable {
+
+    private final KnightLibAnimationHandler animations = KnightLibAnimationHandler.of(this);
 
     private static final EntityDataAccessor<Boolean> RETURNING = SynchedEntityData.defineId(PoseidonTridentEntity.class, EntityDataSerializers.BOOLEAN);
+
+    private ItemStack tridentStack = new ItemStack(OlympusItems.POSEIDON_TRIDENT.get());
 
     private boolean hasSplashed;
 
@@ -65,21 +67,20 @@ public final class PoseidonTridentEntity extends ThrownTrident {
     }
 
     private void init(final ItemStack stack) {
-        final ItemStack projectileStack = stack.copy();
-        setPickupItemStack(projectileStack);
-        applyComponentsFromItemStack(projectileStack);
+        tridentStack = stack.copy();
+        tridentStack.setCount(1);
     }
 
     @Override
-    protected void defineSynchedData(final SynchedEntityData.Builder entityData) {
-        super.defineSynchedData(entityData);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
         entityData.define(RETURNING, false);
     }
 
     @Override
     public void tick() {
         // Returns after 20 ticks
-        if (!level().isClientSide() && !isReturning() && inGroundTime >= 20) {
+        if (!level().isClientSide && !isReturning() && inGroundTime >= 20) {
             entityData.set(RETURNING, true);
         }
 
@@ -98,7 +99,7 @@ public final class PoseidonTridentEntity extends ThrownTrident {
         final Entity owner = getOwner();
         if (!isValidReturnOwner(owner)) {
             if (level() instanceof ServerLevel serverLevel && pickup == AbstractArrow.Pickup.ALLOWED) {
-                spawnAtLocation(serverLevel, getPickupItem(), 0.1F);
+                spawnAtLocation(getPickupItem(), 0.1F);
             }
 
             discard();
@@ -139,27 +140,31 @@ public final class PoseidonTridentEntity extends ThrownTrident {
         boolean targetWasHurt = false;
         if (level() instanceof ServerLevel serverLevel) {
             // Applies the same damage as the trident item
-            final float projectileDamage = OlympusConfig.INSTANCE.poseidonTridentProjectileDamage.get().floatValue();
-            final float damage = EnchantmentHelper.modifyDamage(serverLevel, getWeaponItem(), target, damageSource, projectileDamage);
+            final float projectileDamage = (float) OlympusConfig.POSEIDON_TRIDENT_PROJECTILE_DAMAGE;
+            final float damage = projectileDamage + (target instanceof LivingEntity livingTarget ? EnchantmentHelper.getDamageBonus(getTridentStack(), livingTarget.getMobType()) : 0.0F);
             if (firstImpact) {
                 // Splash particle
                 createSplash(serverLevel, target.getBoundingBox().getCenter(), target);
             }
 
-            if (!target.is(EntityType.ENDERMAN)) {
+            if (target.getType() != EntityType.ENDERMAN) {
                 summonChannelingLightning(serverLevel, target.position(), target.blockPosition(), target);
             }
 
-            targetWasHurt = target.hurtServer(serverLevel, damageSource, damage);
+            targetWasHurt = target.hurt(damageSource, damage);
         }
 
         if (targetWasHurt) {
-            if (target.is(EntityType.ENDERMAN)) {
+            if (target.getType() == EntityType.ENDERMAN) {
                 return;
             }
 
             if (level() instanceof ServerLevel serverLevel) {
-                EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(serverLevel, target, damageSource, getWeaponItem(), _ -> kill(serverLevel));
+                if (target instanceof LivingEntity livingTarget && currentOwner instanceof LivingEntity livingOwner) {
+                    EnchantmentHelper.doPostHurtEffects(livingTarget, livingOwner);
+                    EnchantmentHelper.doPostDamageEffects(livingOwner, livingTarget);
+                }
+
                 if (target instanceof LivingEntity livingTarget) {
                     // Extra knockback
                     applyKnockback(serverLevel, livingTarget, damageSource);
@@ -170,10 +175,10 @@ public final class PoseidonTridentEntity extends ThrownTrident {
             if (target instanceof LivingEntity livingTarget) {
                 doPostHurtEffects(livingTarget);
             }
+
         }
 
-        deflect(ProjectileDeflection.REVERSE, target, owner, false);
-        setDeltaMovement(getDeltaMovement().multiply(0.02D, 0.2D, 0.02D));
+        setDeltaMovement(getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
 
         playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F);
     }
@@ -184,23 +189,26 @@ public final class PoseidonTridentEntity extends ThrownTrident {
     }
 
     @Override
-    protected void hitBlockEnchantmentEffects(final ServerLevel level, final BlockHitResult hitResult, final ItemStack weapon) {
-        super.hitBlockEnchantmentEffects(level, hitResult, weapon);
-        final BlockPos hitPos = hitResult.getBlockPos();
-        if (level.getBlockState(hitPos).is(BlockTags.LIGHTNING_RODS)) {
-            summonChannelingLightning(level, hitPos.clampLocationWithin(hitResult.getLocation()), hitPos, this);
+    protected void onHitBlock(final BlockHitResult hitResult) {
+        if (level() instanceof ServerLevel level) {
+            final BlockPos hitPos = hitResult.getBlockPos();
+            if (level.getBlockState(hitPos).is(Blocks.LIGHTNING_ROD)) {
+                summonChannelingLightning(level, hitResult.getLocation(), hitPos, this);
+            }
+
+            if (!hasSplashed) {
+                hasSplashed = true;
+                createSplash(level, hitResult.getLocation(), null);
+            }
+
         }
 
-        if (!hasSplashed) {
-            hasSplashed = true;
-            createSplash(level, hitResult.getLocation(), null);
-        }
-
+        super.onHitBlock(hitResult);
     }
 
     private void createSplash(final ServerLevel level, final Vec3 center, final @Nullable Entity directTarget) {
         final boolean underwater = isWaterImpact(center, directTarget);
-        final double splashRadius = OlympusConfig.INSTANCE.poseidonTridentSplashRadius.get();
+        final double splashRadius = OlympusConfig.POSEIDON_TRIDENT_SPLASH_RADIUS;
         // Particles
         spawnSplashEffects(level, center, directTarget, underwater, splashRadius);
 
@@ -223,7 +231,7 @@ public final class PoseidonTridentEntity extends ThrownTrident {
                 continue;
             }
 
-            target.hurtServer(level, damageSource, OlympusConfig.INSTANCE.poseidonTridentSplashDamage.get().floatValue());
+            target.hurt(damageSource, (float) OlympusConfig.POSEIDON_TRIDENT_SPLASH_DAMAGE);
             applySplashKnockback(level, target, targetCenter.subtract(center), distance, damageSource, underwater, splashRadius);
         }
 
@@ -262,7 +270,7 @@ public final class PoseidonTridentEntity extends ThrownTrident {
     }
 
     private void applyKnockback(final ServerLevel level, final LivingEntity target, final DamageSource damageSource) {
-        final float knockback = EnchantmentHelper.modifyKnockback(level, getWeaponItem(), target, damageSource, 0.0F);
+        final float knockback = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, getTridentStack());
         if (knockback <= 0.0F) {
             return;
         }
@@ -277,7 +285,7 @@ public final class PoseidonTridentEntity extends ThrownTrident {
     }
 
     private void applySplashKnockback(final ServerLevel level, final LivingEntity target, final Vec3 offset, final double distance, final DamageSource damageSource, final boolean underwater, final double splashRadius) {
-        final float knockback = EnchantmentHelper.modifyKnockback(level, getWeaponItem(), target, damageSource, 1.35F);
+        final float knockback = 1.35F + EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, getTridentStack());
         final double resistance = Math.max(0, 1f - target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
         final double falloff = 1f - distance / splashRadius;
         final double strength = knockback * 0.6 * resistance * (0.35 + falloff * 0.65);
@@ -287,7 +295,8 @@ public final class PoseidonTridentEntity extends ThrownTrident {
 
         if (underwater) {
             final Vec3 direction = offset.lengthSqr() > 1.0E-6D ? offset.normalize() : getDeltaMovement().normalize();
-            target.push(direction.scale(strength));
+            final Vec3 impulse = direction.scale(strength);
+            target.push(impulse.x, impulse.y, impulse.z);
             return;
         }
 
@@ -301,19 +310,20 @@ public final class PoseidonTridentEntity extends ThrownTrident {
     }
 
     private void summonChannelingLightning(final ServerLevel level, final Vec3 position, final BlockPos skyCheckPosition, final Entity soundSource) {
-        final Holder<Enchantment> channeling = level.registryAccess()
-                .lookupOrThrow(Registries.ENCHANTMENT)
-                .getOrThrow(Enchantments.CHANNELING);
-        if (getWeaponItem().getEnchantmentLevel(channeling) <= 0 || !level.isThundering() || !level.canSeeSky(skyCheckPosition)) {
+        if (!EnchantmentHelper.hasChanneling(getTridentStack()) || !level.isThundering() || !level.canSeeSky(skyCheckPosition)) {
             return;
         }
 
-        final LightningBolt lightning = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
+        final LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
+        if (lightning == null) {
+            return;
+        }
+
         if (getOwner() instanceof ServerPlayer serverPlayer) {
             lightning.setCause(serverPlayer);
         }
 
-        lightning.snapTo(position.x, position.y, position.z, 0.0F, 0.0F);
+        lightning.moveTo(position);
         level.addFreshEntity(lightning);
         if (!soundSource.isSilent()) {
             level.playSound(null, position.x, position.y, position.z, SoundEvents.TRIDENT_THUNDER, soundSource.getSoundSource(), 5.0F, 1.0F);
@@ -326,22 +336,36 @@ public final class PoseidonTridentEntity extends ThrownTrident {
     }
 
     @Override
-    protected @NonNull ItemStack getDefaultPickupItem() {
-        return new ItemStack(OlympusItems.POSEIDON_TRIDENT.get());
+    protected @NonNull ItemStack getPickupItem() {
+        return tridentStack.copy();
+    }
+
+    public ItemStack getTridentStack() {
+        return tridentStack;
     }
 
     @Override
-    protected void readAdditionalSaveData(final ValueInput input) {
+    public void readAdditionalSaveData(final CompoundTag input) {
         super.readAdditionalSaveData(input);
-        entityData.set(RETURNING, input.getBooleanOr("Returning", false));
-        hasSplashed = input.getBooleanOr("HasSplashed", false);
+        entityData.set(RETURNING, input.getBoolean("Returning"));
+        hasSplashed = input.getBoolean("HasSplashed");
+        if (input.contains("Weapon", 10)) {
+            tridentStack = ItemStack.of(input.getCompound("Weapon"));
+        }
+
     }
 
     @Override
-    protected void addAdditionalSaveData(final ValueOutput output) {
+    public void addAdditionalSaveData(final CompoundTag output) {
         super.addAdditionalSaveData(output);
         output.putBoolean("Returning", isReturning());
         output.putBoolean("HasSplashed", hasSplashed);
+        output.put("Weapon", tridentStack.save(new CompoundTag()));
+    }
+
+    @Override
+    public KnightLibAnimationHandler getAnimationHandler() {
+        return animations;
     }
 
 }

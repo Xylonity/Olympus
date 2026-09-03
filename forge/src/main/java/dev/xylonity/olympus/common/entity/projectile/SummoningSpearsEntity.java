@@ -1,11 +1,9 @@
 package dev.xylonity.olympus.common.entity.projectile;
 
-import com.geckolib.animatable.GeoEntity;
-import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animatable.manager.AnimatableManager;
-import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.RawAnimation;
-import com.geckolib.util.GeckoLibUtil;
+import dev.xylonity.knightlib.api.animation.KnightLibAnim;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimatable;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationControllerRegistrar;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationHandler;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusParticles;
@@ -13,24 +11,23 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jspecify.annotations.NonNull;
 
-public final class SummoningSpearsEntity extends Entity implements GeoEntity {
+public final class SummoningSpearsEntity extends Entity implements KnightLibAnimatable {
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final KnightLibAnimationHandler animations = KnightLibAnimationHandler.of(this);
 
-    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
-    private static final RawAnimation APPEARANCE = RawAnimation.begin().thenPlayAndHold("appearance");
+    private static final KnightLibAnim IDLE = KnightLibAnim.begin().thenLoop("idle");
+    private static final KnightLibAnim APPEARANCE = KnightLibAnim.begin().thenPlayAndHold("appearance");
 
     private static final EntityDataAccessor<Long> SPAWN_TICK = SynchedEntityData.defineId(SummoningSpearsEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SummoningSpearsEntity.class, EntityDataSerializers.INT);
@@ -57,7 +54,7 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
         noPhysics = true;
         setNoGravity(true);
 
-        if (!level.isClientSide()) {
+        if (!level.isClientSide) {
             entityData.set(SPAWN_TICK, level.getGameTime());
         }
 
@@ -71,10 +68,10 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    protected void defineSynchedData(final SynchedEntityData.Builder builder) {
-        builder.define(SPAWN_TICK, -1L);
-        builder.define(OWNER_ID, -1);
-        builder.define(SPEAR_GROUND_STATES, -1L);
+    protected void defineSynchedData() {
+        entityData.define(SPAWN_TICK, -1L);
+        entityData.define(OWNER_ID, -1);
+        entityData.define(SPEAR_GROUND_STATES, -1L);
     }
 
     @Override
@@ -154,7 +151,7 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
             }
 
             // Encodes the vertical offset in steps (quarters)
-            final int offset = Math.clamp((int) Math.round(yDiff * 4), -11, 8);
+            final int offset = Mth.clamp((int) Math.round(yDiff * 4), -11, 8);
             return offset + 12;
         }
 
@@ -174,7 +171,7 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
     }
 
     private void damageNearbyEntities(final ServerLevel level) {
-        final double halfWidth = OlympusConfig.INSTANCE.aresSpearAbilityRadius.get();
+        final double halfWidth = OlympusConfig.ARES_SPEAR_ABILITY_RADIUS;
         final AABB area = new AABB(
                 getX() - halfWidth, getY() + MIN_HEIGHT, getZ() - halfWidth,
                 getX() + halfWidth, getY() + MIN_HEIGHT + HEIGHT_RANGE, getZ() + halfWidth
@@ -184,7 +181,7 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
 
         level.getEntitiesOfClass(LivingEntity.class, area, target -> target.isAlive() && target != owner
         ).forEach(target -> {
-            if (target.hurtServer(level, damageSource, OlympusConfig.INSTANCE.aresSpearAbilityDamage.get().floatValue()) && owner instanceof LivingEntity livingOwner) {
+            if (target.hurt(damageSource, (float) OlympusConfig.ARES_SPEAR_ABILITY_DAMAGE) && owner instanceof LivingEntity livingOwner) {
                 livingOwner.setLastHurtMob(target);
             }
 
@@ -199,7 +196,7 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
             return 1;
         }
 
-        return Math.clamp(1 - dissolveAge / DISSOLVE_DURATION, 0, 1);
+        return Mth.clamp(1 - dissolveAge / DISSOLVE_DURATION, 0, 1);
     }
 
     public long getSpearGroundStates() {
@@ -212,21 +209,21 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    protected void readAdditionalSaveData(final ValueInput input) {
-        entityData.set(SPAWN_TICK, input.getLongOr(TAG_SPAWN_TICK, level().getGameTime()));
-        entityData.set(SPEAR_GROUND_STATES, input.getLongOr(TAG_SPEAR_GROUND_STATES, -1L));
-        damageApplied = input.getBooleanOr(TAG_DAMAGE_APPLIED, false);
+    protected void readAdditionalSaveData(final CompoundTag input) {
+        entityData.set(SPAWN_TICK, input.contains(TAG_SPAWN_TICK) ? input.getLong(TAG_SPAWN_TICK) : level().getGameTime());
+        entityData.set(SPEAR_GROUND_STATES, input.contains(TAG_SPEAR_GROUND_STATES) ? input.getLong(TAG_SPEAR_GROUND_STATES) : -1L);
+        damageApplied = input.getBoolean(TAG_DAMAGE_APPLIED);
     }
 
     @Override
-    protected void addAdditionalSaveData(final ValueOutput output) {
+    protected void addAdditionalSaveData(final CompoundTag output) {
         output.putLong(TAG_SPAWN_TICK, entityData.get(SPAWN_TICK));
         output.putLong(TAG_SPEAR_GROUND_STATES, entityData.get(SPEAR_GROUND_STATES));
         output.putBoolean(TAG_DAMAGE_APPLIED, damageApplied);
     }
 
     @Override
-    protected @NonNull MovementEmission getMovementEmission() {
+    protected MovementEmission getMovementEmission() {
         return MovementEmission.NONE;
     }
 
@@ -236,21 +233,18 @@ public final class SummoningSpearsEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public boolean hurtServer(final ServerLevel level, final DamageSource damageSource, final float amount) {
+    public boolean hurt(final DamageSource damageSource, final float amount) {
         return false;
     }
 
     @Override
-    public void registerControllers(final AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>("main", 0, state -> state.setAndContinue(
-                getLifetimeAge(0) < APPEARANCE_DELAY ? IDLE : APPEARANCE
-        )));
-
+    public void registerAnimationControllers(final KnightLibAnimationControllerRegistrar controllers) {
+        controllers.add("main", 0, () -> getLifetimeAge(0) < APPEARANCE_DELAY ? IDLE : APPEARANCE);
     }
 
     @Override
-    public @NonNull AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
+    public KnightLibAnimationHandler getAnimationHandler() {
+        return animations;
     }
 
 }

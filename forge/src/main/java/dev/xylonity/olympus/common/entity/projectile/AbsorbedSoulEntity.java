@@ -2,12 +2,15 @@ package dev.xylonity.olympus.common.entity.projectile;
 
 import dev.xylonity.olympus.common.item.PersephoneCupItem;
 import dev.xylonity.olympus.network.payload.SoulSalvationPayload;
+import dev.xylonity.olympus.network.OlympusNetwork;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimatable;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationHandler;
 
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.core.UUIDUtil;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -20,15 +23,11 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.InterpolationHandler;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -37,7 +36,9 @@ import top.theillusivec4.curios.api.SlotResult;
 /**
  * Clone of the experience orb entity logic with tweaked movement
  */
-public final class AbsorbedSoulEntity extends Entity {
+public final class AbsorbedSoulEntity extends Entity implements KnightLibAnimatable {
+
+    private final KnightLibAnimationHandler animations = KnightLibAnimationHandler.of(this);
 
     private static final EntityDataAccessor<Integer> DATA_TARGET_ID = SynchedEntityData.defineId(AbsorbedSoulEntity.class, EntityDataSerializers.INT);
 
@@ -46,8 +47,6 @@ public final class AbsorbedSoulEntity extends Entity {
 
     private static final int HOMING_DELAY = 20;
     private static final double RADIUS = 20;
-
-    private final InterpolationHandler interpolation = new InterpolationHandler(this);
 
     private @Nullable UUID targetPlayerUuid;
     private int age;
@@ -66,14 +65,13 @@ public final class AbsorbedSoulEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData(final SynchedEntityData.Builder builder) {
-        builder.define(DATA_TARGET_ID, -1);
+    protected void defineSynchedData() {
+        entityData.define(DATA_TARGET_ID, -1);
     }
 
     @Override
     public void tick() {
-        interpolation.interpolate();
-        if (firstTick && level().isClientSide()) {
+        if (firstTick && level().isClientSide) {
             firstTick = false;
             return;
         }
@@ -111,7 +109,7 @@ public final class AbsorbedSoulEntity extends Entity {
 
     private @Nullable Player findTargetPlayer() {
         final MinecraftServer server = level().getServer();
-        if (!level().isClientSide() && targetPlayerUuid != null && server != null) {
+        if (!level().isClientSide && targetPlayerUuid != null && server != null) {
             final PlayerList players = server.getPlayerList();
             final ServerPlayer targetPlayer = players.getPlayer(targetPlayerUuid);
             final int targetId = targetPlayer == null || targetPlayer.level() != level() ? -1 : targetPlayer.getId();
@@ -152,6 +150,7 @@ public final class AbsorbedSoulEntity extends Entity {
 
         // Checks if the player's current curios inventory has a persephone's cup
         final Optional<ItemStack> equippedCup = CuriosApi.getCuriosInventory(serverPlayer)
+                .resolve()
                 .flatMap(handler -> handler.findFirstCurio(OlympusItems.PERSEPHONE_CUP.get())).map(SlotResult::stack);
         if (equippedCup.isEmpty()) {
             return;
@@ -162,7 +161,7 @@ public final class AbsorbedSoulEntity extends Entity {
         // Experience orb pickup sound
         level().playSound(null, getX(), getY(), getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (random.nextFloat() - random.nextFloat()) * 0.35F + 0.9F);
         // Spawns particles
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(serverPlayer, new SoulSalvationPayload(serverPlayer.getId(), 3 + random.nextInt(2), true));
+        OlympusNetwork.sendToTrackingAndSelf(serverPlayer, SoulSalvationPayload.TYPE, new SoulSalvationPayload(serverPlayer.getId(), 3 + random.nextInt(2), true));
 
         player.takeXpDelay = 2;
         player.take(this, 1);
@@ -171,18 +170,18 @@ public final class AbsorbedSoulEntity extends Entity {
     }
 
     @Override
-    protected void addAdditionalSaveData(final ValueOutput output) {
+    protected void addAdditionalSaveData(final CompoundTag output) {
         if (targetPlayerUuid != null) {
-            output.store(TAG_TARGET_PLAYER, UUIDUtil.CODEC, targetPlayerUuid);
+            output.putUUID(TAG_TARGET_PLAYER, targetPlayerUuid);
         }
 
         output.putInt(TAG_AGE, age);
     }
 
     @Override
-    protected void readAdditionalSaveData(final ValueInput input) {
-        targetPlayerUuid = input.read(TAG_TARGET_PLAYER, UUIDUtil.CODEC).orElse(null);
-        age = input.getIntOr(TAG_AGE, 0);
+    protected void readAdditionalSaveData(final CompoundTag input) {
+        targetPlayerUuid = input.hasUUID(TAG_TARGET_PLAYER) ? input.getUUID(TAG_TARGET_PLAYER) : null;
+        age = input.getInt(TAG_AGE);
     }
 
     @Override
@@ -190,7 +189,6 @@ public final class AbsorbedSoulEntity extends Entity {
         return MovementEmission.NONE;
     }
 
-    @Override
     protected double getDefaultGravity() {
         return 0.03D;
     }
@@ -201,13 +199,13 @@ public final class AbsorbedSoulEntity extends Entity {
     }
 
     @Override
-    public boolean hurtServer(final ServerLevel level, final DamageSource damageSource, final float amount) {
+    public boolean hurt(final DamageSource damageSource, final float amount) {
         return false;
     }
 
     @Override
-    public InterpolationHandler getInterpolation() {
-        return interpolation;
+    public KnightLibAnimationHandler getAnimationHandler() {
+        return animations;
     }
 
 }

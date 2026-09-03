@@ -36,7 +36,7 @@ public class HarpyMeleeGoal extends AbstractHarpyGoal {
         }
 
         if (harpy.getBoundingBox().inflate(2).intersects(target.getBoundingBox())) {
-            if (harpy.doHurtTarget(serverLevel, target)) {
+            if (harpy.doHurtTarget(target)) {
                 harpy.playSound(OlympusSounds.HARPY_HIT.get(), 1.0F, 1.0F);
             }
 

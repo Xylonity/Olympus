@@ -3,15 +3,12 @@ package dev.xylonity.olympus.common.entity.ai.harpy.internal;
 import dev.xylonity.olympus.common.entity.HarpyEntity;
 import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -177,7 +174,7 @@ public class HarpyDashGoal extends Goal {
         }
 
         if (difference.lengthSqr() < 1.0E-6D) {
-            difference = Vec3.Z_AXIS;
+            difference = new Vec3(0, 0, 1);
         }
         else {
             difference = difference.normalize();
@@ -205,7 +202,7 @@ public class HarpyDashGoal extends Goal {
         }
 
         if (horizontalDistance.lengthSqr() < 1.0E-6D) {
-            horizontalDistance = Vec3.Z_AXIS;
+            horizontalDistance = new Vec3(0, 0, 1);
         }
         else {
             horizontalDistance = horizontalDistance.normalize();
@@ -301,7 +298,7 @@ public class HarpyDashGoal extends Goal {
         for (double lift = 0.0D; lift <= 3; lift += 0.25) {
             final double possibleY = minimumY + lift;
             final AABB crossingBox = harpy.getBoundingBox().move(x - harpy.getX(), possibleY - harpy.getY(), z - harpy.getZ()).deflate(1.0E-4D);
-            if (harpy.level().noBlockCollision(harpy, crossingBox)) {
+            if (harpy.level().noCollision(harpy, crossingBox)) {
                 return possibleY;
             }
 
@@ -362,7 +359,7 @@ public class HarpyDashGoal extends Goal {
             final DamageSource damageSource = harpy.damageSources().mobAttack(harpy);
             final boolean blockedByShield = isBlockedByPlayerShield(target, damageSource);
             final float damage = harpy.isElite() ? 9 : BASE_DASH_DAMAGE;
-            if (target.hurtServer(serverLevel, damageSource, damage)) {
+            if (target.hurt(damageSource, damage)) {
                 harpy.setLastHurtMob(target);
             }
             if (blockedByShield) {
@@ -396,25 +393,7 @@ public class HarpyDashGoal extends Goal {
             return false;
         }
 
-        final ItemStack itemStack = player.getItemBlockingWith();
-        if (itemStack == null) {
-            return false;
-        }
-
-        final BlocksAttacks blocksAttacks = itemStack.get(DataComponents.BLOCKS_ATTACKS);
-        final Vec3 sourcePosition = damageSource.getSourcePosition();
-        if (blocksAttacks == null || sourcePosition == null) {
-            return false;
-        }
-
-        final Vec3 direction = player.calculateViewVector(0.0F, player.getYHeadRot());
-        final Vec3 attackDirection = new Vec3(sourcePosition.x - player.getX(), 0, sourcePosition.z - player.getZ()).normalize();
-        if (attackDirection.lengthSqr() < 1.0E-6D) {
-            return false;
-        }
-
-        final double attackAngle = Math.acos(Mth.clamp(attackDirection.dot(direction), -1, 1));
-        return blocksAttacks.resolveBlockedDamage(damageSource, BASE_DASH_DAMAGE, attackAngle) > 0;
+        return player.isBlocking() && player.isDamageSourceBlocked(damageSource);
     }
 
     private void faceMovement(final Vec3 movement) {

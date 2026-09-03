@@ -139,7 +139,7 @@ public class HarpyProjectileDodgeGoal extends Goal {
         }
 
         final Entity owner = projectile.getOwner();
-        return owner != harpy && !(owner instanceof HarpyEntity) && !harpy.isAlliedTo(owner);
+        return owner != null && owner != harpy && !(owner instanceof HarpyEntity) && !harpy.isAlliedTo(owner);
     }
 
     private double getPredictedImpactTime(final Projectile projectile) {
@@ -168,7 +168,7 @@ public class HarpyProjectileDodgeGoal extends Goal {
             direction = new Vec3(lookDirection.x, 0.0D, lookDirection.z);
         }
         if (direction.lengthSqr() < MIN_SPEED_SQR) {
-            direction = Vec3.Z_AXIS;
+            direction = new Vec3(0, 0, 1);
         }
 
         direction = direction.normalize();

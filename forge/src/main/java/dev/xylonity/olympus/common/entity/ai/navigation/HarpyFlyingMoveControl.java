@@ -20,6 +20,10 @@ public final class HarpyFlyingMoveControl extends MoveControl {
         this.harpy = harpy;
     }
 
+    public void setWait() {
+        operation = Operation.WAIT;
+    }
+
     @Override
     public void tick() {
         if (!hasWanted()) {

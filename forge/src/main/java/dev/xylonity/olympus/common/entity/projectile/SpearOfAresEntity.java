@@ -1,5 +1,8 @@
 package dev.xylonity.olympus.common.entity.projectile;
 
+import dev.xylonity.knightlib.api.animation.KnightLibAnimatable;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationControllerRegistrar;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationHandler;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
@@ -8,6 +11,7 @@ import dev.xylonity.olympus.registry.OlympusSounds;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -22,20 +26,20 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
+import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
+public final class SpearOfAresEntity extends ThrownTrident implements KnightLibAnimatable {
 
-public final class SpearOfAresEntity extends ThrownTrident {
+    private final KnightLibAnimationHandler animations = KnightLibAnimationHandler.of(this);
 
     // First tick in which the spear collides with an entity or block
     private static final EntityDataAccessor<Long> COLLISION_START_TICK = SynchedEntityData.defineId(SpearOfAresEntity.class, EntityDataSerializers.LONG);
@@ -51,6 +55,8 @@ public final class SpearOfAresEntity extends ThrownTrident {
     private final IntSet pinnedEntityIds = new IntOpenHashSet();
     // Entities pinned during the current tick
     private final IntSet newlyPinnedEntityIds = new IntOpenHashSet();
+
+    private ItemStack spearStack = new ItemStack(OlympusItems.SPEAR_OF_ARES.get());
 
     private boolean pinning;
     private boolean hitWallThisTick;
@@ -78,22 +84,22 @@ public final class SpearOfAresEntity extends ThrownTrident {
 
     private void init(final ItemStack stack) {
         // Keeps a single copy of the thrown item
-        final ItemStack projectileStack = stack.copyWithCount(1);
-        setPickupItemStack(projectileStack);
-        applyComponentsFromItemStack(projectileStack);
+        spearStack = stack.copy();
+        spearStack.setCount(1);
+        setPierceLevel(Byte.MAX_VALUE);
         pickup = Pickup.DISALLOWED;
     }
 
     @Override
-    protected void defineSynchedData(final SynchedEntityData.Builder entityData) {
-        super.defineSynchedData(entityData);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
         entityData.define(COLLISION_START_TICK, -1L);
     }
 
     @Override
     public void tick() {
         // Deletes the spear after a short time after colliding with a surface
-        if (!level().isClientSide() && getCollisionAge(0) >= DISSOLVE_DELAY + DISSOLVE_DURATION) {
+        if (!level().isClientSide && getCollisionAge(0) >= DISSOLVE_DELAY + DISSOLVE_DURATION) {
             discard();
             return;
         }
@@ -110,7 +116,7 @@ public final class SpearOfAresEntity extends ThrownTrident {
         }
 
         // Particles
-        if (!isInGround() && level() instanceof ServerLevel serverLevel) {
+        if (!inGround && level() instanceof ServerLevel serverLevel) {
             particleTrail(serverLevel, previousPosition);
         }
 
@@ -127,7 +133,7 @@ public final class SpearOfAresEntity extends ThrownTrident {
 
         // Releases pinned entities after the max length has been reached
         if (!(level() instanceof ServerLevel serverLevel)) {
-            if (pinDistanceTraveled >= OlympusConfig.INSTANCE.aresSpearPinnedEntityDistance.get()) {
+            if (pinDistanceTraveled >= OlympusConfig.ARES_SPEAR_PINNED_ENTITY_DISTANCE) {
                 releasePinnedEntities();
             }
 
@@ -151,15 +157,15 @@ public final class SpearOfAresEntity extends ThrownTrident {
             return;
         }
 
-        if (pinDistanceTraveled >= OlympusConfig.INSTANCE.aresSpearPinnedEntityDistance.get()) {
+        if (pinDistanceTraveled >= OlympusConfig.ARES_SPEAR_PINNED_ENTITY_DISTANCE) {
             releasePinnedEntities();
         }
 
     }
 
     @Override
-    protected @NonNull Collection<EntityHitResult> findHitEntities(final @NonNull Vec3 from, final @NonNull Vec3 to) {
-        return ProjectileUtil.getManyEntityHitResult(level(), this, from, to, getBoundingBox().expandTowards(getDeltaMovement()).inflate(1.0D), this::canHitEntity, false);
+    protected @Nullable EntityHitResult findHitEntity(final @NonNull Vec3 from, final @NonNull Vec3 to) {
+        return ProjectileUtil.getEntityHitResult(level(), this, from, to, getBoundingBox().expandTowards(getDeltaMovement()).inflate(1.0D), this::canHitEntity);
     }
 
     @Override
@@ -191,14 +197,17 @@ public final class SpearOfAresEntity extends ThrownTrident {
         // Applies trident damage and enchantment effects
         final Entity currentOwner = getOwner();
         final DamageSource damageSource = damageSources().trident(this, currentOwner == null ? this : currentOwner);
-        final float configuredDamage = OlympusConfig.INSTANCE.aresSpearProjectileDamage.get().floatValue();
-        final float damage = EnchantmentHelper.modifyDamage(serverLevel, getWeaponItem(), target, damageSource, configuredDamage);
-        if (target.hurtServer(serverLevel, damageSource, damage)) {
+        final float configuredDamage = (float) OlympusConfig.ARES_SPEAR_PROJECTILE_DAMAGE;
+        final float damage = configuredDamage + (target instanceof LivingEntity livingTarget ? EnchantmentHelper.getDamageBonus(getSpearStack(), livingTarget.getMobType()) : 0.0F);
+        if (target.hurt(damageSource, damage)) {
             if (currentOwner instanceof LivingEntity livingOwner) {
                 livingOwner.setLastHurtMob(target);
             }
 
-            EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(serverLevel, target, damageSource, getWeaponItem(), _ -> kill(serverLevel));
+            if (target instanceof LivingEntity livingTarget && currentOwner instanceof LivingEntity livingOwner) {
+                EnchantmentHelper.doPostHurtEffects(livingTarget, livingOwner);
+                EnchantmentHelper.doPostDamageEffects(livingOwner, livingTarget);
+            }
 
             if (target instanceof LivingEntity livingTarget) {
                 doPostHurtEffects(livingTarget);
@@ -227,7 +236,7 @@ public final class SpearOfAresEntity extends ThrownTrident {
         setSoundEvent(nailedEntities ? OlympusSounds.ARES_SPEAR_NAILING.get() : OlympusSounds.ARES_SPEAR_SURFACE_HIT.get());
 
         if (nailedEntities && level() instanceof ServerLevel serverLevel) {
-            final Vec3 pos = hitResult.getLocation().add(hitResult.getDirection().getUnitVec3().scale(0.01D));
+            final Vec3 pos = hitResult.getLocation().add(Vec3.atLowerCornerOf(hitResult.getDirection().getNormal()).scale(0.01D));
             serverLevel.sendParticles(OlympusParticles.ARES_SPEAR_HIT.get(), pos.x, pos.y, pos.z, 0, 3.5, 0, 0, 1);
         }
 
@@ -295,14 +304,15 @@ public final class SpearOfAresEntity extends ThrownTrident {
                 // Prevents invulnerability window from taking effect, so the damage on collision is applied properly
                 final int previousInvulnerableTime = entity.invulnerableTime;
                 entity.invulnerableTime = 0;
-                if (!entity.hurtServer(level, damageSource, OlympusConfig.INSTANCE.aresSpearWallImpactDamage.get().floatValue())) {
+                if (!entity.hurt(damageSource, (float) OlympusConfig.ARES_SPEAR_WALL_IMPACT_DAMAGE)) {
                     entity.invulnerableTime = previousInvulnerableTime;
                 }
 
-                final int slownessTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.aresSpearWallSlownessSeconds.get());
+                final int slownessTicks = OlympusConfig.secondsToTicks(OlympusConfig.ARES_SPEAR_WALL_SLOWNESS_SECONDS);
                 if (slownessTicks > 0) {
-                    entity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, slownessTicks, 2, false, false, false));
+                    entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, slownessTicks, 2, false, false, false));
                 }
+
             }
 
         }
@@ -329,7 +339,7 @@ public final class SpearOfAresEntity extends ThrownTrident {
 
     private void startCollisionLifetime() {
         // Starts the dissolve timer only once on the server
-        if (!level().isClientSide() && entityData.get(COLLISION_START_TICK) < 0L) {
+        if (!level().isClientSide && entityData.get(COLLISION_START_TICK) < 0L) {
             entityData.set(COLLISION_START_TICK, level().getGameTime());
         }
 
@@ -347,7 +357,7 @@ public final class SpearOfAresEntity extends ThrownTrident {
             return 1;
         }
 
-        return Math.clamp(1f - dissolveAge / DISSOLVE_DURATION, 0, 1);
+        return Mth.clamp(1f - dissolveAge / DISSOLVE_DURATION, 0, 1);
     }
 
     // Just some trail particles sampled to the whole movement trail of the spear so the spear itself remains visible
@@ -357,7 +367,7 @@ public final class SpearOfAresEntity extends ThrownTrident {
             return;
         }
 
-        final int samples = Math.clamp((int) Math.ceil(movement.length() * 2), 1, 5);
+        final int samples = Mth.clamp((int) Math.ceil(movement.length() * 2), 1, 5);
         final Vec3 speed = movement.normalize().scale(-0.03);
         for (int sample = 0; sample < samples; sample++) {
             final Vec3 pos = previousPosition.lerp(position(), (sample + 0.5) / samples);
@@ -372,8 +382,12 @@ public final class SpearOfAresEntity extends ThrownTrident {
     }
 
     @Override
-    protected @NonNull ItemStack getDefaultPickupItem() {
-        return new ItemStack(OlympusItems.SPEAR_OF_ARES.get());
+    protected @NonNull ItemStack getPickupItem() {
+        return spearStack.copy();
+    }
+
+    public ItemStack getSpearStack() {
+        return spearStack;
     }
 
     @Override
@@ -387,19 +401,29 @@ public final class SpearOfAresEntity extends ThrownTrident {
     }
 
     @Override
-    protected void readAdditionalSaveData(final ValueInput input) {
+    public void readAdditionalSaveData(final CompoundTag input) {
         super.readAdditionalSaveData(input);
-        entityData.set(COLLISION_START_TICK, input.getLongOr(TAG_COLLISION_START_TICK, -1L));
+        entityData.set(COLLISION_START_TICK, input.contains(TAG_COLLISION_START_TICK) ? input.getLong(TAG_COLLISION_START_TICK) : -1L);
+        if (input.contains("Weapon", 10)) {
+            spearStack = ItemStack.of(input.getCompound("Weapon"));
+        }
+
     }
 
     @Override
-    protected void addAdditionalSaveData(final ValueOutput output) {
+    public void addAdditionalSaveData(final CompoundTag output) {
         super.addAdditionalSaveData(output);
         final long collisionStartTick = entityData.get(COLLISION_START_TICK);
         if (collisionStartTick >= 0) {
             output.putLong(TAG_COLLISION_START_TICK, collisionStartTick);
         }
 
+        output.put("Weapon", spearStack.save(new CompoundTag()));
+    }
+
+    @Override
+    public KnightLibAnimationHandler getAnimationHandler() {
+        return animations;
     }
 
 }

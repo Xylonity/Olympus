@@ -89,7 +89,7 @@ public class HarpyProjectileGoal extends AbstractHarpyGoal {
         final Vec3 direction = target.getBoundingBox().getCenter().subtract(origin).normalize();
         Vec3 lateral = new Vec3(-direction.z, 0.0D, direction.x);
         if (lateral.lengthSqr() < 1.0E-6D) {
-            lateral = Vec3.X_AXIS;
+            lateral = new Vec3(1, 0, 0);
         }
         else {
             lateral = lateral.normalize();

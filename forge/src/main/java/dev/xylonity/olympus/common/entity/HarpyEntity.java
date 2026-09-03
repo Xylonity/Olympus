@@ -1,14 +1,11 @@
 package dev.xylonity.olympus.common.entity;
 
-import com.geckolib.animatable.GeoEntity;
-import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animatable.manager.AnimatableManager;
-import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.keyframehandler.AutoPlayingSoundKeyframeHandler;
-import com.geckolib.animation.object.PlayState;
-import com.geckolib.animation.state.AnimationTest;
-import com.geckolib.util.GeckoLibUtil;
+import dev.xylonity.knightlib.api.animation.KnightLibAnim;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimatable;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationControllerRegistrar;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationHandler;
+import dev.xylonity.knightlib.api.animation.KnightLibKeyframeEvent;
+import dev.xylonity.knightlib.api.util.ResourceLocations;
 import dev.xylonity.olympus.common.entity.ai.navigation.HarpyFlyingMoveControl;
 import dev.xylonity.olympus.common.entity.ai.navigation.HarpyFlyingNavigation;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyDashGoal;
@@ -21,13 +18,14 @@ import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -38,30 +36,33 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
-public class HarpyEntity extends Monster implements GeoEntity {
+public class HarpyEntity extends Monster implements KnightLibAnimatable {
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final KnightLibAnimationHandler animations = KnightLibAnimationHandler.of(this);
 
     private static final EntityDataAccessor<Integer> ATTACK_STATE = SynchedEntityData.defineId(HarpyEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> ELITE = SynchedEntityData.defineId(HarpyEntity.class, EntityDataSerializers.BOOLEAN);
 
-    private static final RawAnimation ANIMATION_IDLE = RawAnimation.begin().thenLoop("idle");
-    private static final RawAnimation ANIMATION_FLY = RawAnimation.begin().thenLoop("walk");
-    private static final RawAnimation ANIMATION_MELEE = RawAnimation.begin().thenPlay("attack");
-    private static final RawAnimation ANIMATION_SHOT = RawAnimation.begin().thenPlay("shot");
-    private static final RawAnimation ANIMATION_DASH_PREPARING = RawAnimation.begin().thenPlay("dash_preparing");
-    private static final RawAnimation ANIMATION_DASH = RawAnimation.begin().thenLoop("dash");
-    private static final RawAnimation ANIMATION_DASH_ENDING = RawAnimation.begin().thenPlayAndHold("dash_ending");
+    private static final int TICKS_ANIMATION_TRANSITION = 4;
+
+    private static final KnightLibAnim ANIMATION_IDLE = KnightLibAnim.begin().thenLoop("idle").transition(TICKS_ANIMATION_TRANSITION);
+    private static final KnightLibAnim ANIMATION_FLY = KnightLibAnim.begin().thenLoop("walk").transition(TICKS_ANIMATION_TRANSITION);
+    private static final KnightLibAnim ANIMATION_MELEE = KnightLibAnim.begin().thenPlay("attack").additive().transition(TICKS_ANIMATION_TRANSITION);
+    private static final KnightLibAnim ANIMATION_SHOT = KnightLibAnim.begin().thenPlay("shot").transition(TICKS_ANIMATION_TRANSITION);
+    private static final KnightLibAnim ANIMATION_DASH_PREPARING = KnightLibAnim.begin().thenPlayAndHold("dash_preparing").transition(TICKS_ANIMATION_TRANSITION);
+    private static final KnightLibAnim ANIMATION_DASH = KnightLibAnim.begin().thenLoop("dash").transition(TICKS_ANIMATION_TRANSITION);
+    private static final KnightLibAnim ANIMATION_DASH_ENDING = KnightLibAnim.begin().thenPlayAndHold("dash_ending").transition(TICKS_ANIMATION_TRANSITION);
 
     public static final int STATE_IDLE = 0;
     public static final int STATE_FLY = 1;
@@ -71,13 +72,14 @@ public class HarpyEntity extends Monster implements GeoEntity {
     public static final int STATE_DASHING = 5;
     public static final int STATE_DASH_ENDING = 6;
 
-    private static final int TICKS_ANIMATION_TRANSITION = 4;
     private static final int TICKS_MELEE_ANIMATION = 20;
     private static final int TICKS_SHOT_ANIMATION = 30;
     private static final int TICKS_SHOT_COOLDOWN = 12 * 20;
-    private static final int TICKS_DASH_PREPARATION = 15 + TICKS_ANIMATION_TRANSITION;
-    private static final int TICKS_DASH_ENDING = 15 + TICKS_ANIMATION_TRANSITION - 2;
+    private static final int TICKS_DASH_PREPARATION = 16;
+    private static final int TICKS_DASH_ENDING = 13;
     private static final int TICKS_SPECIAL_ATTACK_CHAIN_DELAY = 60;
+    private static final int TICKS_DASH_FEATHER_DELAY = 5;
+    private static final int TICKS_DAMAGE_FEATHER_COOLDOWN = 10;
 
     private static final int TICK_SHOT_RELEASE = 17;
 
@@ -92,6 +94,8 @@ public class HarpyEntity extends Monster implements GeoEntity {
     };
 
     private long specialAttackDelayEndGameTime;
+    private long nextDamageFeatherGameTime;
+    private int dashingTicks;
 
     public HarpyEntity(final EntityType<? extends HarpyEntity> type, final Level level) {
         super(type, level);
@@ -123,8 +127,7 @@ public class HarpyEntity extends Monster implements GeoEntity {
                 .add(Attributes.MOVEMENT_SPEED, 0.32D)
                 .add(Attributes.FLYING_SPEED, 0.5D)
                 .add(Attributes.ATTACK_DAMAGE, 8.0D)
-                .add(Attributes.FOLLOW_RANGE, 28.0D)
-                .add(Attributes.SCALE, 1.1D);
+                .add(Attributes.FOLLOW_RANGE, 28.0D);
     }
 
     @Override
@@ -147,19 +150,23 @@ public class HarpyEntity extends Monster implements GeoEntity {
     }
 
     @Override
-    protected @NonNull PathNavigation createNavigation(final @NonNull Level level) {
+    protected PathNavigation createNavigation(final Level level) {
         final HarpyFlyingNavigation navigation = new HarpyFlyingNavigation(this, level);
         navigation.setCanOpenDoors(false);
         navigation.setCanFloat(true);
-        navigation.setRequiredPathLength(24.0F);
         return navigation;
     }
 
     @Override
-    protected void defineSynchedData(final SynchedEntityData.@NonNull Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(ATTACK_STATE, STATE_IDLE);
-        builder.define(ELITE, false);
+    public HarpyFlyingMoveControl getMoveControl() {
+        return (HarpyFlyingMoveControl) super.getMoveControl();
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        entityData.define(ATTACK_STATE, STATE_IDLE);
+        entityData.define(ELITE, false);
     }
 
     @Override
@@ -169,13 +176,20 @@ public class HarpyEntity extends Monster implements GeoEntity {
         setNoGravity(true);
         resetFallDistance();
 
-        if (!level().isClientSide()) {
+        if (!level().isClientSide) {
             if (!noPhysics) {
                 escapeFromBlocks();
             }
 
             if (getAttackState() == STATE_DASHING) {
-                spawnFeatherParticles(1 + random.nextInt(2));
+                dashingTicks++;
+                if (dashingTicks >= TICKS_DASH_FEATHER_DELAY) {
+                    spawnFeatherParticles(1 + random.nextInt(2));
+                }
+
+            }
+            else {
+                dashingTicks = 0;
             }
 
         }
@@ -183,7 +197,7 @@ public class HarpyEntity extends Monster implements GeoEntity {
     }
 
     @Override
-    public boolean causeFallDamage(final double fallDistance, final float damageModifier, final DamageSource damageSource) {
+    public boolean causeFallDamage(final float fallDistance, final float damageModifier, final DamageSource damageSource) {
         return false;
     }
 
@@ -216,7 +230,7 @@ public class HarpyEntity extends Monster implements GeoEntity {
 
     public void escapeFromBlocks() {
         final AABB currentBox = getBoundingBox().deflate(1.0E-4D);
-        if (noPhysics || level().isClientSide() || level().noBlockCollision(this, currentBox)) {
+        if (noPhysics || level().isClientSide || level().noCollision(this, currentBox)) {
             return;
         }
 
@@ -243,7 +257,7 @@ public class HarpyEntity extends Monster implements GeoEntity {
                 for (final double verticalOffset : verticalOffsets) {
                     final double y = Mth.clamp(baseY + verticalOffset, minimumY, maximumY);
                     final AABB destinationBox = getBoundingBox().move(x - getX(), y - getY(), z - getZ()).deflate(1.0E-4D);
-                    if (level().noBlockCollision(this, destinationBox)) {
+                    if (level().noCollision(this, destinationBox)) {
                         return new Vec3(x, y, z);
                     }
 
@@ -257,12 +271,18 @@ public class HarpyEntity extends Monster implements GeoEntity {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
-        if (source.getDirectEntity() != null) {
+    public boolean hurt(DamageSource source, float damage) {
+        // Prevents projectiles from bouncing (most of the time) during iticks
+        final boolean arrowHitDuringDamageCooldown = source.getDirectEntity() instanceof AbstractArrow
+                && invulnerableTime > 10 && !source.is(DamageTypeTags.BYPASSES_COOLDOWN) && damage <= lastHurt;
+        final boolean damaged = super.hurt(source, damage);
+        final long gameTime = level().getGameTime();
+        if (damaged && source.getDirectEntity() != null && gameTime >= nextDamageFeatherGameTime) {
             spawnFeatherParticles(5 + random.nextInt(10));
+            nextDamageFeatherGameTime = gameTime + TICKS_DAMAGE_FEATHER_COOLDOWN;
         }
 
-        return super.hurtServer(level, source, damage);
+        return damaged || arrowHitDuringDamageCooldown;
     }
 
     private void spawnFeatherParticles(int amount) {
@@ -290,39 +310,47 @@ public class HarpyEntity extends Monster implements GeoEntity {
     }
 
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>("maincontroller", TICKS_ANIMATION_TRANSITION, this::mainPredicate)
-                .setSoundKeyframeHandler(new AutoPlayingSoundKeyframeHandler<>()));
-        controllers.add(new AnimationController<>("meleecontroller", TICKS_ANIMATION_TRANSITION, state ->
-                getAttackState() == STATE_MELEE ? state.setAndContinue(ANIMATION_MELEE) : PlayState.STOP
-        ));
-
+    public void registerAnimationControllers(KnightLibAnimationControllerRegistrar controllers) {
+        controllers.add("maincontroller", TICKS_ANIMATION_TRANSITION, this::mainAnimation);
+        controllers.add("meleecontroller", TICKS_ANIMATION_TRANSITION, () -> getAttackState() == STATE_MELEE ? ANIMATION_MELEE : null);
     }
 
-    private PlayState mainPredicate(AnimationTest<HarpyEntity> event) {
+    private KnightLibAnim mainAnimation() {
         if (getAttackState() == STATE_IDLE || getAttackState() == STATE_FLY) {
             final boolean moving = getDeltaMovement().lengthSqr() > SPEED_THRESHOLD;
-            event.setAnimation(moving ? ANIMATION_FLY : ANIMATION_IDLE);
+            return moving ? ANIMATION_FLY : ANIMATION_IDLE;
         }
         else if (getAttackState() == STATE_SHOT) {
-            event.setAnimation(ANIMATION_SHOT);
+            return ANIMATION_SHOT;
         }
         else if (getAttackState() == STATE_DASH_PREPARING) {
-            event.setAnimation(ANIMATION_DASH_PREPARING);
+            return ANIMATION_DASH_PREPARING;
         }
         else if (getAttackState() == STATE_DASHING) {
-            event.setAnimation(ANIMATION_DASH);
+            return ANIMATION_DASH;
         }
         else if (getAttackState() == STATE_DASH_ENDING) {
-            event.setAnimation(ANIMATION_DASH_ENDING);
+            return ANIMATION_DASH_ENDING;
         }
 
-        return PlayState.CONTINUE;
+        return null;
     }
 
     @Override
-    public @NonNull AnimatableInstanceCache getAnimatableInstanceCache() {
-        return this.cache;
+    public void onAnimationKeyframe(final KnightLibKeyframeEvent event) {
+        if (event.type() == KnightLibKeyframeEvent.Type.SOUND) {
+            final SoundEvent sound = BuiltInRegistries.SOUND_EVENT.getOptional(ResourceLocations.tryParse(event.payload())).orElse(null);
+            if (sound != null) {
+                level().playLocalSound(getX(), getY(), getZ(), sound, getSoundSource(), 0.8f, 1.0F, false);
+            }
+
+        }
+
+    }
+
+    @Override
+    public KnightLibAnimationHandler getAnimationHandler() {
+        return this.animations;
     }
 
 }

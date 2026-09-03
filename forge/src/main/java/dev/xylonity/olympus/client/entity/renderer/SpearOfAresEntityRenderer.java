@@ -38,7 +38,7 @@ public final class SpearOfAresEntityRenderer extends EntityRenderer<SpearOfAresE
 
     @Override
     public void render(final SpearOfAresEntity entity, final float entityYaw, final float partialTick, final PoseStack poseStack, final MultiBufferSource buffers, final int packedLight) {
-        final boolean charged = SpearOfAresItem.isSpecialAbilityCharged(entity.getWeaponItem());
+        final boolean charged = SpearOfAresItem.isSpecialAbilityCharged(entity.getSpearStack());
         final ResourceLocation modelLocation = charged ? SpearOfAresModel.CHARGED_MODEL : SpearOfAresModel.BASE_MODEL;
         final ResourceLocation texture = charged ? SpearOfAresModel.CHARGED_TEXTURE : SpearOfAresModel.BASE_TEXTURE;
         final ResourceLocation renderTexture = SpearDissolveTextures.textureFor(texture, entity.getDissolveVisibility(partialTick));
@@ -81,7 +81,7 @@ public final class SpearOfAresEntityRenderer extends EntityRenderer<SpearOfAresE
 
     @Override
     public ResourceLocation getTextureLocation(final SpearOfAresEntity entity) {
-        return SpearOfAresItem.isSpecialAbilityCharged(entity.getWeaponItem()) ? SpearOfAresModel.CHARGED_TEXTURE : SpearOfAresModel.BASE_TEXTURE;
+        return SpearOfAresItem.isSpecialAbilityCharged(entity.getSpearStack()) ? SpearOfAresModel.CHARGED_TEXTURE : SpearOfAresModel.BASE_TEXTURE;
     }
 
 }
