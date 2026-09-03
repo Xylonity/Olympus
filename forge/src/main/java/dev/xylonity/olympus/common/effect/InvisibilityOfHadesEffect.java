@@ -20,10 +20,7 @@ public final class InvisibilityOfHadesEffect extends MobEffect {
         super(MobEffectCategory.BENEFICIAL, 0xC22836);
     }
 
-    @Override
-    public void onEffectStarted(final @NonNull LivingEntity living, final int amplifier) {
-        super.onEffectStarted(living, amplifier);
-
+    public static void onEffectStarted(final @NonNull LivingEntity living) {
         if (!(living.level() instanceof ServerLevel level)) {
             return;
         }
@@ -34,7 +31,7 @@ public final class InvisibilityOfHadesEffect extends MobEffect {
                 continue;
             }
 
-            if (mob.getTargetUnchecked() == living) {
+            if (mob.getTarget() == living) {
                 mob.setTarget(null);
             }
 
@@ -48,13 +45,13 @@ public final class InvisibilityOfHadesEffect extends MobEffect {
     }
 
     public static boolean preventsTargeting(final LivingEntity target) {
-        return target.hasEffect(OlympusMobEffects.INVISIBILITY_OF_HADES);
+        return target.hasEffect(OlympusMobEffects.INVISIBILITY_OF_HADES.get());
     }
 
     public static void shortenAfterAttack(final ServerPlayer player) {
-        final MobEffectInstance invisibility = player.getEffect(OlympusMobEffects.INVISIBILITY_OF_HADES);
-        if (invisibility != null) {
-            player.forceAddEffect(invisibility.withScaledDuration(0.5F), player);
+        final MobEffectInstance effect = player.getEffect(OlympusMobEffects.INVISIBILITY_OF_HADES.get());
+        if (effect != null) {
+            player.forceAddEffect(new MobEffectInstance(effect.getEffect(), Math.max(1, effect.getDuration() / 2), effect.getAmplifier(), effect.isAmbient(), effect.isVisible(), effect.showIcon()), player);
         }
 
     }
