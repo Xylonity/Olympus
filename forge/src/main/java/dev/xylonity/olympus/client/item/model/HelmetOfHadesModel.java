@@ -10,9 +10,9 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.world.entity.LivingEntity;
 
-public final class HelmetOfHadesModel extends HumanoidModel<HumanoidRenderState> {
+public final class HelmetOfHadesModel extends HumanoidModel<LivingEntity> {
 
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Olympus.of("helmet_of_hades"), "main");
 
@@ -42,7 +42,7 @@ public final class HelmetOfHadesModel extends HumanoidModel<HumanoidRenderState>
         final PartDefinition root = mesh.getRoot();
 
         final PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.ZERO);
-        head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
+        root.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
         root.addOrReplaceChild("body", CubeListBuilder.create(), PartPose.ZERO);
         root.addOrReplaceChild("right_arm", CubeListBuilder.create(), PartPose.ZERO);
         root.addOrReplaceChild("left_arm", CubeListBuilder.create(), PartPose.ZERO);

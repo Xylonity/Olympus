@@ -7,22 +7,22 @@ import dev.xylonity.olympus.registry.OlympusRenderTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 
 public final class HelmetOfHadesRenderer implements ICurioRenderer.HumanoidRender {
 
-    private static final Identifier TEXTURE = Olympus.of("textures/entity/curio/helmet_of_hades.png");
-    private static final Identifier OUTLINE_TEXTURE = Olympus.of("textures/entity/curio/helmet_of_hades_luminous_outline.png");
+    private static final ResourceLocation TEXTURE = Olympus.of("textures/entity/curio/helmet_of_hades.png");
+    private static final ResourceLocation OUTLINE_TEXTURE = Olympus.of("textures/entity/curio/helmet_of_hades_luminous_outline.png");
 
     private final HelmetOfHadesModel model;
 
@@ -31,57 +31,22 @@ public final class HelmetOfHadesRenderer implements ICurioRenderer.HumanoidRende
     }
 
     @Override
-    public EntityModel<HumanoidRenderState> getModel(final ItemStack stack, final SlotContext slotContext) {
+    public HumanoidModel<LivingEntity> getModel(final ItemStack stack, final SlotContext slotContext) {
         return model;
     }
 
     @Override
-    public Identifier getModelTexture(final ItemStack stack, final SlotContext slotContext) {
+    public ResourceLocation getModelTexture(final ItemStack stack, final SlotContext slotContext) {
         return TEXTURE;
     }
 
     @Override
-    public void prepareModel(final ItemStack stack, final SlotContext slotContext, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int packedLight, final HumanoidRenderState renderState, final RenderLayerParent<HumanoidRenderState, EntityModel<HumanoidRenderState>> renderLayerParent, final EntityRendererProvider.Context context, final float yRotation, final float xRotation) {
-        if (renderLayerParent.getModel() instanceof HumanoidModel<?> parentModel) {
-            model.headPart().loadPose(parentModel.head.storePose());
-        }
-        else {
-            ICurioRenderer.setupHumanoidAnimations(model, renderState);
-        }
-
-    }
-
-    @Override
-    public void renderModel(final ItemStack stack, final SlotContext slotContext, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int packedLight, final HumanoidRenderState renderState, final RenderLayerParent<HumanoidRenderState, EntityModel<HumanoidRenderState>> renderLayerParent, final EntityRendererProvider.Context context, final float yRotation, final float xRotation) {
+    public void renderModel(final ItemStack stack, final SlotContext slotContext, final PoseStack poseStack, final RenderLayerParent<LivingEntity, EntityModel<LivingEntity>> renderLayerParent, final MultiBufferSource buffers, final int packedLight) {
         poseStack.pushPose();
         model.headPart().translateAndRotate(poseStack);
 
-        submitNodeCollector.order(1).submitModelPart(
-                model.helmet(),
-                poseStack,
-                RenderTypes.entityTranslucent(TEXTURE),
-                packedLight,
-                OverlayTexture.NO_OVERLAY,
-                null,
-                false,
-                stack.hasFoil(),
-                -1,
-                null,
-                renderState.outlineColor
-        );
-        submitNodeCollector.order(3).submitModelPart(
-                model.outline(),
-                poseStack,
-                OlympusRenderTypes.invertedCubesGlow(OUTLINE_TEXTURE),
-                LightCoordsUtil.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY,
-                null,
-                false,
-                false,
-                -1,
-                null,
-                renderState.outlineColor
-        );
+        model.helmet().render(poseStack, ItemRenderer.getArmorFoilBuffer(buffers, RenderType.entityTranslucent(TEXTURE), false, stack.hasFoil()), packedLight, OverlayTexture.NO_OVERLAY);
+        model.outline().render(poseStack, buffers.getBuffer(OlympusRenderTypes.invertedCubesGlow(OUTLINE_TEXTURE)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
 
         poseStack.popPose();
     }

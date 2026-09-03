@@ -10,11 +10,10 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 
-public final class BracersOfZeusModel extends HumanoidModel<HumanoidRenderState> {
+public final class BracersOfZeusModel extends HumanoidModel<LivingEntity> {
 
     public static final ModelLayerLocation SLIM_LAYER_LOCATION = new ModelLayerLocation(Olympus.of("bracers_of_zeus_slim"), "main");
     public static final ModelLayerLocation WIDE_LAYER_LOCATION = new ModelLayerLocation(Olympus.of("bracers_of_zeus_wide"), "main");
@@ -60,8 +59,8 @@ public final class BracersOfZeusModel extends HumanoidModel<HumanoidRenderState>
         final float outlineOffsetX = wide ? 1.0F : 0.5F;
         final float outlineMainHalfX = wide ? 2.1F : 1.6F;
 
-        final PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.ZERO);
-        head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
+        root.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.ZERO);
+        root.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
         root.addOrReplaceChild("body", CubeListBuilder.create(), PartPose.ZERO);
         root.addOrReplaceChild("right_leg", CubeListBuilder.create(), PartPose.ZERO);
         root.addOrReplaceChild("left_leg", CubeListBuilder.create(), PartPose.ZERO);

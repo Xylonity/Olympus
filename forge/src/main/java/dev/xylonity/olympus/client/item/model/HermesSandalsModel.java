@@ -10,9 +10,9 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.world.entity.LivingEntity;
 
-public final class HermesSandalsModel extends HumanoidModel<HumanoidRenderState> {
+public final class HermesSandalsModel extends HumanoidModel<LivingEntity> {
 
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Olympus.of("hermes_sandals"), "main");
 
@@ -32,8 +32,8 @@ public final class HermesSandalsModel extends HumanoidModel<HumanoidRenderState>
         final MeshDefinition mesh = new MeshDefinition();
         final PartDefinition root = mesh.getRoot();
 
-        final PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.ZERO);
-        head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
+        root.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.ZERO);
+        root.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
         root.addOrReplaceChild("body", CubeListBuilder.create(), PartPose.ZERO);
         root.addOrReplaceChild("right_arm", CubeListBuilder.create(), PartPose.ZERO);
         root.addOrReplaceChild("left_arm", CubeListBuilder.create(), PartPose.ZERO);

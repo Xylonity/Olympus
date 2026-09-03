@@ -1,13 +1,12 @@
 package dev.xylonity.olympus.client.item.model;
 
-import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.model.DefaultedItemGeoModel;
 import dev.xylonity.olympus.Olympus;
+import net.minecraft.resources.ResourceLocation;
 
-public final class PoseidonTridentModel<T extends GeoAnimatable> extends DefaultedItemGeoModel<T> {
+public final class PoseidonTridentModel {
 
-    public PoseidonTridentModel() {
-        super(Olympus.of("poseidon_trident"));
-    }
+    public static final ResourceLocation MODEL = Olympus.of("geckolib/models/item/poseidon_trident.geo.json");
+    public static final ResourceLocation ANIMATIONS = Olympus.of("animations/item/poseidon_trident.animation.json");
+    public static final ResourceLocation TEXTURE = Olympus.of("textures/item/poseidon_trident.png");
 
 }

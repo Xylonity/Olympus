@@ -1,53 +1,59 @@
 package dev.xylonity.olympus.client.item.renderer;
 
-import com.geckolib.animatable.GeoItem;
-import com.geckolib.cache.model.GeoQuad;
-import com.geckolib.renderer.GeoItemRenderer;
-import com.geckolib.renderer.base.GeoRenderState;
-import com.geckolib.constant.DataTickets;
-import com.geckolib.renderer.base.RenderPassInfo;
-import com.geckolib.renderer.layer.builtin.CustomBoneTextureGeoLayer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.xylonity.knightlib.client.animation.KnightLibAnimationSource;
+import dev.xylonity.knightlib.client.animation.KnightLibModelSource;
+import dev.xylonity.knightlib.client.animation.layer.KnightLibRenderLayer;
+import dev.xylonity.knightlib.client.animation.layer.KnightLibRenderLayerContext;
+import dev.xylonity.knightlib.client.animation.model.KnightLibModel;
+import dev.xylonity.knightlib.client.animation.renderer.KnightLibItemRenderer;
+import dev.xylonity.olympus.client.util.ItemRenderUtils;
 import dev.xylonity.olympus.client.item.model.SpearOfAresModel;
-import dev.xylonity.olympus.client.texture.SpearDissolveTextures;
-import dev.xylonity.olympus.common.entity.projectile.SpearOfAresEntity;
 import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import dev.xylonity.olympus.registry.OlympusRenderTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
-import org.jspecify.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import net.minecraft.world.item.ItemStack;
 
-public final class SpearOfAresItemRenderer extends GeoItemRenderer<SpearOfAresItem> {
+import java.util.Set;
+
+public final class SpearOfAresItemRenderer extends KnightLibItemRenderer {
+
+    public static final ModelResourceLocation INVENTORY_MODEL = new ModelResourceLocation("olympus", "spear_of_ares_item", "inventory");
+    public static final ModelResourceLocation CHARGED_INVENTORY_MODEL = new ModelResourceLocation("olympus", "spear_of_ares_item_charged", "inventory");
+
+    private static final String OUTLINE_BONE = "cube_outline";
+    private static final Set<String> OUTLINE_BONES = Set.of(OUTLINE_BONE);
 
     public SpearOfAresItemRenderer() {
-        super(new SpearOfAresModel<>());
-        withRenderLayer(new CustomBoneTextureGeoLayer<>(this, "cube_outline", SpearOfAresModel.CHARGED_TEXTURE) {
+        addRenderLayer(new KnightLibRenderLayer<>() {
             @Override
-            public boolean shouldRenderBone(final GeoRenderState renderState) {
-                return SpearOfAresModel.isSpecialAbilityCharged(renderState);
+            public boolean shouldRender(final KnightLibRenderLayerContext<ItemStack> context) {
+                return SpearOfAresItem.isSpecialAbilityCharged(context.target());
             }
 
             @Override
-            protected @Nullable RenderType getRenderType(final GeoRenderState renderState, final Identifier texture) {
-                final ItemDisplayContext context = renderState.getOrDefaultGeckolibData(DataTickets.ITEM_RENDER_PERSPECTIVE, ItemDisplayContext.NONE);
-                if (context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || context == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {
-                    return OlympusRenderTypes.firstPersonInvertedCubesGlow(texture);
+            public void render(final KnightLibRenderLayerContext<ItemStack> context) {
+                final ItemDisplayContext displayContext = context.itemDisplayContext();
+                final boolean firstPerson = displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || displayContext == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
+                final RenderType renderType = firstPerson ? OlympusRenderTypes.firstPersonInvertedCubesGlow(SpearOfAresModel.CHARGED_TEXTURE) : OlympusRenderTypes.invertedCubesGlow(SpearOfAresModel.CHARGED_TEXTURE);
+
+                context.model().setBoneVisible(OUTLINE_BONE, true);
+                try {
+                    context.renderBones(OUTLINE_BONES, renderType, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
+                }
+                finally {
+                    context.model().setBoneVisible(OUTLINE_BONE, false);
                 }
 
-                return OlympusRenderTypes.invertedCubesGlow(texture);
-            }
-
-            @Override
-            protected void renderQuad(GeoQuad quad, final Matrix4f pose, final Vector3f normal, VertexConsumer vertexConsumer, final int packedLight, int packedOverlay, final int renderColor, float widthRatio, final float heightRatio) {
-                super.renderQuad(quad, pose, normal, vertexConsumer, LightCoordsUtil.FULL_BRIGHT, packedOverlay, renderColor, widthRatio, heightRatio);
             }
 
         });
@@ -55,49 +61,62 @@ public final class SpearOfAresItemRenderer extends GeoItemRenderer<SpearOfAresIt
     }
 
     @Override
-    public void addRenderData(final SpearOfAresItem animatable, final @Nullable RenderData renderData, final GeoRenderState renderState, final float partialTick) {
-        renderState.addGeckolibData(SpearOfAresModel.SPECIAL_ABILITY_CHARGED, renderData != null && SpearOfAresItem.isSpecialAbilityCharged(renderData.itemStack()));
-        final float visibility = renderData != null && renderData.itemOwner() instanceof SpearOfAresEntity spear ? spear.getDissolveVisibility(partialTick) : 1;
-        renderState.addGeckolibData(SpearOfAresModel.DISSOLVE_VISIBILITY, visibility);
+    protected KnightLibModelSource defineModel(final ItemStack stack) {
+        return KnightLibModelSource.geo(SpearOfAresItem.isSpecialAbilityCharged(stack) ? SpearOfAresModel.CHARGED_MODEL : SpearOfAresModel.BASE_MODEL);
     }
 
     @Override
-    public void adjustRenderPose(RenderPassInfo<GeoRenderState> renderPassInfo) {
+    protected KnightLibAnimationSource defineAnimations(final ItemStack stack) {
+        return KnightLibAnimationSource.geo(SpearOfAresModel.ANIMATIONS);
+    }
+
+    @Override
+    public ResourceLocation getTextureLocation(final ItemStack stack) {
+        return SpearOfAresItem.isSpecialAbilityCharged(stack) ? SpearOfAresModel.CHARGED_TEXTURE : SpearOfAresModel.BASE_TEXTURE;
+    }
+
+    @Override
+    protected RenderType getRenderType(final ItemStack stack, final ResourceLocation texture) {
+        return RenderType.entityCutout(texture);
+    }
+
+    @Override
+    protected void setupBone(final ItemStack stack, final ItemDisplayContext displayContext, final KnightLibModel model, final String boneName, final float partialTicks) {
+        if (OUTLINE_BONE.equals(boneName)) {
+            model.setBoneVisible(OUTLINE_BONE, false);
+        }
+
+    }
+
+    @Override
+    public void renderByItem(final ItemStack stack, final ItemDisplayContext context, final PoseStack poseStack, final MultiBufferSource buffers, final int packedLight, final int packedOverlay) {
+        if (!ItemRenderUtils.isHandDisplay(context)) {
+            ItemRenderUtils.renderIcon(stack, context, poseStack, buffers, packedLight, packedOverlay, SpearOfAresItem.isSpecialAbilityCharged(stack) ? CHARGED_INVENTORY_MODEL : INVENTORY_MODEL);
+            return;
+        }
+
+        poseStack.pushPose();
+
         final LocalPlayer player = Minecraft.getInstance().player;
-        final ItemDisplayContext context = renderPassInfo.getGeckolibData(DataTickets.ITEM_RENDER_PERSPECTIVE);
-        final long stackId = renderPassInfo.getOrDefaultGeckolibData(DataTickets.ANIMATABLE_INSTANCE_ID, Long.MIN_VALUE);
-
-        if (player != null) {
-            if (player.isUsingItem() && GeoItem.getId(player.getUseItem()) == stackId) {
-                if (context == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND) {
-                    renderPassInfo.poseStack().mulPose(Axis.XP.rotationDegrees(180));
-                    renderPassInfo.poseStack().translate(0, -0.75, -1);
-                }
-                else if (context == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {
-                    renderPassInfo.poseStack().translate(0.5, -0.9, 0.15);
-                    renderPassInfo.poseStack().mulPose(Axis.XP.rotationDegrees(-25));
-                }
-                else if (context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND) {
-                    renderPassInfo.poseStack().translate(-0.5, -0.9, 0.15);
-                    renderPassInfo.poseStack().mulPose(Axis.XP.rotationDegrees(-25));
-                }
-
+        if (player != null && player.isUsingItem() && player.getUseItem() == stack) {
+            if (context == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND) {
+                poseStack.mulPose(Axis.XP.rotationDegrees(180));
+                poseStack.translate(0, -0.75, -1);
+            }
+            else if (context == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {
+                poseStack.translate(0.5, -0.9, 0.15);
+                poseStack.mulPose(Axis.XP.rotationDegrees(-25));
+            }
+            else if (context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND) {
+                poseStack.translate(-0.5, -0.9, 0.15);
+                poseStack.mulPose(Axis.XP.rotationDegrees(-25));
             }
 
         }
 
-        super.adjustRenderPose(renderPassInfo);
-    }
+        super.renderByItem(stack, context, poseStack, buffers, packedLight, packedOverlay);
 
-    @Override
-    public int getRenderColor(final SpearOfAresItem animatable, final @Nullable RenderData renderData, final float partialTick) {
-        return 0xFFFFFFFF;
-    }
-
-    @Override
-    public @Nullable RenderType getRenderType(final GeoRenderState renderState, final Identifier texture) {
-        final float visibility = renderState.getOrDefaultGeckolibData(SpearOfAresModel.DISSOLVE_VISIBILITY, 1.0F);
-        return RenderTypes.entityCutout(SpearDissolveTextures.textureFor(texture, visibility));
+        poseStack.popPose();
     }
 
 }
