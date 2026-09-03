@@ -1,7 +1,5 @@
 package dev.xylonity.olympus.client.entity.renderer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import dev.xylonity.knightlib.client.KnightLibRenderTypes;
 import dev.xylonity.knightlib.client.animation.KnightLibModelSource;
 import dev.xylonity.knightlib.client.animation.layer.KnightLibRenderLayer;
@@ -9,13 +7,10 @@ import dev.xylonity.knightlib.client.animation.layer.KnightLibRenderLayerContext
 import dev.xylonity.knightlib.client.animation.model.KnightLibModel;
 import dev.xylonity.knightlib.client.animation.renderer.KnightLibEntityRenderer;
 import dev.xylonity.olympus.Olympus;
-import dev.xylonity.olympus.common.entity.projectile.AbsorbedSoulEntity;
 import dev.xylonity.olympus.common.entity.projectile.HarpyProjectileEntity;
 import dev.xylonity.olympus.registry.OlympusRenderTypes;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
@@ -29,6 +24,7 @@ public final class HarpyProjectileEntityRenderer extends KnightLibEntityRenderer
 
     private static final RenderType RENDER_TYPE_INVERTED_CUBES = OlympusRenderTypes.invertedCubesGlow(TEXTURE);
 
+    private static final String PROJECTILE_BONE = "harpy_projectile";
     private static final String OUTLINE_BONE = "cube_outline";
     private static final Set<String> OUTLINE_BONES = Set.of(OUTLINE_BONE);
 
@@ -63,6 +59,11 @@ public final class HarpyProjectileEntityRenderer extends KnightLibEntityRenderer
 
     @Override
     protected void setupBone(HarpyProjectileEntity entity, KnightLibModel model, String boneName, float partialTicks) {
+        if (PROJECTILE_BONE.equals(boneName)) {
+            final float rotation = (entity.tickCount + partialTicks) * 5;
+            model.applyRotation(PROJECTILE_BONE, rotation, rotation, 0);
+        }
+
         if (OUTLINE_BONE.equals(boneName)) {
             model.setBoneVisible(OUTLINE_BONE, false);
         }
@@ -70,17 +71,8 @@ public final class HarpyProjectileEntityRenderer extends KnightLibEntityRenderer
     }
 
     @Override
-    protected void actuallyRender(HarpyProjectileEntity entity, KnightLibModel model, ResourceLocation baseTexture, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight, int packedOverlay, int renderColor) {
-
-        poseStack.popPose();
-
-        poseStack.mulPose(Axis.YP.rotationDegrees((entity.tickCount + partialTicks) * 5));
-        poseStack.mulPose(Axis.XP.rotationDegrees((entity.tickCount + partialTicks) * 5));
-        poseStack.scale(1.5F, 1.5F, 1.5F);
-
-        poseStack.pushPose();
-
-        super.actuallyRender(entity, model, baseTexture, partialTicks, poseStack, buffers, packedLight, packedOverlay, renderColor);
+    protected float getScale(final HarpyProjectileEntity entity) {
+        return 1.5F;
     }
 
     @Override
