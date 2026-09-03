@@ -1,16 +1,17 @@
 package dev.xylonity.olympus.common.item;
 
-import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.common.entity.projectile.AbsorbedSoulEntity;
 import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.payload.SoulSalvationPayload;
+import dev.xylonity.olympus.network.OlympusNetwork;
 import dev.xylonity.olympus.registry.OlympusItems;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.UUID;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,16 +21,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.CustomModelData;
-import net.minecraft.world.item.component.TooltipDisplay;
-import net.neoforged.neoforge.network.PacketDistributor;
-import top.theillusivec4.curios.api.CurioAttributeModifiers;
+import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.SlotResult;
@@ -57,39 +55,39 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
     }
 
     @Override
-    public CurioAttributeModifiers getDefaultCurioAttributeModifiers(final ItemStack stack) {
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(final SlotContext slotContext, final UUID uuid, final ItemStack stack) {
         final int soulCharges = getSoulCharges(stack);
-        if (soulCharges == 0 || OlympusConfig.INSTANCE.persephoneCupDamageAppliesToWeapons.get()) {
-            return CurioAttributeModifiers.EMPTY;
+        if (soulCharges == 0 || OlympusConfig.PERSEPHONE_CUP_DAMAGE_APPLIES_TO_WEAPONS) {
+            return HashMultimap.create();
         }
 
         // Additional configurable damage per soul acquired
-        final double damagePerSoul = OlympusConfig.INSTANCE.persephoneCupDamagePerSoul.get();
-        return CurioAttributeModifiers.builder()
-                .addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(Olympus.of("persephone_cup_damage"), soulCharges * damagePerSoul, AttributeModifier.Operation.ADD_VALUE), "jewelry")
-                .build();
+        final double damagePerSoul = OlympusConfig.PERSEPHONE_CUP_DAMAGE_PER_SOUL;
+        final Multimap<Attribute, AttributeModifier> modifiers = HashMultimap.create();
+        modifiers.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(uuid, "olympus.persephone_cup_damage", soulCharges * damagePerSoul, AttributeModifier.Operation.ADDITION));
+        return modifiers;
     }
 
     public static float getEquippedDamageBonus(final ServerPlayer player) {
-        final float damagePerSoul = OlympusConfig.INSTANCE.persephoneCupDamagePerSoul.get().floatValue();
+        final float damagePerSoul = (float) OlympusConfig.PERSEPHONE_CUP_DAMAGE_PER_SOUL;
         return findEquippedCup(player)
                 .map(cup -> getSoulCharges(cup) * damagePerSoul)
                 .orElse(0f);
     }
 
     @Override
-    public void appendHoverText(final ItemStack stack, final TooltipContext context, final TooltipDisplay display, final Consumer<Component> builder, final TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, display, builder, tooltipFlag);
+    public void appendHoverText(final ItemStack stack, final Level level, final List<Component> builder, final TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, level, builder, tooltipFlag);
         final Component soulCharges = Component.translatable("item.olympus.persephone_cup.soul_charges", getSoulCharges(stack), MAX_SOUL_CHARGES).withStyle(ChatFormatting.DARK_PURPLE);
-        OlympusTooltip.appendWithStatus(builder, "persephone_cup", 0xC987D4, soulCharges,
+        OlympusTooltip.appendWithStatus(builder::add, "persephone_cup", 0xC987D4, soulCharges,
                 OlympusTooltip.ability(1,
-                        OlympusTooltip.property("damage_per_soul", "+" + OlympusTooltip.number(OlympusConfig.INSTANCE.persephoneCupDamagePerSoul.get())),
+                        OlympusTooltip.property("damage_per_soul", "+" + OlympusTooltip.number(OlympusConfig.PERSEPHONE_CUP_DAMAGE_PER_SOUL)),
                         OlympusTooltip.property("maximum_souls", Integer.toString(MAX_SOUL_CHARGES))
                 ),
                 OlympusTooltip.ability(2,
-                        OlympusTooltip.property("charge_cost", Integer.toString(OlympusConfig.INSTANCE.persephoneCupDeathProtectionChargeCost.get())),
-                        OlympusTooltip.property("restored_health", OlympusTooltip.percent(OlympusConfig.INSTANCE.persephoneCupRestoredHealthPercentage.get())),
-                        OlympusTooltip.property("regeneration", OlympusTooltip.seconds(OlympusConfig.INSTANCE.persephoneCupRegenerationSeconds.get()))
+                        OlympusTooltip.property("charge_cost", Integer.toString(OlympusConfig.PERSEPHONE_CUP_DEATH_PROTECTION_CHARGE_COST)),
+                        OlympusTooltip.property("restored_health", OlympusTooltip.percent(OlympusConfig.PERSEPHONE_CUP_RESTORED_HEALTH_PERCENTAGE)),
+                        OlympusTooltip.property("regeneration", OlympusTooltip.seconds(OlympusConfig.PERSEPHONE_CUP_REGENERATION_SECONDS))
                 ));
 
     }
@@ -104,14 +102,14 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
 
         // Reduces the charges amount
         final ItemStack cup = equippedCup.get();
-        setSoulCharges(cup, MAX_SOUL_CHARGES - OlympusConfig.INSTANCE.persephoneCupDeathProtectionChargeCost.get());
+        setSoulCharges(cup, MAX_SOUL_CHARGES - OlympusConfig.PERSEPHONE_CUP_DEATH_PROTECTION_CHARGE_COST);
         // Saves the player on a mortal hit
-        player.setHealth(player.getMaxHealth() * OlympusConfig.INSTANCE.persephoneCupRestoredHealthPercentage.get().floatValue());
+        player.setHealth(player.getMaxHealth() * (float) OlympusConfig.PERSEPHONE_CUP_RESTORED_HEALTH_PERCENTAGE);
         // Particles and sound
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new SoulSalvationPayload(player.getId(), 16, false));
+        OlympusNetwork.sendToTrackingAndSelf(player, SoulSalvationPayload.TYPE, new SoulSalvationPayload(player.getId(), 16, false));
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THUNDER, SoundSource.PLAYERS, 0.3F, 1);
 
-        final int regenerationTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.persephoneCupRegenerationSeconds.get());
+        final int regenerationTicks = OlympusConfig.secondsToTicks(OlympusConfig.PERSEPHONE_CUP_REGENERATION_SECONDS);
         if (regenerationTicks > 0) {
             player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, regenerationTicks, 1));
         }
@@ -120,7 +118,7 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
     }
 
     public static void spawnSoulOnKill(final Mob mob, final ServerPlayer player) {
-        if (!(mob.level() instanceof ServerLevel level) || findEquippedCup(player).isEmpty() || mob.getPersistentData().getBooleanOr(TAG_SOUL_DROPPED, false)) {
+        if (!(mob.level() instanceof ServerLevel level) || findEquippedCup(player).isEmpty() || mob.getPersistentData().getBoolean(TAG_SOUL_DROPPED)) {
             return;
         }
 
@@ -130,7 +128,7 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
     }
 
     public static int getSoulCharges(final ItemStack stack) {
-        return Mth.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getIntOr(TAG_SOUL_CHARGES, 0), 0, MAX_SOUL_CHARGES);
+        return Mth.clamp(stack.hasTag() ? stack.getTag().getInt(TAG_SOUL_CHARGES) : 0, 0, MAX_SOUL_CHARGES);
     }
 
     public static void addSoulCharge(final ItemStack stack) {
@@ -144,27 +142,25 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
 
     public static void setSoulCharges(final ItemStack stack, final int soulCharges) {
         final int clampedCharges = Mth.clamp(soulCharges, 0, MAX_SOUL_CHARGES);
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
-            if (clampedCharges == 0) {
-                tag.remove(TAG_SOUL_CHARGES);
-            }
-            else {
-                tag.putInt(TAG_SOUL_CHARGES, clampedCharges);
-            }
-
-        });
-
         if (clampedCharges == 0) {
-            stack.remove(DataComponents.CUSTOM_MODEL_DATA);
+            stack.removeTagKey(TAG_SOUL_CHARGES);
         }
         else {
-            stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) clampedCharges), List.of(), List.of(), List.of()));
+            stack.getOrCreateTag().putInt(TAG_SOUL_CHARGES, clampedCharges);
+        }
+
+        if (clampedCharges == 0) {
+            stack.removeTagKey("CustomModelData");
+        }
+        else {
+            stack.getOrCreateTag().putInt("CustomModelData", clampedCharges);
         }
 
     }
 
     private static Optional<ItemStack> findEquippedCup(final ServerPlayer player) {
         return CuriosApi.getCuriosInventory(player)
+                .resolve()
                 .flatMap(handler -> handler.findFirstCurio(OlympusItems.PERSEPHONE_CUP.get()))
                 .map(SlotResult::stack);
     }

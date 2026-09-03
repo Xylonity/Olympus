@@ -3,23 +3,22 @@ package dev.xylonity.olympus.common.item;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.network.payload.LyreMusicPayload;
+import dev.xylonity.olympus.network.OlympusNetwork;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
 
 import java.util.HashSet;
@@ -27,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
+import java.util.List;
 
 public final class AphroditeLyreItem extends Item {
 
@@ -40,11 +39,11 @@ public final class AphroditeLyreItem extends Item {
     }
 
     @Override
-    public @NonNull InteractionResult use(final @NonNull Level level, final @NonNull Player player, final @NonNull InteractionHand hand) {
+    public @NonNull InteractionResultHolder<ItemStack> use(final @NonNull Level level, final @NonNull Player player, final @NonNull InteractionHand hand) {
         // No direct use
         final ItemStack stack = player.getItemInHand(hand);
-        if (player.getCooldowns().isOnCooldown(stack)) {
-            return InteractionResult.FAIL;
+        if (player.getCooldowns().isOnCooldown(stack.getItem())) {
+            return InteractionResultHolder.fail(stack);
         }
 
         // Using the item
@@ -52,10 +51,10 @@ public final class AphroditeLyreItem extends Item {
         if (player instanceof ServerPlayer serverPlayer) {
             ENTITIES.put(serverPlayer.getUUID(), new HashSet<>());
             // Enables the lyre music
-            PacketDistributor.sendToPlayersTrackingEntityAndSelf(serverPlayer, new LyreMusicPayload(serverPlayer.getId(), true));
+            OlympusNetwork.sendToTrackingAndSelf(serverPlayer, LyreMusicPayload.TYPE, new LyreMusicPayload(serverPlayer.getId(), true));
         }
 
-        return InteractionResult.CONSUME;
+        return InteractionResultHolder.consume(stack);
     }
 
     @Override
@@ -77,9 +76,8 @@ public final class AphroditeLyreItem extends Item {
     }
 
     @Override
-    public boolean releaseUsing(final @NonNull ItemStack stack, final @NonNull Level level, final @NonNull LivingEntity user, final int remainingUseDuration) {
+    public void releaseUsing(final @NonNull ItemStack stack, final @NonNull Level level, final @NonNull LivingEntity user, final int remainingUseDuration) {
         stopPlaying(stack, user);
-        return true;
     }
 
     @Override
@@ -89,13 +87,13 @@ public final class AphroditeLyreItem extends Item {
     }
 
     @Override
-    public int getUseDuration(final @NonNull ItemStack stack, final @NonNull LivingEntity user) {
+    public int getUseDuration(final @NonNull ItemStack stack) {
         return DURATION_TICKS;
     }
 
     @Override
-    public @NonNull ItemUseAnimation getUseAnimation(final @NonNull ItemStack stack) {
-        return ItemUseAnimation.BOW;
+    public @NonNull UseAnim getUseAnimation(final @NonNull ItemStack stack) {
+        return UseAnim.BOW;
     }
 
     private static void stopPlaying(final ItemStack stack, final LivingEntity user) {
@@ -104,32 +102,32 @@ public final class AphroditeLyreItem extends Item {
         }
 
         ENTITIES.remove(player.getUUID());
-        if (player.getCooldowns().isOnCooldown(stack)) {
+        if (player.getCooldowns().isOnCooldown(stack.getItem())) {
             return;
         }
 
-        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.aphroditeLyreCooldownSeconds.get());
+        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.APHRODITE_LYRE_COOLDOWN_SECONDS);
         if (cooldownTicks > 0) {
-            player.getCooldowns().addCooldown(stack, cooldownTicks);
+            player.getCooldowns().addCooldown(stack.getItem(), cooldownTicks);
         }
 
         // Stops the music
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new LyreMusicPayload(player.getId(), false));
+        OlympusNetwork.sendToTrackingAndSelf(player, LyreMusicPayload.TYPE, new LyreMusicPayload(player.getId(), false));
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, display, tooltip, flag);
-        OlympusTooltip.append(tooltip, "aphrodite_lyre", 0xE8A0BF,
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        OlympusTooltip.append(tooltip::add, "aphrodite_lyre", 0xE8A0BF,
                 OlympusTooltip.ability(1,
-                        OlympusTooltip.property("radius", OlympusTooltip.number(OlympusConfig.INSTANCE.aphroditeLyreBreedingRadius.get())),
-                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.aphroditeLyreCooldownSeconds.get()))
+                        OlympusTooltip.property("radius", OlympusTooltip.number(OlympusConfig.APHRODITE_LYRE_BREEDING_RADIUS)),
+                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.APHRODITE_LYRE_COOLDOWN_SECONDS))
                 ));
 
     }
 
     private static void breedNearby(final ServerLevel level, final ServerPlayer player) {
-        final double radius = OlympusConfig.INSTANCE.aphroditeLyreBreedingRadius.get();
+        final double radius = OlympusConfig.APHRODITE_LYRE_BREEDING_RADIUS;
         final Set<UUID> entities = ENTITIES.computeIfAbsent(player.getUUID(), ignored -> new HashSet<>());
         level.getEntitiesOfClass(Animal.class, player.getBoundingBox().inflate(radius),
                 animal -> animal.isAlive() && !animal.isBaby() && animal.canFallInLove() && !entities.contains(animal.getUUID()) && animal.distanceToSqr(player) <= radius * radius

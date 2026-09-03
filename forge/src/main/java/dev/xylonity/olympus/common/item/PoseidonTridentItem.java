@@ -1,171 +1,115 @@
 package dev.xylonity.olympus.common.item;
 
-import com.geckolib.animatable.GeoItem;
-import com.geckolib.animatable.client.GeoRenderProvider;
-import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animatable.manager.AnimatableManager;
-import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.RawAnimation;
-import com.geckolib.renderer.GeoItemRenderer;
-import com.geckolib.util.GeckoLibUtil;
-import dev.xylonity.olympus.Olympus;
+import dev.xylonity.knightlib.api.animation.KnightLibAnim;
+import dev.xylonity.knightlib.api.animation.KnightLibItemAnimationControllerRegistrar;
+import dev.xylonity.knightlib.api.item.KnightLibRenderedItem;
 import dev.xylonity.olympus.client.item.renderer.PoseidonTridentItemRenderer;
 import dev.xylonity.olympus.common.entity.projectile.PoseidonTridentEntity;
 import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.config.OlympusConfig;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Position;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.NeoForgeMod;
-import org.jspecify.annotations.NonNull;
+import java.util.List;
+import java.util.function.Supplier;
 
-import java.util.function.Consumer;
+public final class PoseidonTridentItem extends TridentItem implements KnightLibRenderedItem {
 
-public final class PoseidonTridentItem extends TridentItem implements GeoItem {
-
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-
-    private static final AttributeModifier SWIM_SPEED_MODIFIER = new AttributeModifier(Olympus.of("poseidon_trident_swim_speed"), 0.4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-
-    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+    private static final KnightLibAnim IDLE = KnightLibAnim.begin().thenLoop("idle");
 
     public PoseidonTridentItem(final Properties properties) {
         super(properties);
-        GeoItem.registerSyncedAnimatable(this);
-    }
-
-    public static @NonNull ItemAttributeModifiers createAttributes() {
-        return ItemAttributeModifiers.builder()
-                .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, 9D, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-                .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -2.8D, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-                .add(NeoForgeMod.SWIM_SPEED, SWIM_SPEED_MODIFIER, EquipmentSlotGroup.HAND)
-                .build();
     }
 
     @Override
-    public boolean releaseUsing(final ItemStack stack, final Level level, final LivingEntity user, final int remainingUseDuration) {
+    public void releaseUsing(final ItemStack stack, final Level level, final LivingEntity user, final int remainingUseDuration) {
         if (!(user instanceof Player player)) {
-            return false;
+            return;
         }
 
-        final int useTicks = getUseDuration(stack, user) - remainingUseDuration;
-        if (useTicks < THROW_THRESHOLD_TIME || stack.nextDamageWillBreak()) {
-            return false;
+        final int useTicks = getUseDuration(stack) - remainingUseDuration;
+        if (useTicks < THROW_THRESHOLD_TIME || stack.getDamageValue() >= stack.getMaxDamage() - 1) {
+            return;
         }
 
         player.awardStat(Stats.ITEM_USED.get(this));
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return false;
+        if (!(level instanceof ServerLevel)) {
+            return;
         }
 
-        stack.hurtWithoutBreaking(1, player);
-        final ItemStack poseidonTrident = stack.consumeAndReturn(1, player);
-        final PoseidonTridentEntity trident = Projectile.spawnProjectileFromRotation(
-                PoseidonTridentEntity::new, serverLevel, poseidonTrident, player, 0.0F, PROJECTILE_SHOOT_POWER, 1.0F
-        );
-        if (player.hasInfiniteMaterials()) {
+        stack.hurtAndBreak(1, player, entity -> entity.broadcastBreakEvent(player.getUsedItemHand()));
+        final ItemStack poseidonTrident = stack.copy();
+        poseidonTrident.setCount(1);
+
+        final PoseidonTridentEntity trident = new PoseidonTridentEntity(level, player, poseidonTrident);
+        trident.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, SHOOT_POWER, 1.0F);
+        if (player.getAbilities().instabuild) {
             trident.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
         }
+        else {
+            stack.shrink(1);
+        }
 
-        level.playSound(null, trident, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+        level.addFreshEntity(trident);
 
-        return true;
+        level.playSound(null, trident, SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
     @Override
-    public InteractionResult use(final Level level, final Player player, final InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(final Level level, final Player player, final InteractionHand hand) {
         final ItemStack stack = player.getItemInHand(hand);
-        if (stack.nextDamageWillBreak()) {
-            return InteractionResult.FAIL;
+        if (stack.getDamageValue() >= stack.getMaxDamage() - 1) {
+            return InteractionResultHolder.fail(stack);
         }
 
         player.startUsingItem(hand);
 
-        return InteractionResult.CONSUME;
+        return InteractionResultHolder.consume(stack);
     }
 
     @Override
-    public Projectile asProjectile(final Level level, final Position position, final ItemStack stack, final Direction direction) {
-        final PoseidonTridentEntity trident = new PoseidonTridentEntity(level, position.x(), position.y(), position.z(), stack.copyWithCount(1));
-
-        trident.pickup = AbstractArrow.Pickup.ALLOWED;
-
-        return trident;
+    public boolean canApplyAtEnchantingTable(final ItemStack stack, final Enchantment enchantment) {
+        return enchantment == Enchantments.CHANNELING
+                || enchantment == Enchantments.IMPALING || enchantment == Enchantments.MENDING || enchantment == Enchantments.KNOCKBACK
+                || enchantment == Enchantments.UNBREAKING || enchantment == Enchantments.MOB_LOOTING;
     }
 
     @Override
-    public boolean supportsEnchantment(final ItemStack stack, final Holder<Enchantment> enchantment) {
-        return enchantment.is(Enchantments.CHANNELING)
-                || enchantment.is(Enchantments.IMPALING)
-                || enchantment.is(Enchantments.MENDING)
-                || enchantment.is(Enchantments.KNOCKBACK)
-                || enchantment.is(Enchantments.UNBREAKING)
-                || enchantment.is(Enchantments.LOOTING);
-    }
-
-    @Override
-    public void appendHoverText(final ItemStack stack, final TooltipContext context, final TooltipDisplay display, final Consumer<Component> tooltip, final TooltipFlag flag) {
-        super.appendHoverText(stack, context, display, tooltip, flag);
-        OlympusTooltip.append(tooltip, "poseidon_trident", 0x64B5E8,
+    public void appendHoverText(final ItemStack stack, final Level level, final List<Component> tooltip, final TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        OlympusTooltip.append(tooltip::add, "poseidon_trident", 0x64B5E8,
                 OlympusTooltip.ability(1,
-                        OlympusTooltip.property("swim_speed", "+" + OlympusTooltip.percent(OlympusConfig.INSTANCE.poseidonTridentSwimSpeedBonus.get()))
+                        OlympusTooltip.property("swim_speed", "+" + OlympusTooltip.percent(OlympusConfig.POSEIDON_TRIDENT_SWIM_SPEED_BONUS))
                 ),
                 OlympusTooltip.ability(2,
-                        OlympusTooltip.property("projectile_damage", OlympusTooltip.number(OlympusConfig.INSTANCE.poseidonTridentProjectileDamage.get())),
-                        OlympusTooltip.property("splash_damage", OlympusTooltip.number(OlympusConfig.INSTANCE.poseidonTridentSplashDamage.get())),
-                        OlympusTooltip.property("splash_radius", OlympusTooltip.number(OlympusConfig.INSTANCE.poseidonTridentSplashRadius.get()))
+                        OlympusTooltip.property("projectile_damage", OlympusTooltip.number(OlympusConfig.POSEIDON_TRIDENT_PROJECTILE_DAMAGE)),
+                        OlympusTooltip.property("splash_damage", OlympusTooltip.number(OlympusConfig.POSEIDON_TRIDENT_SPLASH_DAMAGE)),
+                        OlympusTooltip.property("splash_radius", OlympusTooltip.number(OlympusConfig.POSEIDON_TRIDENT_SPLASH_RADIUS))
                 ));
 
     }
 
     @Override
-    public void registerControllers(final AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>("idle", state -> state.setAndContinue(IDLE)));
+    public void registerAnimationControllers(final KnightLibItemAnimationControllerRegistrar controllers) {
+        controllers.add("idle", state -> IDLE);
     }
 
     @Override
-    public void createGeoRenderer(final Consumer<GeoRenderProvider> consumer) {
-        consumer.accept(new GeoRenderProvider() {
-            private PoseidonTridentItemRenderer renderer;
-
-            @Override
-            public GeoItemRenderer<?> getGeoItemRenderer() {
-                if (renderer == null) {
-                    renderer = new PoseidonTridentItemRenderer();
-                }
-
-                return renderer;
-            }
-
-        });
-
-    }
-
-    @Override
-    public @NonNull AnimatableInstanceCache getAnimatableInstanceCache() {
-        return this.cache;
+    public Supplier<Object> rendererFactory() {
+        return PoseidonTridentItemRenderer::new;
     }
 
 }

@@ -5,23 +5,20 @@ import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
+import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.CuriosSlotTypes;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
@@ -40,7 +37,7 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
 
     @Override
     public boolean canEquip(final SlotContext slotContext, final ItemStack stack) {
-        return CuriosSlotTypes.Preset.BELT.id().equals(slotContext.identifier());
+        return "belt".equals(slotContext.identifier());
     }
 
     @Override
@@ -49,13 +46,13 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
     }
 
     @Override
-    public void appendHoverText(final ItemStack stack, final TooltipContext context, final TooltipDisplay display, final Consumer<Component> tooltip, final TooltipFlag flag) {
-        super.appendHoverText(stack, context, display, tooltip, flag);
-        OlympusTooltip.append(tooltip, "instruments_of_hephaestus", 0xE8894D,
+    public void appendHoverText(final ItemStack stack, final Level level, final List<Component> tooltip, final TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        OlympusTooltip.append(tooltip::add, "instruments_of_hephaestus", 0xE8894D,
                 OlympusTooltip.ability(1,
-                        OlympusTooltip.property("repair_amount", Integer.toString(OlympusConfig.INSTANCE.hephaestusInstrumentsRepairAmount.get())),
-                        OlympusTooltip.property("repair_cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.hephaestusInstrumentsRepairCooldownSeconds.get())),
-                        OlympusTooltip.property("kill_reduction", OlympusTooltip.seconds(OlympusConfig.INSTANCE.hephaestusInstrumentsKillCooldownReductionSeconds.get()))
+                        OlympusTooltip.property("repair_amount", Integer.toString(OlympusConfig.HEPHAESTUS_INSTRUMENTS_REPAIR_AMOUNT)),
+                        OlympusTooltip.property("repair_cooldown", OlympusTooltip.seconds(OlympusConfig.HEPHAESTUS_INSTRUMENTS_REPAIR_COOLDOWN_SECONDS)),
+                        OlympusTooltip.property("kill_reduction", OlympusTooltip.seconds(OlympusConfig.HEPHAESTUS_INSTRUMENTS_KILL_COOLDOWN_REDUCTION_SECONDS))
                 ));
 
     }
@@ -83,7 +80,7 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
         }
 
         // Repairs the target item a certain amount of durability
-        repairTarget.setDamageValue(Math.max(0, repairTarget.getDamageValue() - OlympusConfig.INSTANCE.hephaestusInstrumentsRepairAmount.get()));
+        repairTarget.setDamageValue(Math.max(0, repairTarget.getDamageValue() - OlympusConfig.HEPHAESTUS_INSTRUMENTS_REPAIR_AMOUNT));
 
         // Cooldown
         startCooldown(player, instruments);
@@ -95,6 +92,7 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
     public static void reduceCooldownOnKill(final ServerPlayer player) {
         // Checks that the instruments are equipped
         final Optional<ItemStack> equippedInstruments = CuriosApi.getCuriosInventory(player)
+                .resolve()
                 .flatMap(handler -> handler.findFirstCurio(OlympusItems.INSTRUMENTS_OF_HEPHAESTUS.get()))
                 .map(SlotResult::stack);
         if (equippedInstruments.isEmpty()) {
@@ -109,16 +107,16 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
         }
 
         // Reduces the cooldown of the instruments by x amount
-        final int reductionTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.hephaestusInstrumentsKillCooldownReductionSeconds.get());
+        final int reductionTicks = OlympusConfig.secondsToTicks(OlympusConfig.HEPHAESTUS_INSTRUMENTS_KILL_COOLDOWN_REDUCTION_SECONDS);
         final int reducedCooldown = Math.max(0, remainingCooldown - reductionTicks);
         if (reducedCooldown == 0) {
             clearCooldown(instruments);
-            player.getCooldowns().removeCooldown(player.getCooldowns().getCooldownGroup(instruments));
+            player.getCooldowns().removeCooldown(instruments.getItem());
             return;
         }
 
         setCooldownEnd(instruments, player.level().getGameTime() + reducedCooldown);
-        player.getCooldowns().addCooldown(instruments, reducedCooldown);
+        player.getCooldowns().addCooldown(instruments.getItem(), reducedCooldown);
     }
 
     /// Finds the item in the inventory of the player with the most damage
@@ -127,7 +125,7 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
         int mostDamage = 0;
 
         // Inventory
-        for (final ItemStack stack : player.getInventory().getNonEquipmentItems()) {
+        for (final ItemStack stack : player.getInventory().items) {
             if (isDamagedTool(stack) && stack.getDamageValue() > mostDamage) {
                 repairTarget = stack;
                 mostDamage = stack.getDamageValue();
@@ -156,7 +154,7 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
     }
 
     private static boolean isDamagedTool(final ItemStack stack) {
-        return stack.isDamaged() && (stack.has(DataComponents.TOOL) || stack.is(ItemTags.SPEARS));
+        return stack.isDamaged() && !(stack.getItem() instanceof ArmorItem);
     }
 
     private static boolean isDamagedArmor(final ItemStack stack, final EquipmentSlot slot) {
@@ -164,51 +162,46 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
             return false;
         }
 
-        return switch (slot) {
-            case HEAD -> stack.is(ItemTags.HEAD_ARMOR);
-            case CHEST -> stack.is(ItemTags.CHEST_ARMOR);
-            case LEGS -> stack.is(ItemTags.LEG_ARMOR);
-            case FEET -> stack.is(ItemTags.FOOT_ARMOR);
-            default -> false;
-        };
+        return stack.getItem() instanceof ArmorItem armor && armor.getEquipmentSlot() == slot;
 
     }
 
-    private static int getRemainingCooldown(final ItemStack instruments, final ServerLevel level) {
-        final long cooldownEnd = instruments.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getLongOr(TAG_COOLDOWN_END, 0);
-        return Math.clamp(cooldownEnd - level.getGameTime(), 0, Integer.MAX_VALUE);
+    private static int getRemainingCooldown(final ItemStack instruments, final Level level) {
+        final long cooldownEnd = instruments.hasTag() ? instruments.getTag().getLong(TAG_COOLDOWN_END) : 0;
+        return (int) Math.max(0, Math.min(cooldownEnd - level.getGameTime(), Integer.MAX_VALUE));
     }
 
     private static void startCooldown(final ServerPlayer player, final ItemStack instruments) {
-        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.hephaestusInstrumentsRepairCooldownSeconds.get());
+        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.HEPHAESTUS_INSTRUMENTS_REPAIR_COOLDOWN_SECONDS);
         setCooldownEnd(instruments, player.level().getGameTime() + cooldownTicks);
         if (cooldownTicks > 0) {
-            player.getCooldowns().addCooldown(instruments, cooldownTicks);
+            player.getCooldowns().addCooldown(instruments.getItem(), cooldownTicks);
         }
+
     }
 
     private static void syncCooldown(ServerPlayer player, ItemStack instruments, int remainingCooldown) {
-        if (!player.getCooldowns().isOnCooldown(instruments)) {
-            player.getCooldowns().addCooldown(instruments, remainingCooldown);
+        if (!player.getCooldowns().isOnCooldown(instruments.getItem())) {
+            player.getCooldowns().addCooldown(instruments.getItem(), remainingCooldown);
         }
 
     }
 
     private static void setCooldownEnd(final ItemStack stack, final long cooldownEnd) {
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putLong(TAG_COOLDOWN_END, cooldownEnd));
+        stack.getOrCreateTag().putLong(TAG_COOLDOWN_END, cooldownEnd);
     }
 
     private static void clearCooldown(final ItemStack stack) {
-        final long cooldownEnd = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getLongOr(TAG_COOLDOWN_END, 0);
+        final long cooldownEnd = stack.hasTag() ? stack.getTag().getLong(TAG_COOLDOWN_END) : 0;
         if (cooldownEnd == 0) {
             return;
         }
 
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.remove(TAG_COOLDOWN_END));
+        stack.removeTagKey(TAG_COOLDOWN_END);
     }
 
     private static void playForgingEffects(final ServerPlayer player) {
-        final ServerLevel level = player.level();
+        final ServerLevel level = player.serverLevel();
         level.playSound(null, player.getX(), player.getY(), player.getZ(), OlympusSounds.HEPHAESTUS_FORGING.get(), SoundSource.PLAYERS, 1, 1);
 
         // Randomized speed and directions for each particle

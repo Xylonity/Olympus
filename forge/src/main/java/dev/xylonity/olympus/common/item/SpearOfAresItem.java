@@ -1,25 +1,18 @@
 package dev.xylonity.olympus.common.item;
 
-import com.geckolib.animatable.GeoItem;
-import com.geckolib.animatable.client.GeoRenderProvider;
-import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animatable.manager.AnimatableManager;
-import com.geckolib.renderer.GeoItemRenderer;
-import com.geckolib.util.GeckoLibUtil;
+import dev.xylonity.knightlib.api.item.KnightLibRenderedItem;
 import dev.xylonity.olympus.client.item.renderer.SpearOfAresItemRenderer;
+import dev.xylonity.olympus.client.item.SpearAttackTransforms;
 import dev.xylonity.olympus.common.entity.projectile.SpearOfAresEntity;
 import dev.xylonity.olympus.common.util.OlympusTooltip;
 import dev.xylonity.olympus.common.entity.projectile.SummoningSpearsEntity;
 import dev.xylonity.olympus.config.OlympusConfig;
-import dev.xylonity.olympus.network.payload.CameraShakePayload;
+import dev.xylonity.olympus.network.OlympusNetwork;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Position;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -31,78 +24,123 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.CustomModelData;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public final class SpearOfAresItem extends TridentItem implements GeoItem {
+public final class SpearOfAresItem extends TridentItem implements KnightLibRenderedItem {
+
+    public static final int SWING_DURATION = 10;
 
     private static final String TAG_SPECIAL_ABILITY_CHARGED = "olympus_special_ability_charged";
     private static final String TAG_SPECIAL_ABILITY_COOLDOWN_END = "olympus_special_ability_cooldown_end";
     private static final String TAG_PLAYER_SPECIAL_FALL = "olympus_ares_special_fall";
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-
     public SpearOfAresItem(final Properties properties) {
         super(properties);
-        GeoItem.registerSyncedAnimatable(this);
     }
 
-    public static boolean isSpecialAbilityCharged(final ItemStack stack) {
-        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getBooleanOr(TAG_SPECIAL_ABILITY_CHARGED, false);
+    @Override
+    public boolean shouldCauseReequipAnimation(final ItemStack oldStack, final ItemStack newStack, final boolean slotChanged) {
+        // Otherwise the item will play the animation when using the spear
+        return slotChanged || !ItemStack.isSameItem(oldStack, newStack);
     }
 
-    public static void setSpecialAbilityCharged(final ItemStack stack, final Player player, final boolean charged) {
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
-            if (charged) {
-                if (!isSpecialAbilityCharged(stack)) {
-                    player.level().playSound(null, player.blockPosition(), SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS, 1.4f, 1f);
+    @Override
+    public void initializeClient(final Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+
+            private BlockEntityWithoutLevelRenderer renderer;
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) {
+                    renderer = new SpearOfAresItemRenderer();
+                }
+                return renderer;
+            }
+
+            @Override
+            public boolean applyForgeHandTransform(final com.mojang.blaze3d.vertex.PoseStack poseStack, final LocalPlayer player, final HumanoidArm arm, final ItemStack itemInHand, final float partialTick, final float equipProgress, final float swingProgress) {
+                if (player.isUsingItem() && player.getUseItem() == itemInHand) {
+                    return false;
                 }
 
-                tag.putBoolean(TAG_SPECIAL_ABILITY_CHARGED, true);
-            }
-            else {
-                tag.remove(TAG_SPECIAL_ABILITY_CHARGED);
+                // Applies the display mutations from mc26+
+                SpearAttackTransforms.applyFirstPersonBase(poseStack, arm, equipProgress);
+                SpearAttackTransforms.applyFirstPersonAttack(poseStack, arm, swingProgress);
+
+                return true;
             }
 
         });
 
+    }
+
+    @Override
+    public boolean hurtEnemy(final ItemStack stack, final LivingEntity target, final LivingEntity attacker) {
+        final boolean result = super.hurtEnemy(stack, target, attacker);
+        if (!attacker.level().isClientSide) {
+            attacker.level().playSound(null, attacker.getX(), attacker.getY(), attacker.getZ(), OlympusSounds.ARES_SPEAR_HIT.get(), attacker.getSoundSource(), 1.0F, 1.0F);
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean canAttackBlock(final BlockState state, final Level level, final BlockPos pos, final Player player) {
+        return false;
+    }
+
+    public static boolean isSpecialAbilityCharged(final ItemStack stack) {
+        return stack.hasTag() && stack.getTag().getBoolean(TAG_SPECIAL_ABILITY_CHARGED);
+    }
+
+    public static void setSpecialAbilityCharged(final ItemStack stack, final Player player, final boolean charged) {
         if (charged) {
-            stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(1.0F), List.of(), List.of(), List.of()));
+            if (!isSpecialAbilityCharged(stack)) {
+                player.level().playSound(null, player.blockPosition(), SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS, 1.4f, 1f);
+            }
+
+            stack.getOrCreateTag().putBoolean(TAG_SPECIAL_ABILITY_CHARGED, true);
         }
         else {
-            stack.remove(DataComponents.CUSTOM_MODEL_DATA);
+            stack.removeTagKey(TAG_SPECIAL_ABILITY_CHARGED);
+        }
+
+        if (charged) {
+            stack.getOrCreateTag().putInt("CustomModelData", 1);
+        }
+        else {
+            stack.removeTagKey("CustomModelData");
         }
 
     }
 
     public static boolean isSpecialAbilityReady(final ItemStack stack, final Level level) {
-        final long cooldownEnd = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getLongOr(TAG_SPECIAL_ABILITY_COOLDOWN_END, 0L);
+        final long cooldownEnd = stack.hasTag() ? stack.getTag().getLong(TAG_SPECIAL_ABILITY_COOLDOWN_END) : 0L;
         return level.getGameTime() >= cooldownEnd;
     }
 
     public static void startSpecialAbilityCooldown(final ItemStack stack, final Level level) {
-        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.aresSpearAbilityCooldownSeconds.get());
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag ->
-                tag.putLong(TAG_SPECIAL_ABILITY_COOLDOWN_END, level.getGameTime() + cooldownTicks)
-        );
+        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.ARES_SPEAR_ABILITY_COOLDOWN_SECONDS);
+        stack.getOrCreateTag().putLong(TAG_SPECIAL_ABILITY_COOLDOWN_END, level.getGameTime() + cooldownTicks);
 
     }
 
@@ -154,7 +192,7 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
 
     /// Applies the special effect of the helmet of spear (summoning spears come from the ground on ground hit on certain conditions)
     private static boolean tryActiveAbility(ServerPlayer player, double fallDistance) {
-        if (fallDistance < OlympusConfig.INSTANCE.aresSpearAbilityMinimumFallDistance.get() || !player.isShiftKeyDown() || player.isInWater() || player.isFallFlying() || player.getAbilities().flying) {
+        if (fallDistance < OlympusConfig.ARES_SPEAR_ABILITY_MINIMUM_FALL_DISTANCE || !player.isShiftKeyDown() || player.isInWater() || player.isFallFlying() || player.getAbilities().flying) {
             return false;
         }
 
@@ -180,14 +218,14 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
         player.getPersistentData().remove(TAG_PLAYER_SPECIAL_FALL);
         player.resetFallDistance();
 
-        final ServerLevel level = player.level();
+        final ServerLevel level = player.serverLevel();
         final Vec3 pos = player.position();
         level.playSound(null, pos.x, pos.y, pos.z, OlympusSounds.ARES_SPEAR_LANDING.get(), SoundSource.PLAYERS, 1, 1);
         level.addFreshEntity(new SummoningSpearsEntity(level, player));
         spawnLandingParticles(level, pos);
 
         // Camera shake
-        PacketDistributor.sendToPlayersNear(level, null, pos.x, pos.y, pos.z, 6, new CameraShakePayload(pos, 6, 1.1f, 30));
+        OlympusNetwork.shake(level, pos, 6, 0.9f, 20);
 
         return true;
     }
@@ -213,7 +251,7 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
 
             final BlockState state = level.getBlockState(sanitizedPos);
             final double y = sanitizedPos.getY() + state.getCollisionShape(level, sanitizedPos).max(Direction.Axis.Y) + 0.05;
-            level.sendParticles(new BlockParticleOption(ParticleTypes.DUST_PILLAR, state, sanitizedPos), particleX, y, particleZ, particles, 0.12, 0.04, 0.12, 0.16);
+            level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), particleX, y, particleZ, particles, 0.12, 0.04, 0.12, 0.16);
         }
 
     }
@@ -236,7 +274,7 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
 
     private static boolean isActiveFallActive(final ServerPlayer player) {
         // Checked on player tick, whether it is executing the spear special ability or not
-        return player.getPersistentData().getBooleanOr(TAG_PLAYER_SPECIAL_FALL, false);
+        return player.getPersistentData().getBoolean(TAG_PLAYER_SPECIAL_FALL);
     }
 
     private static void acceleratePlayer(final ServerPlayer player) {
@@ -248,18 +286,18 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
         final double angle = Math.PI * 2 * (player.tickCount % 10) / 10;
         final double x = player.getX() + Math.cos(angle);
         final double z = player.getZ() + Math.sin(angle);
-        player.level().sendParticles(OlympusParticles.ARES_SPEAR_TRACE.get(), x, player.getY(), z, 1, 0, 0, 0, 0);
-        player.level().sendParticles(OlympusParticles.ARES_SPEAR_TRACE.get(), x, player.getY(), z, 1, 0.1, 0.1, 0.1, 0);
+        player.serverLevel().sendParticles(OlympusParticles.ARES_SPEAR_TRACE.get(), x, player.getY(), z, 1, 0, 0, 0, 0);
+        player.serverLevel().sendParticles(OlympusParticles.ARES_SPEAR_TRACE.get(), x, player.getY(), z, 1, 0.1, 0.1, 0.1, 0);
     }
 
     private static ItemStack findSpearUsedForKill(final ServerPlayer player, final DamageSource damageSource) {
         // If the damage is caused by the thrown entity
         if (damageSource.getDirectEntity() instanceof SpearOfAresEntity thrownSpear) {
-            final ItemStack projectileStack = thrownSpear.getWeaponItem();
+            final ItemStack projectileStack = thrownSpear.getSpearStack();
             // If the spear is in the hand
             for (final InteractionHand hand : InteractionHand.values()) {
                 final ItemStack stack = player.getItemInHand(hand);
-                if (stack.is(OlympusItems.SPEAR_OF_ARES.get()) && ItemStack.isSameItemSameComponents(stack, projectileStack)) {
+                if (stack.is(OlympusItems.SPEAR_OF_ARES.get()) && ItemStack.isSameItemSameTags(stack, projectileStack)) {
                     return stack;
                 }
 
@@ -297,103 +335,72 @@ public final class SpearOfAresItem extends TridentItem implements GeoItem {
 
     /// Same code over again {@link PoseidonTridentItem}
     @Override
-    public boolean releaseUsing(final @NonNull ItemStack stack, final @NonNull Level level, final @NonNull LivingEntity user, final int remainingUseDuration) {
+    public void releaseUsing(final ItemStack stack, final Level level, final LivingEntity user, final int remainingUseDuration) {
         if (!(user instanceof Player player)) {
-            return false;
+            return;
         }
 
-        final int useTicks = getUseDuration(stack, user) - remainingUseDuration;
-        if (useTicks < THROW_THRESHOLD_TIME || stack.nextDamageWillBreak() || player.getCooldowns().isOnCooldown(stack)) {
-            return false;
+        final int useTicks = getUseDuration(stack) - remainingUseDuration;
+        if (useTicks < THROW_THRESHOLD_TIME || stack.getDamageValue() >= stack.getMaxDamage() - 1 || player.getCooldowns().isOnCooldown(stack.getItem())) {
+            return;
         }
 
         player.awardStat(Stats.ITEM_USED.get(this));
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return false;
+        if (!(level instanceof ServerLevel)) {
+            return;
         }
 
         // Reduces the item durability and doesn't delete the stack
-        stack.hurtWithoutBreaking(1, player);
-        final ItemStack aresSpear = stack.copyWithCount(1);
-        final SpearOfAresEntity spear = Projectile.spawnProjectileFromRotation(
-                SpearOfAresEntity::new, serverLevel, aresSpear, player, 0.0F, PROJECTILE_SHOOT_POWER, 1.0F
-        );
+        stack.hurtAndBreak(1, player, entity -> entity.broadcastBreakEvent(player.getUsedItemHand()));
+        final ItemStack aresSpear = stack.copy();
+        aresSpear.setCount(1);
+        final SpearOfAresEntity spear = new SpearOfAresEntity(level, player, aresSpear);
+        spear.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, SHOOT_POWER, 1.0F);
         spear.pickup = AbstractArrow.Pickup.DISALLOWED;
+        level.addFreshEntity(spear);
 
-        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.aresSpearThrowCooldownSeconds.get());
+        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.ARES_SPEAR_THROW_COOLDOWN_SECONDS);
         if (cooldownTicks > 0) {
-            player.getCooldowns().addCooldown(stack, cooldownTicks);
+            player.getCooldowns().addCooldown(stack.getItem(), cooldownTicks);
         }
 
-        level.playSound(null, spear, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
-
-        return true;
+        level.playSound(null, spear, SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
     @Override
-    public @NonNull InteractionResult use(final @NonNull Level level, final @NonNull Player player, final @NonNull InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(final Level level, final Player player, final InteractionHand hand) {
         final ItemStack stack = player.getItemInHand(hand);
-        if (stack.nextDamageWillBreak() || player.getCooldowns().isOnCooldown(stack)) {
-            return InteractionResult.FAIL;
+        if (stack.getDamageValue() >= stack.getMaxDamage() - 1 || player.getCooldowns().isOnCooldown(stack.getItem())) {
+            return InteractionResultHolder.fail(stack);
         }
 
         player.startUsingItem(hand);
 
-        return InteractionResult.CONSUME;
+        return InteractionResultHolder.consume(stack);
     }
 
     @Override
-    public @NonNull Projectile asProjectile(final @NonNull Level level, final Position position, final ItemStack stack, final @NonNull Direction direction) {
-        final SpearOfAresEntity spear = new SpearOfAresEntity(level, position.x(), position.y(), position.z(), stack.copyWithCount(1));
-        spear.pickup = AbstractArrow.Pickup.DISALLOWED;
-        return spear;
+    public boolean canApplyAtEnchantingTable(final ItemStack stack, final Enchantment enchantment) {
+        return enchantment != Enchantments.LOYALTY && enchantment != Enchantments.RIPTIDE && super.canApplyAtEnchantingTable(stack, enchantment);
     }
 
     @Override
-    public boolean supportsEnchantment(final ItemStack stack, final Holder<Enchantment> enchantment) {
-        return !enchantment.is(Enchantments.LOYALTY) && !enchantment.is(Enchantments.RIPTIDE) && super.supportsEnchantment(stack, enchantment);
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, display, tooltip, flag);
-        OlympusTooltip.append(tooltip, "spear_of_ares", 0xE06C6C,
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        OlympusTooltip.append(tooltip::add, "spear_of_ares", 0xE06C6C,
                 OlympusTooltip.ability(1,
-                        OlympusTooltip.property("fall_distance", OlympusTooltip.number(OlympusConfig.INSTANCE.aresSpearAbilityMinimumFallDistance.get())),
-                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.aresSpearAbilityCooldownSeconds.get()))
+                        OlympusTooltip.property("fall_distance", OlympusTooltip.number(OlympusConfig.ARES_SPEAR_ABILITY_MINIMUM_FALL_DISTANCE)),
+                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.ARES_SPEAR_ABILITY_COOLDOWN_SECONDS))
                 ),
                 OlympusTooltip.ability(2,
-                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.aresSpearThrowCooldownSeconds.get()))
+                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.ARES_SPEAR_THROW_COOLDOWN_SECONDS))
                 ));
 
     }
 
     @Override
-    public void createGeoRenderer(final Consumer<GeoRenderProvider> consumer) {
-        consumer.accept(new GeoRenderProvider() {
-            private SpearOfAresItemRenderer renderer;
-
-            @Override
-            public GeoItemRenderer<?> getGeoItemRenderer() {
-                if (renderer == null) {
-                    renderer = new SpearOfAresItemRenderer();
-                }
-
-                return renderer;
-            }
-
-        });
-
-    }
-
-    @Override
-    public void registerControllers(final AnimatableManager.@NonNull ControllerRegistrar controllers) {
-        ;;
-    }
-
-    @Override
-    public @NonNull AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
+    public Supplier<Object> rendererFactory() {
+        return SpearOfAresItemRenderer::new;
     }
 
 }

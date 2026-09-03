@@ -2,7 +2,7 @@ package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.common.util.OlympusTooltip;
-import dev.xylonity.olympus.network.payload.CameraShakePayload;
+import dev.xylonity.olympus.network.OlympusNetwork;
 import dev.xylonity.olympus.network.payload.LightningBoltPayload;
 import dev.xylonity.olympus.registry.OlympusDamageTypes;
 import dev.xylonity.olympus.registry.OlympusItems;
@@ -11,9 +11,10 @@ import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,11 +27,9 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
 import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.CuriosSlotTypes;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
@@ -43,7 +42,7 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
 
     @Override
     public boolean canEquip(final SlotContext slotContext, final ItemStack stack) {
-        return CuriosSlotTypes.Preset.BRACELET.id().equals(slotContext.identifier());
+        return "bracelet".equals(slotContext.identifier());
     }
 
     @Override
@@ -52,18 +51,18 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
     }
 
     @Override
-    public void appendHoverText(final ItemStack stack, final TooltipContext context, final TooltipDisplay display, final Consumer<Component> tooltip, final TooltipFlag flag) {
-        super.appendHoverText(stack, context, display, tooltip, flag);
-        final double minimumStun = OlympusConfig.INSTANCE.zeusBracersMinimumStunSeconds.get();
-        final double maximumStun = OlympusConfig.INSTANCE.zeusBracersMaximumStunSeconds.get();
+    public void appendHoverText(final ItemStack stack, final Level level, final List<Component> tooltip, final TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        final double minimumStun = OlympusConfig.ZEUS_BRACERS_MINIMUM_STUN_SECONDS;
+        final double maximumStun = OlympusConfig.ZEUS_BRACERS_MAXIMUM_STUN_SECONDS;
         final String stunDuration = OlympusTooltip.number(Math.min(minimumStun, maximumStun)) + "–" + OlympusTooltip.seconds(Math.max(minimumStun, maximumStun));
-        OlympusTooltip.append(tooltip, "bracers_of_zeus", 0xF2D35E,
+        OlympusTooltip.append(tooltip::add, "bracers_of_zeus", 0xF2D35E,
                 OlympusTooltip.ability(1,
-                        OlympusTooltip.property("damage", OlympusTooltip.number(OlympusConfig.INSTANCE.zeusBracersDamage.get())),
-                        OlympusTooltip.property("chain_targets", Integer.toString(OlympusConfig.INSTANCE.zeusBracersChainJumps.get())),
-                        OlympusTooltip.property("chain_range", OlympusTooltip.number(OlympusConfig.INSTANCE.zeusBracersChainRange.get())),
+                        OlympusTooltip.property("damage", OlympusTooltip.number(OlympusConfig.ZEUS_BRACERS_DAMAGE)),
+                        OlympusTooltip.property("chain_targets", Integer.toString(OlympusConfig.ZEUS_BRACERS_CHAIN_JUMPS)),
+                        OlympusTooltip.property("chain_range", OlympusTooltip.number(OlympusConfig.ZEUS_BRACERS_CHAIN_RANGE)),
                         OlympusTooltip.property("stun_duration", stunDuration),
-                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.INSTANCE.zeusBracersCooldownSeconds.get()))
+                        OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.ZEUS_BRACERS_COOLDOWN_SECONDS))
                 ));
 
     }
@@ -77,32 +76,33 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
 
         // Checks if the bracers of zeus are equipped
         final Optional<ItemStack> equippedBracers = CuriosApi.getCuriosInventory(player)
+                .resolve()
                 .flatMap(handler -> handler.findFirstCurio(OlympusItems.BRACERS_OF_ZEUS.get()))
                 .map(SlotResult::stack);
-        if (equippedBracers.isEmpty() || player.getCooldowns().isOnCooldown(equippedBracers.get())) {
+        if (equippedBracers.isEmpty() || player.getCooldowns().isOnCooldown(equippedBracers.get().getItem())) {
             return;
         }
 
         // Cooldown
-        final int cooldownTicks = Math.max(0, (int) Math.round(OlympusConfig.INSTANCE.zeusBracersCooldownSeconds.get() * 20.0D));
+        final int cooldownTicks = Math.max(0, (int) Math.round(OlympusConfig.ZEUS_BRACERS_COOLDOWN_SECONDS * 20.0D));
         if (cooldownTicks > 0) {
-            player.getCooldowns().addCooldown(equippedBracers.get(), cooldownTicks);
+            player.getCooldowns().addCooldown(equippedBracers.get().getItem(), cooldownTicks);
         }
 
         // Damage accumulators
-        final float lightningDamage = OlympusConfig.INSTANCE.zeusBracersDamage.get().floatValue();
-        final DamageSource damageSource = level.damageSources().source(OlympusDamageTypes.LIGHTNING, player);
+        final float lightningDamage = (float) OlympusConfig.ZEUS_BRACERS_DAMAGE;
+        final DamageSource damageSource = new DamageSource(level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(OlympusDamageTypes.LIGHTNING), player);
         final Set<Integer> struckEntities = new HashSet<>();
         struckEntities.add(firstTarget.getId());
 
         // First lightning bolt from the sky to the hit entity
         final Vec3 ground = firstTarget.position();
-        final Vec3 sky = new Vec3(firstTarget.getX(), level.getMaxY() + 8, firstTarget.getZ());
+        final Vec3 sky = new Vec3(firstTarget.getX(), level.getMaxBuildHeight() + 8, firstTarget.getZ());
         strike(level, player, firstTarget, sky, ground, lightningDamage, damageSource, true);
 
         // For each entity nearby, in chain (normal iterator)
         Mob current = firstTarget;
-        final int chainJumps = OlympusConfig.INSTANCE.zeusBracersChainJumps.get();
+        final int chainJumps = OlympusConfig.ZEUS_BRACERS_CHAIN_JUMPS;
         for (int jump = 0; jump < chainJumps; jump++) {
             final Mob next = findNextTarget(level, player, current, struckEntities);
             // Instance checking also checks if the instance is not null, so double condition here
@@ -113,7 +113,7 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
             // Won't affect the same entity again
             struckEntities.add(next.getId());
             // Lightning bolt
-            final float chainDamageMultiplier = OlympusConfig.INSTANCE.zeusBracersChainDamageMultiplier.get().floatValue();
+            final float chainDamageMultiplier = (float) OlympusConfig.ZEUS_BRACERS_CHAIN_DAMAGE_MULTIPLIER;
             strike(level, player, next, midpoint(current), midpoint(next), lightningDamage * chainDamageMultiplier, damageSource, false);
             current = next;
         }
@@ -121,7 +121,7 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
     }
 
     private static Mob findNextTarget(ServerLevel level, ServerPlayer player, Mob origin, Set<Integer> struckEntities) {
-        return level.getEntitiesOfClass(Mob.class, origin.getBoundingBox().inflate(OlympusConfig.INSTANCE.zeusBracersChainRange.get()),
+        return level.getEntitiesOfClass(Mob.class, origin.getBoundingBox().inflate(OlympusConfig.ZEUS_BRACERS_CHAIN_RANGE),
                         mob -> mob.isAlive() && !struckEntities.contains(mob.getId()) && !player.isAlliedTo(mob)
                 )
                 .stream()
@@ -131,12 +131,12 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
 
     private static void strike(ServerLevel level, ServerPlayer player, Mob target, Vec3 start, Vec3 end, float damage, DamageSource damageSource, boolean skyStrike) {
         // Lightning bolt particle and sound
-        PacketDistributor.sendToPlayersNear(level, null, end.x, end.y, end.z, 128, new LightningBoltPayload(start, end, skyStrike));
+        OlympusNetwork.sendNear(level, end, 128, LightningBoltPayload.TYPE, new LightningBoltPayload(start, end, skyStrike));
         level.playSound(null, end.x, end.y, end.z, OlympusSounds.ZEUS_BRACERS_LIGHTNING_STRIKE.get(), SoundSource.PLAYERS, skyStrike ? 2.5F : 0.8F, 0.9F + level.getRandom().nextFloat() * 0.2F);
 
         // Camera shake
         if (skyStrike) {
-            PacketDistributor.sendToPlayersNear(level, null, end.x, end.y, end.z, 36, new CameraShakePayload(end, 36, 1.7f, 35));
+            OlympusNetwork.shake(level, end, 36, 1.7f, 35);
         }
 
         // Additional particles around
@@ -144,14 +144,14 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
 
         // Applying the actual damage and status effect
         if (target.isAlive()) {
-            target.hurtServer(level, damageSource, damage);
-            final int configuredMin = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.zeusBracersMinimumStunSeconds.get());
-            final int configuredMax = OlympusConfig.secondsToTicks(OlympusConfig.INSTANCE.zeusBracersMaximumStunSeconds.get());
+            target.hurt(damageSource, damage);
+            final int configuredMin = OlympusConfig.secondsToTicks(OlympusConfig.ZEUS_BRACERS_MINIMUM_STUN_SECONDS);
+            final int configuredMax = OlympusConfig.secondsToTicks(OlympusConfig.ZEUS_BRACERS_MAXIMUM_STUN_SECONDS);
             final int minStunTicks = Math.min(configuredMin, configuredMax);
             final int maxStunTicks = Math.max(configuredMin, configuredMax);
-            final int stunTicks = minStunTicks == maxStunTicks ? minStunTicks : player.getRandom().nextInt(minStunTicks, maxStunTicks);
+            final int stunTicks = minStunTicks == maxStunTicks ? minStunTicks : minStunTicks + player.getRandom().nextInt(maxStunTicks - minStunTicks + 1);
             if (stunTicks > 0) {
-                target.addEffect(new MobEffectInstance(OlympusMobEffects.LIGHTNING_STUN, stunTicks), player);
+                target.addEffect(new MobEffectInstance(OlympusMobEffects.LIGHTNING_STUN.get(), stunTicks), player);
             }
         }
 
