@@ -1,64 +1,69 @@
 package dev.xylonity.olympus.client.entity.renderer;
 
-import com.geckolib.constant.dataticket.DataTicket;
-import com.geckolib.renderer.GeoEntityRenderer;
-import com.geckolib.renderer.base.BoneSnapshots;
-import com.geckolib.renderer.base.GeoRenderState;
-import com.geckolib.renderer.base.RenderPassInfo;
-import dev.xylonity.olympus.client.entity.model.SummoningSpearsModel;
+import dev.xylonity.knightlib.client.animation.KnightLibAnimationSource;
+import dev.xylonity.knightlib.client.animation.KnightLibModelSource;
+import dev.xylonity.knightlib.client.animation.model.KnightLibModel;
+import dev.xylonity.knightlib.client.animation.renderer.KnightLibEntityRenderer;
+import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.client.texture.SpearDissolveTextures;
 import dev.xylonity.olympus.common.entity.projectile.SummoningSpearsEntity;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.resources.Identifier;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import org.jspecify.annotations.NonNull;
 
-public final class SummoningSpearsEntityRenderer extends GeoEntityRenderer<SummoningSpearsEntity, EntityRenderState> {
-
-    private static final DataTicket<Long> SPEAR_GROUND_STATES = DataTicket.create("olympus_spear_ground_states", Long.class);
-    private static final DataTicket<Float> DISSOLVE_VISIBILITY = DataTicket.create("olympus_summoning_spears_dissolve_visibility", Float.class);
+public final class SummoningSpearsEntityRenderer extends KnightLibEntityRenderer<SummoningSpearsEntity> {
 
     public SummoningSpearsEntityRenderer(final EntityRendererProvider.Context context) {
-        super(context, new SummoningSpearsModel());
-        shadowRadius = 0;
+        super(context);
+        shadowRadius = 0.0F;
     }
 
     @Override
-    public int getRenderColor(final SummoningSpearsEntity animatable, final @Nullable Void relatedObject, final float partialTick) {
-        return 0xFFFFFFFF;
+    protected KnightLibModelSource defineModel(final SummoningSpearsEntity entity) {
+        return KnightLibModelSource.geo(Olympus.of("geckolib/models/entity/summoning_spears.geo.json"));
     }
 
     @Override
-    public void addRenderData(final SummoningSpearsEntity animatable, final @Nullable Void relatedObject, final EntityRenderState renderState, final float partialTick) {
-        ((GeoRenderState) renderState).addGeckolibData(SPEAR_GROUND_STATES, animatable.getSpearGroundStates());
-        ((GeoRenderState) renderState).addGeckolibData(DISSOLVE_VISIBILITY, animatable.getDissolveVisibility(partialTick));
+    protected KnightLibAnimationSource defineAnimations(final SummoningSpearsEntity entity) {
+        return KnightLibAnimationSource.geo(Olympus.of("animations/entity/summoning_spears.animation.json"));
     }
 
     @Override
-    public void adjustModelBonesForRender(final RenderPassInfo renderPassInfo, final BoneSnapshots snapshots) {
-        final long groundStates = renderPassInfo.renderState().getOrDefaultGeckolibData(SPEAR_GROUND_STATES, 0L);
-        for (int index = 0; index < 12; index++) {
-            // Moves each spear upward or downward based on the ground state computed on the first tick on the entity itself
-            // Each spear weights five bits so this shifts its segment to the right and masks out every other state
-            final int groundState = (int) ((groundStates >>> (index * 5)) & 0x1F);
-            snapshots.ifPresent("spear_of_ares_" + (index + 1), snapshot -> {
-                if (groundState == 0) {
-                    snapshot.skipRender(true);
-                    return;
-                }
+    public @NonNull ResourceLocation getTextureLocation(final @NonNull SummoningSpearsEntity entity) {
+        return Olympus.of("textures/item/spear_of_ares.png");
+    }
 
-                snapshot.setTranslateY(snapshot.getTranslateY() + (groundState - 12) * 4);
-            });
+    @Override
+    protected void setupBone(final SummoningSpearsEntity entity, final KnightLibModel model, final String boneName, final float partialTick) {
+        if (!boneName.startsWith("spear_of_ares_")) {
+            return;
         }
 
+        final int index;
+        try {
+            index = Integer.parseInt(boneName.substring("spear_of_ares_".length())) - 1;
+        }
+        catch (final NumberFormatException exception) {
+            return;
+        }
+
+        if (index < 0 || index >= 12) {
+            return;
+        }
+
+        final int groundState = (int) ((entity.getSpearGroundStates() >>> (index * 5)) & 0x1F);
+        if (groundState == 0) {
+            model.setBoneVisible(boneName, false);
+            return;
+        }
+
+        model.applyPosition(boneName, 0, (groundState - 12) * 4f, 0);
     }
 
     @Override
-    public @Nullable RenderType getRenderType(final EntityRenderState renderState, final Identifier texture) {
-        final float visibility = ((GeoRenderState) renderState).getOrDefaultGeckolibData(DISSOLVE_VISIBILITY, 1f);
-        return RenderTypes.entityCutout(SpearDissolveTextures.textureFor(texture, visibility));
+    protected RenderType getRenderType(final SummoningSpearsEntity entity, final ResourceLocation texture) {
+        return RenderType.entityCutout(SpearDissolveTextures.textureFor(texture, entity.getDissolveVisibility(0.0F)));
     }
 
 }

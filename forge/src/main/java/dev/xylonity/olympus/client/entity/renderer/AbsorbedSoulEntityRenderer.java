@@ -1,36 +1,69 @@
 package dev.xylonity.olympus.client.entity.renderer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import dev.xylonity.knightlib.client.animation.KnightLibModelSource;
+import dev.xylonity.knightlib.client.animation.layer.KnightLibRenderLayer;
+import dev.xylonity.knightlib.client.animation.model.KnightLibModel;
+import dev.xylonity.knightlib.client.animation.renderer.KnightLibEntityRenderer;
 import dev.xylonity.olympus.Olympus;
-import dev.xylonity.olympus.client.entity.model.AbsorbedSoulModel;
 import dev.xylonity.olympus.common.entity.projectile.AbsorbedSoulEntity;
 import dev.xylonity.olympus.registry.OlympusRenderTypes;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
-public final class AbsorbedSoulEntityRenderer extends EntityRenderer<AbsorbedSoulEntity, EntityRenderState> {
+import java.util.Set;
 
-    private static final Identifier TEXTURE = Olympus.of("textures/entity/absorbed_soul.png");
+public final class AbsorbedSoulEntityRenderer extends KnightLibEntityRenderer<AbsorbedSoulEntity> {
 
-    private static final RenderType RENDER_TYPE_BASE = RenderTypes.entityTranslucentEmissive(TEXTURE);
+    private static final ResourceLocation TEXTURE = Olympus.of("textures/entity/absorbed_soul.png");
+
     private static final RenderType RENDER_TYPE_INVERTED_CUBES = OlympusRenderTypes.invertedCubesGlow(TEXTURE);
 
-    private final AbsorbedSoulModel model;
+    private static final String OUTLINE_BONE = "cube_outline";
+    private static final Set<String> OUTLINE_BONES = Set.of(OUTLINE_BONE);
 
     public AbsorbedSoulEntityRenderer(final EntityRendererProvider.Context context) {
         super(context);
-        model = new AbsorbedSoulModel(context.bakeLayer(AbsorbedSoulModel.LAYER_LOCATION));
         shadowRadius = 0.1F;
         shadowStrength = 0.7F;
+
+        // Inverted cubes glow
+        addRenderLayer(new KnightLibRenderLayer<>() {
+            @Override
+            public void render(final dev.xylonity.knightlib.client.animation.layer.KnightLibRenderLayerContext<AbsorbedSoulEntity> context) {
+                context.model().setBoneVisible(OUTLINE_BONE, true);
+                try {
+                    context.renderBones(OUTLINE_BONES, RENDER_TYPE_INVERTED_CUBES,
+                            LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, context.renderColor());
+                }
+                finally {
+                    context.model().setBoneVisible(OUTLINE_BONE, false);
+                }
+
+            }
+        });
+
+    }
+
+    @Override
+    protected KnightLibModelSource defineModel(final AbsorbedSoulEntity entity) {
+        return KnightLibModelSource.geo(Olympus.of("geckolib/models/entity/absorbed_soul.geo.json"));
+    }
+
+    //@Override
+    //protected RenderType getRenderType(final AbsorbedSoulEntity entity, final ResourceLocation texture) {
+    //    return RENDER_TYPE_BASE;
+    //}
+
+    @Override
+    protected void setupBone(final AbsorbedSoulEntity entity, final KnightLibModel model, final String boneName, final float partialTick) {
+        if (OUTLINE_BONE.equals(boneName)) {
+            model.setBoneVisible(OUTLINE_BONE, false);
+        }
+
     }
 
     @Override
@@ -44,23 +77,8 @@ public final class AbsorbedSoulEntityRenderer extends EntityRenderer<AbsorbedSou
     }
 
     @Override
-    public void submit(final EntityRenderState state, final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final CameraRenderState camera) {
-        poseStack.pushPose();
-
-        poseStack.mulPose(Axis.YP.rotationDegrees(state.ageInTicks * 3.0F));
-        poseStack.translate(0.0F, -1.35F, 0.0F);
-
-        submitNodeCollector.submitModelPart(model.soul(), poseStack, RENDER_TYPE_BASE, state.lightCoords, OverlayTexture.NO_OVERLAY, null);
-        submitNodeCollector.submitModelPart(model.cubeOutline(), poseStack, RENDER_TYPE_INVERTED_CUBES, state.lightCoords, OverlayTexture.NO_OVERLAY, null);
-
-        poseStack.popPose();
-
-        super.submit(state, poseStack, submitNodeCollector, camera);
-    }
-
-    @Override
-    public EntityRenderState createRenderState() {
-        return new EntityRenderState();
+    public ResourceLocation getTextureLocation(final AbsorbedSoulEntity entity) {
+        return TEXTURE;
     }
 
 }

@@ -1,54 +1,51 @@
 package dev.xylonity.olympus.client.entity.renderer;
 
-import com.geckolib.constant.dataticket.DataTicket;
-import com.geckolib.renderer.GeoEntityRenderer;
-import com.geckolib.renderer.base.BoneSnapshots;
-import com.geckolib.renderer.base.GeoRenderState;
-import com.geckolib.renderer.base.RenderPassInfo;
-import dev.xylonity.olympus.client.entity.model.HarpyModel;
+import dev.xylonity.knightlib.client.animation.KnightLibAnimationSource;
+import dev.xylonity.knightlib.client.animation.KnightLibModelSource;
+import dev.xylonity.knightlib.client.animation.model.KnightLibModel;
+import dev.xylonity.knightlib.client.animation.renderer.KnightLibMobRenderer;
+import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.common.entity.HarpyEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
-public final class HarpyEntityRenderer extends GeoEntityRenderer<HarpyEntity, EntityRenderState> {
+public final class HarpyEntityRenderer extends KnightLibMobRenderer<HarpyEntity> {
 
-    private static final DataTicket<Float> HEAD_YAW = DataTicket.create("olympus_harpy_head_yaw", Float.class);
-    private static final DataTicket<Float> HEAD_PITCH = DataTicket.create("olympus_harpy_head_pitch", Float.class);
+    private final boolean elite;
 
     public HarpyEntityRenderer(final EntityRendererProvider.Context context) {
         this(context, false);
     }
 
     public HarpyEntityRenderer(final EntityRendererProvider.Context context, final boolean elite) {
-        super(context, new HarpyModel(elite));
-        withScale(0.9F);
-        shadowRadius = 0.45F;
+        super(context, 0.45F);
+        this.elite = elite;
     }
 
     @Override
-    public void addRenderData(final HarpyEntity animatable, final @Nullable Void relatedObject, final EntityRenderState renderState, final float partialTick) {
-        final float headYaw = Mth.rotLerp(partialTick, animatable.yHeadRotO, animatable.yHeadRot);
-        final float bodyYaw = Mth.rotLerp(partialTick, animatable.yBodyRotO, animatable.yBodyRot);
-        final GeoRenderState geoRenderState = (GeoRenderState) renderState;
-
-        geoRenderState.addGeckolibData(HEAD_YAW, Mth.wrapDegrees(headYaw - bodyYaw));
-        geoRenderState.addGeckolibData(HEAD_PITCH, animatable.getXRot(partialTick));
+    protected KnightLibModelSource defineModel(final HarpyEntity entity) {
+        return KnightLibModelSource.geo(Olympus.of("geckolib/models/entity/" + (elite ? "elite_harpy" : "harpy") + ".geo.json"));
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public void adjustModelBonesForRender(final @NonNull RenderPassInfo renderPassInfo, final BoneSnapshots snapshots) {
-        snapshots.get("head").ifPresent(head -> {
-            final float yaw = Mth.clamp((Float) renderPassInfo.getOrDefaultGeckolibData(HEAD_YAW, 0.0F), -55, 55);
-            final float pitch = Mth.clamp((Float) renderPassInfo.getOrDefaultGeckolibData(HEAD_PITCH, 0.0F), -35, 35);
+    protected KnightLibAnimationSource defineAnimations(final HarpyEntity entity) {
+        return KnightLibAnimationSource.geo(Olympus.of("animations/entity/harpy.animation.json"));
+    }
 
-            head.setRotX(head.getRotX() - pitch * Mth.DEG_TO_RAD);
-            head.setRotY(head.getRotY() - yaw * Mth.DEG_TO_RAD);
-        });
+    @Override
+    public ResourceLocation getTextureLocation(final HarpyEntity entity) {
+        return Olympus.of("textures/entity/" + (elite ? "elite_harpy" : "harpy") + ".png");
+    }
 
+    @Override
+    protected float getScale(final HarpyEntity entity) {
+        return 0.9F;
+    }
+
+    @Override
+    protected void setupPose(final HarpyEntity entity, final KnightLibModel model, final float limbSwing, final float limbSwingAmount, final float partialTick, final float netHeadYaw, final float headPitch) {
+        model.applyRotation("head", Mth.clamp(headPitch, -35, 35), Mth.clamp(netHeadYaw, -55, 55), 0);
     }
 
 }
