@@ -1,22 +1,23 @@
 package dev.xylonity.olympus.registry;
 
 import dev.xylonity.olympus.Olympus;
-import net.minecraft.core.registries.Registries;
+import dev.xylonity.knightlib.api.registrar.ResourceDispatcher;
+import dev.xylonity.knightlib.api.registrar.ResourceEntry;
+import dev.xylonity.knightlib.api.registrar.ResourceRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class OlympusCreativeModeTabs {
 
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Olympus.MOD_ID);
+    public static final ResourceRegistry<CreativeModeTab> CREATIVE_MODE_TABS = ResourceDispatcher.create(BuiltInRegistries.CREATIVE_MODE_TAB, Olympus.MOD_ID);
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> OLYMPUS = CREATIVE_MODE_TABS.register("olympus",
+    public static final ResourceEntry<CreativeModeTab> OLYMPUS = CREATIVE_MODE_TABS.register("olympus",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("creativetab.olympus.title"))
                     .icon(() -> new ItemStack(OlympusItems.HELMET_OF_HADES.get()))
-                    .displayItems((_, output) -> {
+                    .displayItems((parameters, output) -> {
                         output.accept(OlympusItems.APHRODITE_LYRE.get());
                         output.accept(OlympusItems.BRACERS_OF_ZEUS.get());
                         output.accept(OlympusItems.BOW_OF_ARTEMIS.get());

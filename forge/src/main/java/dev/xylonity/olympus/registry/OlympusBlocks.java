@@ -8,6 +8,10 @@ import dev.xylonity.olympus.common.block.PentelicMarbleColumnBlock;
 import dev.xylonity.olympus.common.block.PoppyOfDemeterBlock;
 import dev.xylonity.olympus.common.block.LockedChestBlock;
 import dev.xylonity.olympus.common.block.ParthenonSpawnerBlock;
+import dev.xylonity.knightlib.api.registrar.ResourceDispatcher;
+import dev.xylonity.knightlib.api.registrar.ResourceEntry;
+import dev.xylonity.knightlib.api.registrar.ResourceRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
@@ -16,70 +20,73 @@ import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class OlympusBlocks {
 
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Olympus.MOD_ID);
+    public static final ResourceRegistry<Block> BLOCKS = ResourceDispatcher.create(BuiltInRegistries.BLOCK, Olympus.MOD_ID);
 
-    public static final DeferredBlock<PoppyOfDemeterBlock> POPPY_OF_DEMETER = BLOCKS.registerBlock("poppy_of_demeter", PoppyOfDemeterBlock::new,
-            properties -> properties
+    public static final ResourceEntry<PoppyOfDemeterBlock> POPPY_OF_DEMETER = BLOCKS.register("poppy_of_demeter", () -> new PoppyOfDemeterBlock(
+            BlockBehaviour.Properties.of()
                 .mapColor(MapColor.PLANT)
-                .noCollision()
+                .noOcclusion()
+                .noCollission()
                 .instabreak()
                 .sound(SoundType.GRASS)
                 .offsetType(BlockBehaviour.OffsetType.XZ)
                 .pushReaction(PushReaction.DESTROY)
-    );
+    ));
 
-    public static final DeferredBlock<Block> PENTELIC_MARBLE = BLOCKS.registerBlock("pentelic_marble", Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
-    public static final DeferredBlock<OlympusStairBlock> PENTELIC_MARBLE_STAIRS = BLOCKS.registerBlock("pentelic_marble_stairs", properties -> new OlympusStairBlock(PENTELIC_MARBLE.get().defaultBlockState(), properties), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
-    public static final DeferredBlock<SlabBlock> PENTELIC_MARBLE_SLAB = BLOCKS.registerBlock("pentelic_marble_slab", SlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
-    public static final DeferredBlock<WallBlock> PENTELIC_MARBLE_WALL = BLOCKS.registerBlock("pentelic_marble_wall", WallBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE).forceSolidOn());
-    public static final DeferredBlock<Block> POLISHED_PENTELIC_MARBLE = BLOCKS.registerBlock("polished_pentelic_marble", Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
-    public static final DeferredBlock<OlympusStairBlock> POLISHED_PENTELIC_MARBLE_STAIRS = BLOCKS.registerBlock("polished_pentelic_marble_stairs", properties -> new OlympusStairBlock(POLISHED_PENTELIC_MARBLE.get().defaultBlockState(), properties), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
-    public static final DeferredBlock<SlabBlock> POLISHED_PENTELIC_MARBLE_SLAB = BLOCKS.registerBlock("polished_pentelic_marble_slab", SlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
-    public static final DeferredBlock<Block> PENTELIC_MARBLE_BRICK = BLOCKS.registerBlock("pentelic_marble_brick", Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
-    public static final DeferredBlock<OlympusStairBlock> PENTELIC_MARBLE_BRICK_STAIRS = BLOCKS.registerBlock("pentelic_marble_brick_stairs", properties -> new OlympusStairBlock(PENTELIC_MARBLE_BRICK.get().defaultBlockState(), properties), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
-    public static final DeferredBlock<SlabBlock> PENTELIC_MARBLE_BRICK_SLAB = BLOCKS.registerBlock("pentelic_marble_brick_slab", SlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
-    public static final DeferredBlock<WallBlock> PENTELIC_MARBLE_BRICK_WALL = BLOCKS.registerBlock("pentelic_marble_brick_wall", WallBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE).forceSolidOn());
-    public static final DeferredBlock<Block> CRACKED_PENTELIC_MARBLE_BRICK = BLOCKS.registerBlock("cracked_pentelic_marble_brick", Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
-    public static final DeferredBlock<PentelicMarbleColumnBlock> PENTELIC_MARBLE_COLUMN = BLOCKS.registerBlock("pentelic_marble_column", PentelicMarbleColumnBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CALCITE));
+    public static final ResourceEntry<Block> PENTELIC_MARBLE = BLOCKS.register("pentelic_marble", () -> new Block(BlockBehaviour.Properties.copy(Blocks.CALCITE)));
+    public static final ResourceEntry<OlympusStairBlock> PENTELIC_MARBLE_STAIRS = BLOCKS.register("pentelic_marble_stairs", () -> new OlympusStairBlock(PENTELIC_MARBLE.get().defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.CALCITE)));
+    public static final ResourceEntry<SlabBlock> PENTELIC_MARBLE_SLAB = BLOCKS.register("pentelic_marble_slab", () -> new SlabBlock(BlockBehaviour.Properties.copy(Blocks.CALCITE)));
+    public static final ResourceEntry<WallBlock> PENTELIC_MARBLE_WALL = BLOCKS.register("pentelic_marble_wall", () -> new WallBlock(BlockBehaviour.Properties.copy(Blocks.CALCITE).forceSolidOn()));
+    public static final ResourceEntry<Block> POLISHED_PENTELIC_MARBLE = BLOCKS.register("polished_pentelic_marble", () -> new Block(BlockBehaviour.Properties.copy(Blocks.CALCITE)));
+    public static final ResourceEntry<OlympusStairBlock> POLISHED_PENTELIC_MARBLE_STAIRS = BLOCKS.register("polished_pentelic_marble_stairs", () -> new OlympusStairBlock(POLISHED_PENTELIC_MARBLE.get().defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.CALCITE)));
+    public static final ResourceEntry<SlabBlock> POLISHED_PENTELIC_MARBLE_SLAB = BLOCKS.register("polished_pentelic_marble_slab", () -> new SlabBlock(BlockBehaviour.Properties.copy(Blocks.CALCITE)));
+    public static final ResourceEntry<Block> PENTELIC_MARBLE_BRICK = BLOCKS.register("pentelic_marble_brick", () -> new Block(BlockBehaviour.Properties.copy(Blocks.CALCITE)));
+    public static final ResourceEntry<OlympusStairBlock> PENTELIC_MARBLE_BRICK_STAIRS = BLOCKS.register("pentelic_marble_brick_stairs", () -> new OlympusStairBlock(PENTELIC_MARBLE_BRICK.get().defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.CALCITE)));
+    public static final ResourceEntry<SlabBlock> PENTELIC_MARBLE_BRICK_SLAB = BLOCKS.register("pentelic_marble_brick_slab", () -> new SlabBlock(BlockBehaviour.Properties.copy(Blocks.CALCITE)));
+    public static final ResourceEntry<WallBlock> PENTELIC_MARBLE_BRICK_WALL = BLOCKS.register("pentelic_marble_brick_wall", () -> new WallBlock(BlockBehaviour.Properties.copy(Blocks.CALCITE).forceSolidOn()));
+    public static final ResourceEntry<Block> CRACKED_PENTELIC_MARBLE_BRICK = BLOCKS.register("cracked_pentelic_marble_brick", () -> new Block(BlockBehaviour.Properties.copy(Blocks.CALCITE)));
+    public static final ResourceEntry<PentelicMarbleColumnBlock> PENTELIC_MARBLE_COLUMN = BLOCKS.register("pentelic_marble_column", () -> new PentelicMarbleColumnBlock(BlockBehaviour.Properties.copy(Blocks.CALCITE)));
 
-    public static final DeferredBlock<Block> PARTHENON_TERRACOTTA_TILES = BLOCKS.registerBlock("parthenon_terracotta_tiles", Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.TERRACOTTA).sound(SoundType.DEEPSLATE_TILES));
-    public static final DeferredBlock<OlympusStairBlock> PARTHENON_TERRACOTTA_TILE_STAIRS = BLOCKS.registerBlock("parthenon_terracotta_tile_stairs", properties -> new OlympusStairBlock(PARTHENON_TERRACOTTA_TILES.get().defaultBlockState(), properties), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.TERRACOTTA).sound(SoundType.DEEPSLATE_TILES));
-    public static final DeferredBlock<SlabBlock> PARTHENON_TERRACOTTA_TILE_SLAB = BLOCKS.registerBlock("parthenon_terracotta_tile_slab", SlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.TERRACOTTA).sound(SoundType.DEEPSLATE_TILES));
+    public static final ResourceEntry<Block> PARTHENON_TERRACOTTA_TILES = BLOCKS.register("parthenon_terracotta_tiles", () -> new Block(BlockBehaviour.Properties.copy(Blocks.TERRACOTTA).sound(SoundType.DEEPSLATE_TILES)));
+    public static final ResourceEntry<OlympusStairBlock> PARTHENON_TERRACOTTA_TILE_STAIRS = BLOCKS.register("parthenon_terracotta_tile_stairs", () -> new OlympusStairBlock(PARTHENON_TERRACOTTA_TILES.get().defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.TERRACOTTA).sound(SoundType.DEEPSLATE_TILES)));
+    public static final ResourceEntry<SlabBlock> PARTHENON_TERRACOTTA_TILE_SLAB = BLOCKS.register("parthenon_terracotta_tile_slab", () -> new SlabBlock(BlockBehaviour.Properties.copy(Blocks.TERRACOTTA).sound(SoundType.DEEPSLATE_TILES)));
 
-    public static final DeferredBlock<ClimbingRoseBlock> CLIMBING_ROSE = BLOCKS.registerBlock(
+    public static final ResourceEntry<ClimbingRoseBlock> CLIMBING_ROSE = BLOCKS.register(
             "climbing_rose",
-            ClimbingRoseBlock::new,
-            properties -> properties
+            () -> new ClimbingRoseBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.PLANT)
+                    .noOcclusion()
                     .replaceable()
-                    .noCollision()
+                    .noCollission()
                     .instabreak()
                     .sound(SoundType.AZALEA_LEAVES)
                     .ignitedByLava()
                     .pushReaction(PushReaction.DESTROY)
-    );
+    ));
 
-    public static final DeferredBlock<AirCloudBlock> AIR_CLOUD_BLOCK = BLOCKS.registerBlock("air_cloud_block", AirCloudBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.POWDER_SNOW));
+    public static final ResourceEntry<AirCloudBlock> AIR_CLOUD_BLOCK = BLOCKS.register("air_cloud_block", () -> new AirCloudBlock(
+            BlockBehaviour.Properties.copy(Blocks.POWDER_SNOW)
+                    .noOcclusion()
+                    .isViewBlocking((state, level, pos) -> false)
+    ));
 
-    public static final DeferredBlock<ParthenonSpawnerBlock> PARTHENON_SPAWNER = BLOCKS.registerBlock("parthenon_spawner", ParthenonSpawnerBlock::new,
-            properties -> properties
+    public static final ResourceEntry<ParthenonSpawnerBlock> PARTHENON_SPAWNER = BLOCKS.register("parthenon_spawner", () -> new ParthenonSpawnerBlock(
+            BlockBehaviour.Properties.of()
                     .mapColor(MapColor.STONE)
                     .strength(50.0F, 1200.0F)
-                    .sound(SoundType.TRIAL_SPAWNER)
+                    .sound(OlympusSounds.PARTHENON_SPAWNER_SOUND_TYPE)
                     .lightLevel(state -> state.getValue(ParthenonSpawnerBlock.ACTIVE) || state.getValue(ParthenonSpawnerBlock.REWARD) ? 8 : 0)
                     .noOcclusion()
-                    .isViewBlocking((state, level, pos) -> false));
+                    .isViewBlocking((state, level, pos) -> false)));
 
-    public static final DeferredBlock<LockedChestBlock> LOCKED_CHEST = BLOCKS.registerBlock("locked_chest", LockedChestBlock::new,
-            properties -> properties
+    public static final ResourceEntry<LockedChestBlock> LOCKED_CHEST = BLOCKS.register("locked_chest", () -> new LockedChestBlock(
+            BlockBehaviour.Properties.of()
                     .mapColor(MapColor.WOOD)
                     .strength(50.0F, 1200.0F)
                     .sound(SoundType.WOOD)
-                    .noOcclusion());
+                    .noOcclusion()));
 
 }
