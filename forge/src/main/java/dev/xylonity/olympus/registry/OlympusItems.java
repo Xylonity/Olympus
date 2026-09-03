@@ -22,8 +22,8 @@ public class OlympusItems {
 
     public static final ResourceRegistry<Item> ITEMS = ResourceDispatcher.create(BuiltInRegistries.ITEM, Olympus.MOD_ID);
 
-    public static final ResourceEntry<Item> HARPY_SPAWN_EGG = ITEMS.registerSpawnEgg("harpy_spawn_egg", OlympusEntities.HARPY, 0xA56284, 0xE7C18F, new Item.Properties());
-    public static final ResourceEntry<Item> ELITE_HARPY_SPAWN_EGG = ITEMS.registerSpawnEgg("elite_harpy_spawn_egg", OlympusEntities.ELITE_HARPY, 0x71508A, 0xEED594, new Item.Properties());
+    public static final ResourceEntry<Item> HARPY_SPAWN_EGG = ITEMS.registerSpawnEgg("harpy_spawn_egg", OlympusEntities.HARPY, 0xFFFFFF, 0xFFFFFF, new Item.Properties());
+    public static final ResourceEntry<Item> ELITE_HARPY_SPAWN_EGG = ITEMS.registerSpawnEgg("elite_harpy_spawn_egg", OlympusEntities.ELITE_HARPY, 0xFFFFFF, 0xFFFFFF, new Item.Properties());
     public static final ResourceEntry<Item> PARTHENON_KEY = ITEMS.register("parthenon_key", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
     public static final ResourceEntry<BlockItem> PARTHENON_SPAWNER = ITEMS.register("parthenon_spawner", () -> new BlockItem(OlympusBlocks.PARTHENON_SPAWNER.get(), new Item.Properties()));
     public static final ResourceEntry<BlockItem> LOCKED_CHEST = ITEMS.register("locked_chest", () -> new BlockItem(OlympusBlocks.LOCKED_CHEST.get(), new Item.Properties()));
