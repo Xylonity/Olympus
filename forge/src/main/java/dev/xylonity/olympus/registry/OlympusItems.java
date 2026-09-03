@@ -28,7 +28,7 @@ public class OlympusItems {
     public static final ResourceEntry<BlockItem> PARTHENON_SPAWNER = ITEMS.register("parthenon_spawner", () -> new BlockItem(OlympusBlocks.PARTHENON_SPAWNER.get(), new Item.Properties()));
     public static final ResourceEntry<BlockItem> LOCKED_CHEST = ITEMS.register("locked_chest", () -> new BlockItem(OlympusBlocks.LOCKED_CHEST.get(), new Item.Properties()));
     public static final ResourceEntry<BracersOfZeusItem> BRACERS_OF_ZEUS = ITEMS.register("bracers_of_zeus", () -> new BracersOfZeusItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
-    public static final ResourceEntry<ArtemisBowItem> BOW_OF_ARTEMIS = ITEMS.register("bow_of_artemis", () -> new ArtemisBowItem(new Item.Properties().durability(384).rarity(Rarity.EPIC)));
+    public static final ResourceEntry<ArtemisBowItem> BOW_OF_ARTEMIS = ITEMS.register("bow_of_artemis", () -> new ArtemisBowItem(new Item.Properties().durability(2000).rarity(Rarity.EPIC)));
     public static final ResourceEntry<AphroditeLyreItem> APHRODITE_LYRE = ITEMS.register("aphrodite_lyre", () -> new AphroditeLyreItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
     public static final ResourceEntry<HelmetOfHadesItem> HELMET_OF_HADES = ITEMS.register("helmet_of_hades", () -> new HelmetOfHadesItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
     public static final ResourceEntry<HermesSandalsItem> HERMES_SANDALS = ITEMS.register("hermes_sandals", () -> new HermesSandalsItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
