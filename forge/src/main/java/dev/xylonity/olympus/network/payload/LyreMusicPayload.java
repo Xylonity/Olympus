@@ -1,30 +1,30 @@
 package dev.xylonity.olympus.network.payload;
 
 import dev.xylonity.olympus.Olympus;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import org.jspecify.annotations.NonNull;
+import dev.xylonity.knightlib.network.ClientPacketDispatcher;
+import dev.xylonity.knightlib.network.ClientboundPacketType;
+import dev.xylonity.knightlib.network.PacketCodec;
+import dev.xylonity.knightlib.network.PacketType;
+import net.minecraft.network.FriendlyByteBuf;
 
 public record LyreMusicPayload(
         int musicianId,
         boolean playing
-) implements CustomPacketPayload {
+) {
 
-    public static final Type<LyreMusicPayload> TYPE = new Type<>(Olympus.of("lyre_music"));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, LyreMusicPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT,
-            LyreMusicPayload::musicianId,
-            ByteBufCodecs.BOOL,
-            LyreMusicPayload::playing,
-            LyreMusicPayload::new
+    public static final ClientboundPacketType<LyreMusicPayload> TYPE = PacketType.clientbound(
+            Olympus.of("lyre_music"), LyreMusicPayload.class,
+            PacketCodec.of(LyreMusicPayload::encode, LyreMusicPayload::decode),
+            ClientPacketDispatcher::dispatch
     );
 
-    @Override
-    public @NonNull Type<LyreMusicPayload> type() {
-        return TYPE;
+    private static void encode(final LyreMusicPayload payload, final FriendlyByteBuf buffer) {
+        buffer.writeVarInt(payload.musicianId);
+        buffer.writeBoolean(payload.playing);
+    }
+
+    private static LyreMusicPayload decode(final FriendlyByteBuf buffer) {
+        return new LyreMusicPayload(buffer.readVarInt(), buffer.readBoolean());
     }
 
 }

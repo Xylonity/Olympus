@@ -1,22 +1,28 @@
 package dev.xylonity.olympus.network.payload;
 
 import dev.xylonity.olympus.Olympus;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import org.jspecify.annotations.NonNull;
+import dev.xylonity.olympus.common.item.HermesSandalsItem;
+import dev.xylonity.knightlib.network.PacketCodec;
+import dev.xylonity.knightlib.network.PacketType;
+import dev.xylonity.knightlib.network.ServerboundPacketType;
+import net.minecraft.network.FriendlyByteBuf;
 
-public record HermesJumpPayload() implements CustomPacketPayload {
+public record HermesJumpPayload() {
 
     public static final HermesJumpPayload INSTANCE = new HermesJumpPayload();
 
-    public static final Type<HermesJumpPayload> TYPE = new Type<>(Olympus.of("hermes_jump"));
+    public static final ServerboundPacketType<HermesJumpPayload> TYPE = PacketType.serverbound(
+            Olympus.of("hermes_jump"), HermesJumpPayload.class,
+            PacketCodec.of(HermesJumpPayload::encode, HermesJumpPayload::decode),
+            (payload, player) -> HermesSandalsItem.tryActiveAbility(player)
+    );
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, HermesJumpPayload> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+    private static void encode(final HermesJumpPayload payload, final FriendlyByteBuf buffer) {
+        ;;
+    }
 
-    @Override
-    public @NonNull Type<HermesJumpPayload> type() {
-        return TYPE;
+    private static HermesJumpPayload decode(final FriendlyByteBuf buffer) {
+        return INSTANCE;
     }
 
 }
