@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:smelting",
+  "category": "blocks",
+  "cookingtime": 200,
+  "experience": 0.1,
+  "ingredient": { "item": "olympus:pentelic_marble_brick" },
+  "result": "olympus:cracked_pentelic_marble_brick"
+}

@@ -2,5 +2,11 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "olympus:item/aphrodite_lyre"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": { "olympus:playing": 1.0 },
+      "model": "olympus:item/playing_aphrodite_lyre"
+    }
+  ]
 }

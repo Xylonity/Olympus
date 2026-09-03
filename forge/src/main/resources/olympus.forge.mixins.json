@@ -2,14 +2,17 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.xylonity.olympus.mixins",
+  "refmap": "olympus.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "AbstractArrowMixin",
     "LivingEntityMixin"
   ],
   "client": [
-    "LivingEntityRendererMixin",
-    "RenderTypeAccessor"
+    "HumanoidModelMixin",
+    "ItemInHandRendererMixin",
+    "ItemInHandLayerMixin",
+    "LivingEntityRendererMixin"
   ],
   "server": [],
   "injectors": {

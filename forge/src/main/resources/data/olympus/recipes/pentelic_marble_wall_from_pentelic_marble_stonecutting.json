@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": { "item": "olympus:pentelic_marble" },
+  "result": "olympus:pentelic_marble_wall",
+  "count": 1
+}

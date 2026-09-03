@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_pentelic_marble": {
+      "conditions": {
+        "items": [
+          {
+            "items": ["olympus:pentelic_marble"]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "olympus:pentelic_marble_wall_from_pentelic_marble_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_pentelic_marble"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "olympus:pentelic_marble_wall_from_pentelic_marble_stonecutting"
+    ]
+  }
+}

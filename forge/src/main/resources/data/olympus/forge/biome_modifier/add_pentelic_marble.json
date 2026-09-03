@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#olympus:has_pentelic_marble",
+  "features": "olympus:pentelic_marble",
+  "step": "underground_ores"
+}

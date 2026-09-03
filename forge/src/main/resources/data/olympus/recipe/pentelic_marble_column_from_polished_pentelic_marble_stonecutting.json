@@ -1,7 +1,0 @@
-{
-  "type": "minecraft:stonecutting",
-  "ingredient": "olympus:polished_pentelic_marble",
-  "result": {
-    "id": "olympus:pentelic_marble_column"
-  }
-}

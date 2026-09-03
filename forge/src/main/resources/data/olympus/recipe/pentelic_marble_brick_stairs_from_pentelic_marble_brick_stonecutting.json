@@ -1,7 +1,0 @@
-{
-  "type": "minecraft:stonecutting",
-  "ingredient": "olympus:pentelic_marble_brick",
-  "result": {
-    "id": "olympus:pentelic_marble_brick_stairs"
-  }
-}

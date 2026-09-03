@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": { "item": "minecraft:terracotta" },
+  "result": "olympus:parthenon_terracotta_tiles",
+  "count": 1
+}

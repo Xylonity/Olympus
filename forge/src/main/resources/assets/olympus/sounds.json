@@ -77,5 +77,118 @@
       "olympus:harpys_wings_flapping1",
       "olympus:harpys_wings_flapping2"
     ]
+  },
+  "hermes_jump": {
+    "sounds": [
+      { "name": "olympus:vanilla/mob/breeze/wind_burst1", "pitch": 1.2 },
+      { "name": "olympus:vanilla/mob/breeze/wind_burst2", "pitch": 1.2 },
+      { "name": "olympus:vanilla/mob/breeze/wind_burst3", "pitch": 1.2 }
+    ]
+  },
+  "parthenon_spawner_ambient": {
+    "sounds": [
+      "olympus:vanilla/block/trial_spawner/ambient1",
+      "olympus:vanilla/block/trial_spawner/ambient2",
+      "olympus:vanilla/block/trial_spawner/ambient3",
+      "olympus:vanilla/block/trial_spawner/ambient4",
+      "olympus:vanilla/block/trial_spawner/ambient5"
+    ]
+  },
+  "parthenon_spawner_detect_player": {
+    "sounds": [
+      "olympus:vanilla/block/trial_spawner/detect_player1",
+      { "name": "olympus:vanilla/block/trial_spawner/detect_player1", "pitch": 0.95 },
+      "olympus:vanilla/block/trial_spawner/detect_player2",
+      { "name": "olympus:vanilla/block/trial_spawner/detect_player2", "pitch": 0.95 },
+      "olympus:vanilla/block/trial_spawner/detect_player3",
+      { "name": "olympus:vanilla/block/trial_spawner/detect_player3", "pitch": 0.95 }
+    ]
+  },
+  "parthenon_spawner_open_shutter": {
+    "sounds": ["olympus:vanilla/block/trial_spawner/open_shutter"]
+  },
+  "parthenon_spawner_spawn_mob": {
+    "sounds": [
+      "olympus:vanilla/block/trial_spawner/spawn1",
+      "olympus:vanilla/block/trial_spawner/spawn2",
+      "olympus:vanilla/block/trial_spawner/spawn3",
+      "olympus:vanilla/block/trial_spawner/spawn4"
+    ]
+  },
+  "parthenon_spawner_spawn_item_begin": {
+    "sounds": [
+      "olympus:vanilla/block/trial_spawner/spawn_item_begin1",
+      "olympus:vanilla/block/trial_spawner/spawn_item_begin2",
+      "olympus:vanilla/block/trial_spawner/spawn_item_begin3"
+    ]
+  },
+  "parthenon_spawner_close_shutter": {
+    "sounds": ["olympus:vanilla/block/trial_spawner/close_shutter"]
+  },
+  "parthenon_spawner_eject_item": {
+    "sounds": ["olympus:vanilla/block/trial_spawner/eject_item1"]
+  },
+  "vault_open_shutter": {
+    "sounds": ["olympus:vanilla/block/vault/open_shutter"]
+  },
+  "ares_spear_attack": {
+    "sounds": [
+      "olympus:vanilla/item/spear/attack1",
+      "olympus:vanilla/item/spear/attack2",
+      "olympus:vanilla/item/spear/attack3"
+    ]
+  },
+  "ares_spear_hit": {
+    "sounds": [
+      "olympus:vanilla/item/spear/hit1",
+      "olympus:vanilla/item/spear/hit2",
+      "olympus:vanilla/item/spear/hit3"
+    ]
+  },
+  "parthenon_spawner_break": {
+    "subtitle": "subtitles.block.generic.break",
+    "sounds": [
+      { "name": "olympus:vanilla/block/trial_spawner/break1", "volume": 0.9 },
+      { "name": "olympus:vanilla/block/trial_spawner/break2", "volume": 0.9 },
+      { "name": "olympus:vanilla/block/trial_spawner/break3", "volume": 0.9 }
+    ]
+  },
+  "parthenon_spawner_step": {
+    "subtitle": "subtitles.block.generic.footsteps",
+    "sounds": [
+      "olympus:vanilla/block/trial_spawner/step1",
+      "olympus:vanilla/block/trial_spawner/step2",
+      "olympus:vanilla/block/trial_spawner/step3",
+      "olympus:vanilla/block/trial_spawner/step4",
+      "olympus:vanilla/block/trial_spawner/step5"
+    ]
+  },
+  "parthenon_spawner_place": {
+    "subtitle": "subtitles.block.generic.place",
+    "sounds": [
+      "olympus:vanilla/block/trial_spawner/place1",
+      "olympus:vanilla/block/trial_spawner/place2",
+      "olympus:vanilla/block/trial_spawner/place3"
+    ]
+  },
+  "parthenon_spawner_hit": {
+    "subtitle": "subtitles.block.generic.hit",
+    "sounds": [
+      "olympus:vanilla/block/trial_spawner/step1",
+      "olympus:vanilla/block/trial_spawner/step2",
+      "olympus:vanilla/block/trial_spawner/step3",
+      "olympus:vanilla/block/trial_spawner/step4",
+      "olympus:vanilla/block/trial_spawner/step5"
+    ]
+  },
+  "parthenon_spawner_fall": {
+    "subtitle": "subtitles.block.generic.fall",
+    "sounds": [
+      "olympus:vanilla/block/trial_spawner/step1",
+      "olympus:vanilla/block/trial_spawner/step2",
+      "olympus:vanilla/block/trial_spawner/step3",
+      "olympus:vanilla/block/trial_spawner/step4",
+      "olympus:vanilla/block/trial_spawner/step5"
+    ]
   }
 }
