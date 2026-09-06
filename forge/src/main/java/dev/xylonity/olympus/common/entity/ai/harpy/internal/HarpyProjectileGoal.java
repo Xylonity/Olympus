@@ -32,6 +32,7 @@ public class HarpyProjectileGoal extends AbstractHarpyGoal {
 
     @Override
     protected void onAttackStarted() {
+        harpy.setAttackState(HarpyEntity.STATE_SHOT);
         target = harpy.getTarget();
         strafeTicks = 0;
         strafeClockwise = harpy.getRandom().nextBoolean();
@@ -61,11 +62,11 @@ public class HarpyProjectileGoal extends AbstractHarpyGoal {
         target = null;
         strafeTicks = 0;
         projectileReleased = false;
-    }
 
-    @Override
-    protected int attackState() {
-        return HarpyEntity.STATE_SHOT;
+        if (harpy.getAttackState() == HarpyEntity.STATE_SHOT) {
+            harpy.setAttackState(HarpyEntity.STATE_IDLE);
+        }
+
     }
 
     @Override

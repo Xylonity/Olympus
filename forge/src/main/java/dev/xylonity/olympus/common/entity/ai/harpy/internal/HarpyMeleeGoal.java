@@ -19,8 +19,17 @@ public class HarpyMeleeGoal extends AbstractHarpyGoal {
     }
 
     @Override
-    protected int attackState() {
-        return HarpyEntity.STATE_MELEE;
+    protected void onAttackStarted() {
+        if (harpy.getAttackState() == HarpyEntity.STATE_DASH_ENDING) {
+            harpy.setAttackState(HarpyEntity.STATE_IDLE);
+        }
+
+        harpy.setMeleeAttacking(true);
+    }
+
+    @Override
+    protected void onAttackStopped() {
+        harpy.setMeleeAttacking(false);
     }
 
     @Override

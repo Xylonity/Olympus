@@ -48,7 +48,6 @@ public abstract class AbstractHarpyGoal extends Goal {
         attackTicks = 0;
         attackPerformed = false;
         cooldownStarted = false;
-        harpy.setAttackState(attackState());
         onAttackStarted();
     }
 
@@ -80,10 +79,6 @@ public abstract class AbstractHarpyGoal extends Goal {
             startCooldown();
         }
 
-        if (harpy.getAttackState() == attackState()) {
-            harpy.setAttackState(HarpyEntity.STATE_IDLE);
-        }
-
         attackTicks = 0;
         activeAttackTick = 0;
         attackPerformed = false;
@@ -96,7 +91,6 @@ public abstract class AbstractHarpyGoal extends Goal {
     }
 
     protected abstract boolean canStartAttack();
-    protected abstract int attackState();
     protected abstract int attackTick();
     protected abstract boolean performAttack();
 

@@ -52,13 +52,14 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
     private final KnightLibAnimationHandler animations = KnightLibAnimationHandler.of(this);
 
     private static final EntityDataAccessor<Integer> ATTACK_STATE = SynchedEntityData.defineId(HarpyEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> MELEE_ATTACKING = SynchedEntityData.defineId(HarpyEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> ELITE = SynchedEntityData.defineId(HarpyEntity.class, EntityDataSerializers.BOOLEAN);
 
     private static final int TICKS_ANIMATION_TRANSITION = 4;
 
     private static final KnightLibAnim ANIMATION_IDLE = KnightLibAnim.begin().thenLoop("idle").transition(TICKS_ANIMATION_TRANSITION);
     private static final KnightLibAnim ANIMATION_FLY = KnightLibAnim.begin().thenLoop("walk").transition(TICKS_ANIMATION_TRANSITION);
-    private static final KnightLibAnim ANIMATION_MELEE = KnightLibAnim.begin().thenPlay("attack").additive().transition(TICKS_ANIMATION_TRANSITION);
+    private static final KnightLibAnim ANIMATION_MELEE = KnightLibAnim.begin().thenPlay("attack").overridePreviousAnimation().transition(TICKS_ANIMATION_TRANSITION);
     private static final KnightLibAnim ANIMATION_SHOT = KnightLibAnim.begin().thenPlay("shot").transition(TICKS_ANIMATION_TRANSITION);
     private static final KnightLibAnim ANIMATION_DASH_PREPARING = KnightLibAnim.begin().thenPlayAndHold("dash_preparing").transition(TICKS_ANIMATION_TRANSITION);
     private static final KnightLibAnim ANIMATION_DASH = KnightLibAnim.begin().thenLoop("dash").transition(TICKS_ANIMATION_TRANSITION);
@@ -66,7 +67,6 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
 
     public static final int STATE_IDLE = 0;
     public static final int STATE_FLY = 1;
-    public static final int STATE_MELEE = 2;
     public static final int STATE_SHOT = 3;
     public static final int STATE_DASH_PREPARING = 4;
     public static final int STATE_DASHING = 5;
@@ -78,7 +78,6 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
     private static final int TICKS_DASH_PREPARATION = 16;
     private static final int TICKS_DASH_ENDING = 13;
     private static final int TICKS_SPECIAL_ATTACK_CHAIN_DELAY = 60;
-    private static final int TICKS_DASH_FEATHER_DELAY = 5;
     private static final int TICKS_DAMAGE_FEATHER_COOLDOWN = 10;
 
     private static final int TICK_SHOT_RELEASE = 17;
@@ -95,7 +94,6 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
 
     private long specialAttackDelayEndGameTime;
     private long nextDamageFeatherGameTime;
-    private int dashingTicks;
 
     public HarpyEntity(final EntityType<? extends HarpyEntity> type, final Level level) {
         super(type, level);
@@ -166,6 +164,7 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
     protected void defineSynchedData() {
         super.defineSynchedData();
         entityData.define(ATTACK_STATE, STATE_IDLE);
+        entityData.define(MELEE_ATTACKING, false);
         entityData.define(ELITE, false);
     }
 
@@ -180,18 +179,6 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
             if (!noPhysics) {
                 escapeFromBlocks();
             }
-
-            if (getAttackState() == STATE_DASHING) {
-                dashingTicks++;
-                if (dashingTicks >= TICKS_DASH_FEATHER_DELAY) {
-                    spawnFeatherParticles(1 + random.nextInt(2));
-                }
-
-            }
-            else {
-                dashingTicks = 0;
-            }
-
         }
 
     }
@@ -207,6 +194,14 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
 
     public int getAttackState() {
         return entityData.get(ATTACK_STATE);
+    }
+
+    public void setMeleeAttacking(final boolean attacking) {
+        entityData.set(MELEE_ATTACKING, attacking);
+    }
+
+    public boolean isMeleeAttacking() {
+        return entityData.get(MELEE_ATTACKING);
     }
 
     public boolean isElite() {
@@ -312,7 +307,7 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
     @Override
     public void registerAnimationControllers(KnightLibAnimationControllerRegistrar controllers) {
         controllers.add("maincontroller", TICKS_ANIMATION_TRANSITION, this::mainAnimation);
-        controllers.add("meleecontroller", TICKS_ANIMATION_TRANSITION, () -> getAttackState() == STATE_MELEE ? ANIMATION_MELEE : null);
+        controllers.add("meleecontroller", 2, () -> isMeleeAttacking() ? ANIMATION_MELEE : null);
     }
 
     private KnightLibAnim mainAnimation() {
@@ -345,7 +340,32 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
             }
 
         }
+        else if (event.type() == KnightLibKeyframeEvent.Type.PARTICLE && (getAttackState() == STATE_DASHING || getAttackState() == STATE_DASH_ENDING)
+                && "dash_feather".equals(event.payload()) && "dash_feather_locator".equals(event.locator())) {
+            spawnDashFeatherParticles(event.locatorPosition());
+        }
 
+    }
+
+    private void spawnDashFeatherParticles(final @Nullable Vec3 position) {
+        if (position == null || !level().isClientSide) {
+            return;
+        }
+
+        final ParticleOptions particleType = isElite() ? OlympusParticles.ELITE_HARPY_FEATHER.get() : OlympusParticles.HARPY_FEATHER.get();
+        final int amount = 1 + random.nextInt(2);
+        for (int particle = 0; particle < amount; particle++) {
+            level().addParticle(particleType,
+                    position.x + randomOffset(0.12), position.y + randomOffset(0.12), position.z + randomOffset(0.12),
+                    randomOffset(0.05), randomOffset(0.05), randomOffset(0.05)
+            );
+
+        }
+
+    }
+
+    private double randomOffset(final double radius) {
+        return (random.nextDouble() * 2.0D - 1.0D) * radius;
     }
 
     @Override
