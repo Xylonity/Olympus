@@ -9,6 +9,7 @@ import dev.xylonity.olympus.common.item.HelmetOfHadesItem;
 import dev.xylonity.olympus.common.item.HermesSandalsItem;
 import dev.xylonity.olympus.common.item.InstrumentsOfHephaestusItem;
 import dev.xylonity.olympus.common.item.PersephoneCupItem;
+import dev.xylonity.olympus.common.item.PoseidonTridentItem;
 import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusDamageTypes;
@@ -55,10 +56,6 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 @Mod.EventBusSubscriber(modid = Olympus.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class OlympusServerEvents {
 
-    private static final UUID BASE_ATTACK_DAMAGE_UUID = UUID.fromString("cb3f55d3-645c-4f38-a497-9c13a33db5cf");
-    private static final UUID BASE_ATTACK_SPEED_UUID = UUID.fromString("fa233e1c-4180-4865-b01b-bcce9785aca3");
-    private static final UUID ARES_SPEAR_REACH_UUID = UUID.fromString("7513f095-dcdb-4e0e-b9ab-8b9514f6ba20");
-
     @SubscribeEvent
     public static void registerAttributes(final EntityAttributeCreationEvent event) {
         event.put(OlympusEntities.HARPY.get(), HarpyEntity.createAttributes().build());
@@ -84,11 +81,11 @@ public final class OlympusServerEvents {
                     event.removeAttribute(Attributes.ATTACK_SPEED);
                     event.addModifier(
                             Attributes.ATTACK_DAMAGE,
-                            new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "olympus.poseidon_trident_damage", OlympusConfig.POSEIDON_TRIDENT_ATTACK_DAMAGE_BONUS, AttributeModifier.Operation.ADDITION)
+                            new AttributeModifier(PoseidonTridentItem.VANILLA_ATTACK_DAMAGE_MODIFIER_UUID, "olympus.poseidon_trident_damage", OlympusConfig.POSEIDON_TRIDENT_ATTACK_DAMAGE_BONUS, AttributeModifier.Operation.ADDITION)
                     );
                     event.addModifier(
                             Attributes.ATTACK_SPEED,
-                            new AttributeModifier(BASE_ATTACK_SPEED_UUID, "olympus.poseidon_trident_speed", -2.8D, AttributeModifier.Operation.ADDITION)
+                            new AttributeModifier(PoseidonTridentItem.VANILLA_ATTACK_SPEED_MODIFIER_UUID, "olympus.poseidon_trident_speed", -2.8D, AttributeModifier.Operation.ADDITION)
                     );
 
                 }
@@ -106,15 +103,15 @@ public final class OlympusServerEvents {
                 event.removeAttribute(Attributes.ATTACK_SPEED);
                 event.addModifier(
                         Attributes.ATTACK_DAMAGE,
-                        new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "olympus.ares_spear_damage", OlympusConfig.ARES_SPEAR_ATTACK_DAMAGE_BONUS, AttributeModifier.Operation.ADDITION)
+                        new AttributeModifier(PoseidonTridentItem.VANILLA_ATTACK_DAMAGE_MODIFIER_UUID, "olympus.ares_spear_damage", OlympusConfig.ARES_SPEAR_ATTACK_DAMAGE_BONUS, AttributeModifier.Operation.ADDITION)
                 );
                 event.addModifier(
                         Attributes.ATTACK_SPEED,
-                        new AttributeModifier(BASE_ATTACK_SPEED_UUID, "olympus.ares_spear_speed", -2.7D, AttributeModifier.Operation.ADDITION)
+                        new AttributeModifier(PoseidonTridentItem.VANILLA_ATTACK_SPEED_MODIFIER_UUID, "olympus.ares_spear_speed", -2.7D, AttributeModifier.Operation.ADDITION)
                 );
                 event.addModifier(
                         ForgeMod.ENTITY_REACH.get(),
-                        new AttributeModifier(ARES_SPEAR_REACH_UUID, "olympus.ares_spear_reach", 1.5D, AttributeModifier.Operation.ADDITION)
+                        new AttributeModifier(SpearOfAresItem.ARES_SPEAR_REACH_UUID, "olympus.ares_spear_reach", 1.5D, AttributeModifier.Operation.ADDITION)
                 );
 
             }

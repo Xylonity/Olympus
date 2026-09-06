@@ -24,11 +24,15 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public final class PoseidonTridentItem extends TridentItem implements KnightLibRenderedItem {
 
     private static final KnightLibAnim IDLE = KnightLibAnim.begin().thenLoop("idle");
+
+    public static final UUID VANILLA_ATTACK_DAMAGE_MODIFIER_UUID = BASE_ATTACK_DAMAGE_UUID;
+    public static final UUID VANILLA_ATTACK_SPEED_MODIFIER_UUID = BASE_ATTACK_SPEED_UUID;
 
     public PoseidonTridentItem(final Properties properties) {
         super(properties);

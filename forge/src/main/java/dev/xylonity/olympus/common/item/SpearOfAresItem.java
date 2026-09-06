@@ -41,12 +41,15 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class SpearOfAresItem extends TridentItem implements KnightLibRenderedItem {
 
     public static final int SWING_DURATION = 10;
+
+    public static UUID ARES_SPEAR_REACH_UUID = UUID.fromString("7513f095-dcdb-4e0e-b9ab-8b9514f6ba20");
 
     private static final String TAG_SPECIAL_ABILITY_CHARGED = "olympus_special_ability_charged";
     private static final String TAG_SPECIAL_ABILITY_COOLDOWN_END = "olympus_special_ability_cooldown_end";
