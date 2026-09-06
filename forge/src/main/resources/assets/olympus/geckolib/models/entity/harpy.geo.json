@@ -39,6 +39,9 @@
 					"name": "body",
 					"parent": "body_top",
 					"pivot": [0, 22.9, 0.9],
+					"locators": {
+						"dash_feather_locator": [0, 22.9, 0.9]
+					},
 					"cubes": [
 						{"origin": [-5.5, 22, -3], "size": [11, 11, 8], "uv": [0, 36]}
 					]
