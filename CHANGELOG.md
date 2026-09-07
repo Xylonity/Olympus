@@ -1,4 +1,4 @@
-# 1.0.1
+# 1.0.0
 - Added a config entry to modify the Hermes' Sandals max airborne jump amount
 - No longer requiring geckolib to launch the mod
 - Increased Artemis's Bow durability to 2000
