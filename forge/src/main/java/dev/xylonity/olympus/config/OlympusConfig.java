@@ -345,6 +345,30 @@ public final class OlympusConfig {
     public static double ARES_SPEAR_ABILITY_RADIUS = 3.0D;
 
     @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Number of regular harpies spawned in the first wave",
+            min = 0,
+            max = 64
+    )
+    public static int PARTHENON_FIRST_WAVE_HARPIES = 2;
+
+    @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Number of regular harpies spawned in the second wave",
+            min = 0,
+            max = 64
+    )
+    public static int PARTHENON_SECOND_WAVE_HARPIES = 2;
+
+    @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Number of elite harpies spawned in the second wave",
+            min = 0,
+            max = 64
+    )
+    public static int PARTHENON_SECOND_WAVE_ELITE_HARPIES = 1;
+
+    @ConfigEntry(
             category = "Poppy of Demeter",
             comment = "Radius in which the Poppy of Demeter searches for growable blocks",
             min = 1,

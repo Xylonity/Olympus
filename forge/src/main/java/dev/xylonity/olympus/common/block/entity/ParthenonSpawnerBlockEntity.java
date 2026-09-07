@@ -2,6 +2,7 @@ package dev.xylonity.olympus.common.block.entity;
 
 import dev.xylonity.olympus.common.block.ParthenonSpawnerBlock;
 import dev.xylonity.olympus.common.entity.HarpyEntity;
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusBlockEntities;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
@@ -67,7 +68,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
             // Second harpies wave
             case BETWEEN_WAVES -> {
                 if (level.getGameTime() >= spawner.nextActionGameTime) {
-                    spawner.spawnWave(level, pos, 2, 1);
+                    spawner.spawnWave(level, pos, OlympusConfig.PARTHENON_SECOND_WAVE_HARPIES, OlympusConfig.PARTHENON_SECOND_WAVE_ELITE_HARPIES);
                     spawner.mode = Mode.SECOND_WAVE;
                     spawner.markUpdated();
                 }
@@ -116,7 +117,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
         level.playSound(null, pos, OlympusSounds.PARTHENON_SPAWNER_DETECT_PLAYER.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
         level.playSound(null, pos, OlympusSounds.PARTHENON_SPAWNER_OPEN_SHUTTER.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
 
-        spawnWave(level, pos, 2, 0);
+        spawnWave(level, pos, OlympusConfig.PARTHENON_FIRST_WAVE_HARPIES, 0);
 
         markUpdated();
     }

@@ -11,6 +11,7 @@ import dev.xylonity.olympus.common.item.PersephoneCupItem;
 import dev.xylonity.olympus.common.item.PoppyOfDemeterItem;
 import dev.xylonity.olympus.common.item.PoseidonTridentItem;
 import dev.xylonity.olympus.common.item.SpearOfAresItem;
+import dev.xylonity.olympus.common.item.ParthenonKeyItem;
 import dev.xylonity.knightlib.api.registrar.ResourceDispatcher;
 import dev.xylonity.knightlib.api.registrar.ResourceEntry;
 import dev.xylonity.knightlib.api.registrar.ResourceRegistry;
@@ -24,7 +25,7 @@ public class OlympusItems {
 
     public static final ResourceEntry<Item> HARPY_SPAWN_EGG = ITEMS.registerSpawnEgg("harpy_spawn_egg", OlympusEntities.HARPY, 0xFFFFFF, 0xFFFFFF, new Item.Properties());
     public static final ResourceEntry<Item> ELITE_HARPY_SPAWN_EGG = ITEMS.registerSpawnEgg("elite_harpy_spawn_egg", OlympusEntities.ELITE_HARPY, 0xFFFFFF, 0xFFFFFF, new Item.Properties());
-    public static final ResourceEntry<Item> PARTHENON_KEY = ITEMS.register("parthenon_key", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
+    public static final ResourceEntry<ParthenonKeyItem> PARTHENON_KEY = ITEMS.register("parthenon_key", () -> new ParthenonKeyItem(new Item.Properties().rarity(Rarity.RARE)));
     public static final ResourceEntry<BlockItem> PARTHENON_SPAWNER = ITEMS.register("parthenon_spawner", () -> new BlockItem(OlympusBlocks.PARTHENON_SPAWNER.get(), new Item.Properties()));
     public static final ResourceEntry<BlockItem> LOCKED_CHEST = ITEMS.register("locked_chest", () -> new BlockItem(OlympusBlocks.LOCKED_CHEST.get(), new Item.Properties()));
     public static final ResourceEntry<BracersOfZeusItem> BRACERS_OF_ZEUS = ITEMS.register("bracers_of_zeus", () -> new BracersOfZeusItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));

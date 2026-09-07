@@ -1,3 +1,7 @@
+# 1.0.1
+- Added missing tooltip to the Parthenon Key item
+- Added 3 additional config entries to configure the Parthenon Spawner harpy spawn count
+
 # 1.0.0
 - Added a config entry to modify the Hermes' Sandals max airborne jump amount
 - No longer requiring geckolib to launch the mod
