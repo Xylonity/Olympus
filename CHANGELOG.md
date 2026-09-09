@@ -1,3 +1,6 @@
+# 1.0.2
+- Fixed Poppy of Demeter item name using a wrong translation key
+
 # 1.0.1
 - Added missing tooltip to the Parthenon Key item
 - Added 3 additional config entries to configure the Parthenon Spawner harpy spawn count
