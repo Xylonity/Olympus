@@ -1,3 +1,6 @@
+# 1.0.3
+- Increased Harpy melee attack range
+
 # 1.0.2
 - Fixed Poppy of Demeter item name using a wrong translation key
 

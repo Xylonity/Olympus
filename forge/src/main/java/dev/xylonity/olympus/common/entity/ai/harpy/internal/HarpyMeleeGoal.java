@@ -15,7 +15,7 @@ public class HarpyMeleeGoal extends AbstractHarpyGoal {
     @Override
     protected boolean canStartAttack() {
         final LivingEntity target = harpy.getTarget();
-        return target != null && target.isAlive() && harpy.distanceTo(target) <= 2.0D;
+        return target != null && target.isAlive() && harpy.distanceTo(target) < 3;
     }
 
     @Override
@@ -44,9 +44,9 @@ public class HarpyMeleeGoal extends AbstractHarpyGoal {
             return false;
         }
 
-        if (harpy.getBoundingBox().inflate(2).intersects(target.getBoundingBox())) {
+        if (harpy.getBoundingBox().inflate(3).intersects(target.getBoundingBox())) {
             if (harpy.doHurtTarget(target)) {
-                harpy.playSound(OlympusSounds.HARPY_HIT.get(), 1.0F, 1.0F);
+                harpy.playSound(OlympusSounds.HARPY_HIT.get(), 1, 1);
             }
 
         }
