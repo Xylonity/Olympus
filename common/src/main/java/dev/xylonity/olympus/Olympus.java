@@ -1,5 +1,6 @@
 package dev.xylonity.olympus;
 
+import dev.xylonity.knightlib.api.util.ResourceLocations;
 import dev.xylonity.olympus.platform.OlympusPlatform;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ public class Olympus {
     }
 
     public static ResourceLocation of(final String path) {
-        return new ResourceLocation(MOD_ID, path);
+        return ResourceLocations.of(MOD_ID, path);
     }
 
 }
