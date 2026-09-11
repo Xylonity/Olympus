@@ -113,6 +113,7 @@ tasks.register('publishCurseForge', TaskPublishCurseForge) {
     mainFile.addEnvironment("Server")
     mainFile.addModLoader("NeoForge")
     mainFile.addGameVersion("1.21.1")
+    mainFile.addGameVersion("1.21")
 
     mainFile.releaseType = "release"
 
