@@ -47,4 +47,4 @@ plugins {
 rootProject.name = 'Olympus'
 include('common')
 //include('fabric')
-include('forge')
+include('neoforge')
