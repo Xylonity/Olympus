@@ -85,11 +85,11 @@ public final class OlympusServerEvents {
                     );
                     event.addModifier(
                             Attributes.ATTACK_SPEED,
-                            new AttributeModifier(PoseidonTridentItem.VANILLA_ATTACK_SPEED_MODIFIER_UUID, "olympus.poseidon_trident_speed", -2.8D, AttributeModifier.Operation.ADDITION)
+                            new AttributeModifier(PoseidonTridentItem.VANILLA_ATTACK_SPEED_MODIFIER_UUID, "olympus.poseidon_trident_speed", OlympusConfig.POSEIDON_TRIDENT_ATTACK_SPEED_MODIFIER, AttributeModifier.Operation.ADDITION)
                     );
 
                 }
-                if (event.getSlotType() == EquipmentSlot.MAINHAND || event.getSlotType() == EquipmentSlot.OFFHAND) {
+                if (OlympusConfig.POSEIDON_TRIDENT_LORD_OF_THE_SEA_ENABLED && (event.getSlotType() == EquipmentSlot.MAINHAND || event.getSlotType() == EquipmentSlot.OFFHAND)) {
                     event.addModifier(
                             ForgeMod.SWIM_SPEED.get(),
                             new AttributeModifier(UUID.fromString("2260df9a-7d89-4d88-a910-caf1f9203841"), "olympus.poseidon_trident_swim_speed", OlympusConfig.POSEIDON_TRIDENT_SWIM_SPEED_BONUS, AttributeModifier.Operation.MULTIPLY_TOTAL)
@@ -107,7 +107,7 @@ public final class OlympusServerEvents {
                 );
                 event.addModifier(
                         Attributes.ATTACK_SPEED,
-                        new AttributeModifier(PoseidonTridentItem.VANILLA_ATTACK_SPEED_MODIFIER_UUID, "olympus.ares_spear_speed", -2.7D, AttributeModifier.Operation.ADDITION)
+                        new AttributeModifier(PoseidonTridentItem.VANILLA_ATTACK_SPEED_MODIFIER_UUID, "olympus.ares_spear_speed", OlympusConfig.ARES_SPEAR_ATTACK_SPEED_MODIFIER, AttributeModifier.Operation.ADDITION)
                 );
                 event.addModifier(
                         ForgeMod.ENTITY_REACH.get(),
@@ -142,9 +142,13 @@ public final class OlympusServerEvents {
             }
 
             final boolean artemisBow = owner.getMainHandItem().is(OlympusItems.BOW_OF_ARTEMIS.get()) || owner.getOffhandItem().is(OlympusItems.BOW_OF_ARTEMIS.get());
-            if (artemisBow && arrow instanceof ArtemisArrow artemisArrow) {
+            final boolean hasEnabledArrowAbility = OlympusConfig.ARTEMIS_BOW_MOONLIT_HUNT_ENABLED || OlympusConfig.ARTEMIS_BOW_GUARDIAN_ARROW_ENABLED;
+            if (artemisBow && hasEnabledArrowAbility && arrow instanceof ArtemisArrow artemisArrow) {
                 artemisArrow.olympus$setArtemisArrow(true);
-                arrow.setDeltaMovement(arrow.getDeltaMovement().scale(OlympusConfig.ARTEMIS_BOW_PROJECTILE_SPEED_MULTIPLIER));
+                if (OlympusConfig.ARTEMIS_BOW_MOONLIT_HUNT_ENABLED) {
+                    arrow.setDeltaMovement(arrow.getDeltaMovement().scale(OlympusConfig.ARTEMIS_BOW_PROJECTILE_SPEED_MULTIPLIER));
+                }
+
             }
 
         }
@@ -269,7 +273,7 @@ public final class OlympusServerEvents {
 
         @SubscribeEvent
         public static void onEnchantedEntityLoot(final LootingLevelEvent event) {
-            if (event.getDamageSource() != null && event.getDamageSource().getDirectEntity() instanceof ArtemisArrow artemisArrow && artemisArrow.olympus$isArtemisArrow()) {
+            if (OlympusConfig.ARTEMIS_BOW_MOONLIT_HUNT_ENABLED && event.getDamageSource() != null && event.getDamageSource().getDirectEntity() instanceof ArtemisArrow artemisArrow && artemisArrow.olympus$isArtemisArrow()) {
                 event.setLootingLevel(event.getLootingLevel() + OlympusConfig.ARTEMIS_BOW_LOOTING_BONUS);
             }
 

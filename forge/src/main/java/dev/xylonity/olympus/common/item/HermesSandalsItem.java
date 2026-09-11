@@ -50,7 +50,7 @@ public final class HermesSandalsItem extends Item implements ICurioItem {
     public void appendHoverText(final ItemStack stack, final Level level, final List<Component> tooltip, final TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         OlympusTooltip.append(tooltip::add, "hermes_sandals", 0x72D5E8,
-                OlympusTooltip.ability(1,
+                OlympusTooltip.abilityIf(OlympusConfig.HERMES_SANDALS_WIND_ENABLED, 1,
                         OlympusTooltip.property("extra_jumps", Integer.toString(getExtraJumps())),
                         OlympusTooltip.property("movement_speed", "+" + OlympusTooltip.percent(OlympusConfig.HERMES_SANDALS_MOVEMENT_SPEED_BONUS)),
                         OlympusTooltip.property("armor", "+" + OlympusTooltip.number(OlympusConfig.HERMES_SANDALS_ARMOR))
@@ -63,7 +63,9 @@ public final class HermesSandalsItem extends Item implements ICurioItem {
         final Multimap<Attribute, AttributeModifier> modifiers = HashMultimap.create();
         final UUID speedUuid = UUID.nameUUIDFromBytes((uuid + ":speed").getBytes(StandardCharsets.UTF_8));
         modifiers.put(Attributes.ARMOR, new AttributeModifier(uuid, "olympus.hermes_sandals_armor", OlympusConfig.HERMES_SANDALS_ARMOR, AttributeModifier.Operation.ADDITION));
-        modifiers.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(speedUuid, "olympus.hermes_sandals_speed", OlympusConfig.HERMES_SANDALS_MOVEMENT_SPEED_BONUS, AttributeModifier.Operation.MULTIPLY_BASE));
+        if (OlympusConfig.HERMES_SANDALS_WIND_ENABLED) {
+            modifiers.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(speedUuid, "olympus.hermes_sandals_speed", OlympusConfig.HERMES_SANDALS_MOVEMENT_SPEED_BONUS, AttributeModifier.Operation.MULTIPLY_BASE));
+        }
         return modifiers;
     }
 
@@ -75,16 +77,16 @@ public final class HermesSandalsItem extends Item implements ICurioItem {
     }
 
     public static boolean canExtraJump(final Player player) {
-        return findEquippedSandals(player) && !player.onGround() && !player.isPassenger() && !player.isFallFlying() && !player.getAbilities().flying && !player.isInWater() && !player.isInLava() && !player.onClimbable() && !player.isSpectator();
+        return OlympusConfig.HERMES_SANDALS_WIND_ENABLED && findEquippedSandals(player) && !player.onGround() && !player.isPassenger() && !player.isFallFlying() && !player.getAbilities().flying && !player.isInWater() && !player.isInLava() && !player.onClimbable() && !player.isSpectator();
     }
 
     public static int getExtraJumps() {
-        return OlympusConfig.HERMES_SANDALS_JUMP_AMOUNT;
+        return OlympusConfig.HERMES_SANDALS_WIND_ENABLED ? OlympusConfig.HERMES_SANDALS_JUMP_AMOUNT : 0;
     }
 
     public static void rechargeExtraJumps(final ServerPlayer player) {
         // Jumps are always recharged on ground collision
-        if (player.onGround()) {
+        if (OlympusConfig.HERMES_SANDALS_WIND_ENABLED && player.onGround()) {
             player.getPersistentData().putInt(TAG_EXTRA_JUMPS, getExtraJumps());
         }
 

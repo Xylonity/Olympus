@@ -79,6 +79,11 @@ public final class SummoningSpearsEntity extends Entity implements KnightLibAnim
         super.tick();
 
         if (level() instanceof ServerLevel serverLevel) {
+            if (!OlympusConfig.ARES_SPEAR_DESCENT_ENABLED) {
+                discard();
+                return;
+            }
+
             // Computed the first tick
             if (entityData.get(SPEAR_GROUND_STATES) < 0) {
                 entityData.set(SPEAR_GROUND_STATES, calculateSpearGroundStates());

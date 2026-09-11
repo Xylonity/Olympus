@@ -49,7 +49,7 @@ public class HelmetOfHadesItem extends Item implements ICurioItem {
     public void appendHoverText(final ItemStack stack, final Level level, final List<Component> tooltip, final TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         OlympusTooltip.append(tooltip::add, "helmet_of_hades", 0x9B7FD3,
-                OlympusTooltip.ability(1,
+                OlympusTooltip.abilityIf(OlympusConfig.HELMET_OF_HADES_SOULS_DEFIANCE_ENABLED, 1,
                         OlympusTooltip.property("armor", "+" + OlympusTooltip.number(OlympusConfig.HELMET_OF_HADES_ARMOR)),
                         OlympusTooltip.property("restored_health", OlympusTooltip.percent(OlympusConfig.HELMET_OF_HADES_RESTORED_HEALTH_PERCENTAGE)),
                         OlympusTooltip.property("invisibility", OlympusTooltip.seconds(OlympusConfig.HELMET_OF_HADES_INVISIBILITY_SECONDS)),
@@ -67,6 +67,10 @@ public class HelmetOfHadesItem extends Item implements ICurioItem {
 
     /// Applies the special effect of the helmet of hades (when receiving a mortal hit)
     public static boolean tryActivateAbility(final ServerPlayer player) {
+        if (!OlympusConfig.HELMET_OF_HADES_SOULS_DEFIANCE_ENABLED) {
+            return false;
+        }
+
         // Checks if the helmet of hades is equipped
         final Optional<ItemStack> equippedHelmet = CuriosApi.getCuriosInventory(player)
                 .resolve()

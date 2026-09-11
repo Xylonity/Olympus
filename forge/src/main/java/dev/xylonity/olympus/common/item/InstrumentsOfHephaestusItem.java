@@ -49,7 +49,7 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
     public void appendHoverText(final ItemStack stack, final Level level, final List<Component> tooltip, final TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         OlympusTooltip.append(tooltip::add, "instruments_of_hephaestus", 0xE8894D,
-                OlympusTooltip.ability(1,
+                OlympusTooltip.abilityIf(OlympusConfig.HEPHAESTUS_INSTRUMENTS_DIVINE_FORGE_ENABLED, 1,
                         OlympusTooltip.property("repair_amount", Integer.toString(OlympusConfig.HEPHAESTUS_INSTRUMENTS_REPAIR_AMOUNT)),
                         OlympusTooltip.property("repair_cooldown", OlympusTooltip.seconds(OlympusConfig.HEPHAESTUS_INSTRUMENTS_REPAIR_COOLDOWN_SECONDS)),
                         OlympusTooltip.property("kill_reduction", OlympusTooltip.seconds(OlympusConfig.HEPHAESTUS_INSTRUMENTS_KILL_COOLDOWN_REDUCTION_SECONDS))
@@ -60,7 +60,7 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
     @Override
     public void curioTick(final SlotContext slotContext, final ItemStack instruments) {
         // Equipped stack is inferred
-        if (slotContext.cosmetic() || !(slotContext.entity() instanceof ServerPlayer player)) {
+        if (!OlympusConfig.HEPHAESTUS_INSTRUMENTS_DIVINE_FORGE_ENABLED || slotContext.cosmetic() || !(slotContext.entity() instanceof ServerPlayer player)) {
             return;
         }
 
@@ -90,6 +90,10 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
     }
 
     public static void reduceCooldownOnKill(final ServerPlayer player) {
+        if (!OlympusConfig.HEPHAESTUS_INSTRUMENTS_DIVINE_FORGE_ENABLED) {
+            return;
+        }
+
         // Checks that the instruments are equipped
         final Optional<ItemStack> equippedInstruments = CuriosApi.getCuriosInventory(player)
                 .resolve()

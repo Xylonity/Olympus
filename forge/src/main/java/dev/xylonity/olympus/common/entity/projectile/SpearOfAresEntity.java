@@ -17,6 +17,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -98,6 +99,16 @@ public final class SpearOfAresEntity extends ThrownTrident implements KnightLibA
 
     @Override
     public void tick() {
+        if (!level().isClientSide && !OlympusConfig.ARES_SPEAR_THROW_ENABLED) {
+            discard();
+            return;
+        }
+
+        if (!OlympusConfig.ARES_SPEAR_REAPERS_JAVELIN_ENABLED && pinning) {
+            releasePinnedEntities();
+            nailedSurfaceImpactPending = false;
+        }
+
         // Deletes the spear after a short time after colliding with a surface
         if (!level().isClientSide && getCollisionAge(0) >= DISSOLVE_DELAY + DISSOLVE_DURATION) {
             discard();
@@ -176,19 +187,22 @@ public final class SpearOfAresEntity extends ThrownTrident implements KnightLibA
 
     @Override
     protected void onHitEntity(final EntityHitResult hitResult) {
-        // Registers the entity as pierced and pinned
+        // Registers the entity as pierced
         final Entity target = hitResult.getEntity();
         if (!piercedEntityIds.add(target.getId())) {
             return;
         }
 
-        pinnedEntityIds.add(target.getId());
-        newlyPinnedEntityIds.add(target.getId());
-        startCollisionLifetime();
-
-        if (!pinning) {
-            beginPinning();
+        final boolean pinningEnabled = OlympusConfig.ARES_SPEAR_REAPERS_JAVELIN_ENABLED;
+        if (pinningEnabled) {
+            pinnedEntityIds.add(target.getId());
+            newlyPinnedEntityIds.add(target.getId());
+            if (!pinning) {
+                beginPinning();
+            }
         }
+
+        startCollisionLifetime();
 
         if (!(level() instanceof ServerLevel serverLevel)) {
             return;
@@ -213,6 +227,11 @@ public final class SpearOfAresEntity extends ThrownTrident implements KnightLibA
                 doPostHurtEffects(livingTarget);
             }
 
+        }
+
+        if (!pinningEnabled) {
+            setDeltaMovement(getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
+            playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F);
         }
 
     }

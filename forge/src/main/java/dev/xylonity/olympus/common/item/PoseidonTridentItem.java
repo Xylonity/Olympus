@@ -40,7 +40,7 @@ public final class PoseidonTridentItem extends TridentItem implements KnightLibR
 
     @Override
     public void releaseUsing(final ItemStack stack, final Level level, final LivingEntity user, final int remainingUseDuration) {
-        if (!(user instanceof Player player)) {
+        if (!OlympusConfig.POSEIDON_TRIDENT_THROW_ENABLED || !(user instanceof Player player)) {
             return;
         }
 
@@ -75,7 +75,7 @@ public final class PoseidonTridentItem extends TridentItem implements KnightLibR
     @Override
     public InteractionResultHolder<ItemStack> use(final Level level, final Player player, final InteractionHand hand) {
         final ItemStack stack = player.getItemInHand(hand);
-        if (stack.getDamageValue() >= stack.getMaxDamage() - 1) {
+        if (!OlympusConfig.POSEIDON_TRIDENT_THROW_ENABLED || stack.getDamageValue() >= stack.getMaxDamage() - 1) {
             return InteractionResultHolder.fail(stack);
         }
 
@@ -95,11 +95,13 @@ public final class PoseidonTridentItem extends TridentItem implements KnightLibR
     public void appendHoverText(final ItemStack stack, final Level level, final List<Component> tooltip, final TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         OlympusTooltip.append(tooltip::add, "poseidon_trident", 0x64B5E8,
-                OlympusTooltip.ability(1,
+                OlympusTooltip.abilityIf(OlympusConfig.POSEIDON_TRIDENT_LORD_OF_THE_SEA_ENABLED, 1,
                         OlympusTooltip.property("swim_speed", "+" + OlympusTooltip.percent(OlympusConfig.POSEIDON_TRIDENT_SWIM_SPEED_BONUS))
                 ),
-                OlympusTooltip.ability(2,
-                        OlympusTooltip.property("projectile_damage", OlympusTooltip.number(OlympusConfig.POSEIDON_TRIDENT_PROJECTILE_DAMAGE)),
+                OlympusTooltip.abilityIf(OlympusConfig.POSEIDON_TRIDENT_THROW_ENABLED, 2,
+                        OlympusTooltip.property("projectile_damage", OlympusTooltip.number(OlympusConfig.POSEIDON_TRIDENT_PROJECTILE_DAMAGE))
+                ),
+                OlympusTooltip.abilityIf(OlympusConfig.POSEIDON_TRIDENT_THROW_ENABLED && OlympusConfig.POSEIDON_TRIDENT_WRATH_OF_UNDERWATER_ENABLED, 3,
                         OlympusTooltip.property("splash_damage", OlympusTooltip.number(OlympusConfig.POSEIDON_TRIDENT_SPLASH_DAMAGE)),
                         OlympusTooltip.property("splash_radius", OlympusTooltip.number(OlympusConfig.POSEIDON_TRIDENT_SPLASH_RADIUS))
                 ));

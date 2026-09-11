@@ -24,11 +24,11 @@ public final class ArtemisBowItem extends BowItem {
     public void appendHoverText(final ItemStack stack, final Level level, final List<Component> tooltip, final TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         OlympusTooltip.append(tooltip::add, "bow_of_artemis", 0x8FD17F,
-                OlympusTooltip.ability(1,
+                OlympusTooltip.abilityIf(OlympusConfig.ARTEMIS_BOW_MOONLIT_HUNT_ENABLED, 1,
                         OlympusTooltip.property("projectile_speed", OlympusTooltip.number(OlympusConfig.ARTEMIS_BOW_PROJECTILE_SPEED_MULTIPLIER) + "x"),
                         OlympusTooltip.property("looting_bonus", "+" + OlympusConfig.ARTEMIS_BOW_LOOTING_BONUS)
                 ),
-                OlympusTooltip.ability(2,
+                OlympusTooltip.abilityIf(OlympusConfig.ARTEMIS_BOW_GUARDIAN_ARROW_ENABLED, 2,
                         OlympusTooltip.property("tamed_healing", OlympusTooltip.percent(OlympusConfig.ARTEMIS_BOW_TAMED_HEALING_MULTIPLIER))
                 ));
 

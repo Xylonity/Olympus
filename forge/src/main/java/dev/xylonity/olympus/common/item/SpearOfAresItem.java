@@ -112,7 +112,7 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
     }
 
     public static boolean isSpecialAbilityCharged(final ItemStack stack) {
-        return stack.hasTag() && stack.getTag().getBoolean(TAG_SPECIAL_ABILITY_CHARGED);
+        return OlympusConfig.ARES_SPEAR_DESCENT_ENABLED && stack.hasTag() && stack.getTag().getBoolean(TAG_SPECIAL_ABILITY_CHARGED);
     }
 
     public static void setSpecialAbilityCharged(final ItemStack stack, final Player player, final boolean charged) {
@@ -148,6 +148,10 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
     }
 
     public static void chargeSpecialAbilityForKill(final ServerPlayer player, final DamageSource damageSource) {
+        if (!OlympusConfig.ARES_SPEAR_DESCENT_ENABLED) {
+            return;
+        }
+
         // On entity kill, checks if the spear was the reason
         final ItemStack spear = findSpearUsedForKill(player, damageSource);
         if (!spear.isEmpty()) {
@@ -157,6 +161,11 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
     }
 
     public static void updateSpecialFall(final ServerPlayer player) {
+        if (!OlympusConfig.ARES_SPEAR_DESCENT_ENABLED) {
+            player.getPersistentData().remove(TAG_PLAYER_SPECIAL_FALL);
+            return;
+        }
+
         // If the player is executing the special ability
         if (isActiveFallActive(player)) {
             // On ground hit
@@ -186,6 +195,11 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
     }
 
     public static boolean handleSpecialLanding(final ServerPlayer player, final double fallDistance) {
+        if (!OlympusConfig.ARES_SPEAR_DESCENT_ENABLED) {
+            player.getPersistentData().remove(TAG_PLAYER_SPECIAL_FALL);
+            return false;
+        }
+
         if (!isActiveFallActive(player) && !tryActiveAbility(player, fallDistance)) {
             return false;
         }
@@ -195,7 +209,7 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
 
     /// Applies the special effect of the helmet of spear (summoning spears come from the ground on ground hit on certain conditions)
     private static boolean tryActiveAbility(ServerPlayer player, double fallDistance) {
-        if (fallDistance < OlympusConfig.ARES_SPEAR_ABILITY_MINIMUM_FALL_DISTANCE || !player.isShiftKeyDown() || player.isInWater() || player.isFallFlying() || player.getAbilities().flying) {
+        if (!OlympusConfig.ARES_SPEAR_DESCENT_ENABLED || fallDistance < OlympusConfig.ARES_SPEAR_ABILITY_MINIMUM_FALL_DISTANCE || !player.isShiftKeyDown() || player.isInWater() || player.isFallFlying() || player.getAbilities().flying) {
             return false;
         }
 
@@ -339,7 +353,7 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
     /// Same code over again {@link PoseidonTridentItem}
     @Override
     public void releaseUsing(final ItemStack stack, final Level level, final LivingEntity user, final int remainingUseDuration) {
-        if (!(user instanceof Player player)) {
+        if (!OlympusConfig.ARES_SPEAR_THROW_ENABLED || !(user instanceof Player player)) {
             return;
         }
 
@@ -373,7 +387,7 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
     @Override
     public InteractionResultHolder<ItemStack> use(final Level level, final Player player, final InteractionHand hand) {
         final ItemStack stack = player.getItemInHand(hand);
-        if (stack.getDamageValue() >= stack.getMaxDamage() - 1 || player.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (!OlympusConfig.ARES_SPEAR_THROW_ENABLED || stack.getDamageValue() >= stack.getMaxDamage() - 1 || player.getCooldowns().isOnCooldown(stack.getItem())) {
             return InteractionResultHolder.fail(stack);
         }
 
@@ -391,12 +405,18 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         OlympusTooltip.append(tooltip::add, "spear_of_ares", 0xE06C6C,
-                OlympusTooltip.ability(1,
+                OlympusTooltip.abilityIf(OlympusConfig.ARES_SPEAR_DESCENT_ENABLED, 1,
                         OlympusTooltip.property("fall_distance", OlympusTooltip.number(OlympusConfig.ARES_SPEAR_ABILITY_MINIMUM_FALL_DISTANCE)),
                         OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.ARES_SPEAR_ABILITY_COOLDOWN_SECONDS))
                 ),
-                OlympusTooltip.ability(2,
+                OlympusTooltip.abilityIf(OlympusConfig.ARES_SPEAR_THROW_ENABLED, 2,
+                        OlympusTooltip.property("projectile_damage", OlympusTooltip.number(OlympusConfig.ARES_SPEAR_PROJECTILE_DAMAGE)),
                         OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.ARES_SPEAR_THROW_COOLDOWN_SECONDS))
+                ),
+                OlympusTooltip.abilityIf(OlympusConfig.ARES_SPEAR_THROW_ENABLED && OlympusConfig.ARES_SPEAR_REAPERS_JAVELIN_ENABLED, 3,
+                        OlympusTooltip.property("pinned_distance", OlympusTooltip.number(OlympusConfig.ARES_SPEAR_PINNED_ENTITY_DISTANCE)),
+                        OlympusTooltip.property("wall_damage", OlympusTooltip.number(OlympusConfig.ARES_SPEAR_WALL_IMPACT_DAMAGE)),
+                        OlympusTooltip.property("slowness", OlympusTooltip.seconds(OlympusConfig.ARES_SPEAR_WALL_SLOWNESS_SECONDS))
                 ));
 
     }

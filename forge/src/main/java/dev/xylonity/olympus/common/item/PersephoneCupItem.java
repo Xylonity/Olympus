@@ -57,7 +57,7 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
     @Override
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(final SlotContext slotContext, final UUID uuid, final ItemStack stack) {
         final int soulCharges = getSoulCharges(stack);
-        if (soulCharges == 0 || OlympusConfig.PERSEPHONE_CUP_DAMAGE_APPLIES_TO_WEAPONS) {
+        if (!OlympusConfig.PERSEPHONE_CUP_SOUL_HARVEST_ENABLED || soulCharges == 0 || OlympusConfig.PERSEPHONE_CUP_DAMAGE_APPLIES_TO_WEAPONS) {
             return HashMultimap.create();
         }
 
@@ -69,6 +69,10 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
     }
 
     public static float getEquippedDamageBonus(final ServerPlayer player) {
+        if (!OlympusConfig.PERSEPHONE_CUP_SOUL_HARVEST_ENABLED) {
+            return 0;
+        }
+
         final float damagePerSoul = (float) OlympusConfig.PERSEPHONE_CUP_DAMAGE_PER_SOUL;
         return findEquippedCup(player)
                 .map(cup -> getSoulCharges(cup) * damagePerSoul)
@@ -80,11 +84,11 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
         super.appendHoverText(stack, level, builder, tooltipFlag);
         final Component soulCharges = Component.translatable("item.olympus.persephone_cup.soul_charges", getSoulCharges(stack), MAX_SOUL_CHARGES).withStyle(ChatFormatting.DARK_PURPLE);
         OlympusTooltip.appendWithStatus(builder::add, "persephone_cup", 0xC987D4, soulCharges,
-                OlympusTooltip.ability(1,
+                OlympusTooltip.abilityIf(OlympusConfig.PERSEPHONE_CUP_SOUL_HARVEST_ENABLED, 1,
                         OlympusTooltip.property("damage_per_soul", "+" + OlympusTooltip.number(OlympusConfig.PERSEPHONE_CUP_DAMAGE_PER_SOUL)),
                         OlympusTooltip.property("maximum_souls", Integer.toString(MAX_SOUL_CHARGES))
                 ),
-                OlympusTooltip.ability(2,
+                OlympusTooltip.abilityIf(OlympusConfig.PERSEPHONE_CUP_SPRINGS_RETURN_ENABLED, 2,
                         OlympusTooltip.property("charge_cost", Integer.toString(OlympusConfig.PERSEPHONE_CUP_DEATH_PROTECTION_CHARGE_COST)),
                         OlympusTooltip.property("restored_health", OlympusTooltip.percent(OlympusConfig.PERSEPHONE_CUP_RESTORED_HEALTH_PERCENTAGE)),
                         OlympusTooltip.property("regeneration", OlympusTooltip.seconds(OlympusConfig.PERSEPHONE_CUP_REGENERATION_SECONDS))
@@ -94,6 +98,10 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
 
     /// Applies the special effect of the cup (increased damage and canceled first mortal hit on max charge amount)
     public static boolean tryActivateAbility(final ServerPlayer player) {
+        if (!OlympusConfig.PERSEPHONE_CUP_SPRINGS_RETURN_ENABLED) {
+            return false;
+        }
+
         // Checks that the cup is equipped
         final Optional<ItemStack> equippedCup = findEquippedCup(player);
         if (equippedCup.isEmpty() || getSoulCharges(equippedCup.get()) < MAX_SOUL_CHARGES) {
@@ -118,7 +126,7 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
     }
 
     public static void spawnSoulOnKill(final Mob mob, final ServerPlayer player) {
-        if (!(mob.level() instanceof ServerLevel level) || findEquippedCup(player).isEmpty() || mob.getPersistentData().getBoolean(TAG_SOUL_DROPPED)) {
+        if (!OlympusConfig.PERSEPHONE_CUP_SOUL_HARVEST_ENABLED || !(mob.level() instanceof ServerLevel level) || findEquippedCup(player).isEmpty() || mob.getPersistentData().getBoolean(TAG_SOUL_DROPPED)) {
             return;
         }
 

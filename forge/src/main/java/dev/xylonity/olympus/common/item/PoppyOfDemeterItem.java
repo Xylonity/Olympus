@@ -20,7 +20,7 @@ public final class PoppyOfDemeterItem extends BlockItem {
     public void appendHoverText(final ItemStack stack, final Level level, final List<Component> tooltip, final TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         OlympusTooltip.append(tooltip::add, "poppy_of_demeter", 0xE5A84B,
-                OlympusTooltip.ability(1,
+                OlympusTooltip.abilityIf(OlympusConfig.DEMETER_POPPY_CRIMSON_PETALS_ENABLED, 1,
                         OlympusTooltip.property("radius", Integer.toString(OlympusConfig.DEMETER_POPPY_RADIUS)),
                         OlympusTooltip.property("growth_interval", OlympusTooltip.seconds(OlympusConfig.DEMETER_POPPY_GROWTH_INTERVAL_SECONDS)),
                         OlympusTooltip.property("growths_per_target", Integer.toString(OlympusConfig.DEMETER_POPPY_GROWTHS_PER_TARGET))

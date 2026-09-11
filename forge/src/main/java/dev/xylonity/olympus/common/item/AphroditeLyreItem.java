@@ -42,7 +42,7 @@ public final class AphroditeLyreItem extends Item {
     public @NonNull InteractionResultHolder<ItemStack> use(final @NonNull Level level, final @NonNull Player player, final @NonNull InteractionHand hand) {
         // No direct use
         final ItemStack stack = player.getItemInHand(hand);
-        if (player.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (!OlympusConfig.APHRODITE_LYRE_SONG_OF_CYTHERA_ENABLED || player.getCooldowns().isOnCooldown(stack.getItem())) {
             return InteractionResultHolder.fail(stack);
         }
 
@@ -65,7 +65,7 @@ public final class AphroditeLyreItem extends Item {
 
         final int useTicks = DURATION_TICKS - remainingUseDuration;
         // Breed nearby entities
-        if (useTicks % 5 == 0) {
+        if (OlympusConfig.APHRODITE_LYRE_SONG_OF_CYTHERA_ENABLED && useTicks % 5 == 0) {
             breedNearby(serverLevel, player);
         }
         // particles
@@ -106,7 +106,7 @@ public final class AphroditeLyreItem extends Item {
             return;
         }
 
-        final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.APHRODITE_LYRE_COOLDOWN_SECONDS);
+        final int cooldownTicks = OlympusConfig.APHRODITE_LYRE_SONG_OF_CYTHERA_ENABLED ? OlympusConfig.secondsToTicks(OlympusConfig.APHRODITE_LYRE_COOLDOWN_SECONDS) : 0;
         if (cooldownTicks > 0) {
             player.getCooldowns().addCooldown(stack.getItem(), cooldownTicks);
         }
@@ -119,7 +119,7 @@ public final class AphroditeLyreItem extends Item {
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         OlympusTooltip.append(tooltip::add, "aphrodite_lyre", 0xE8A0BF,
-                OlympusTooltip.ability(1,
+                OlympusTooltip.abilityIf(OlympusConfig.APHRODITE_LYRE_SONG_OF_CYTHERA_ENABLED, 1,
                         OlympusTooltip.property("radius", OlympusTooltip.number(OlympusConfig.APHRODITE_LYRE_BREEDING_RADIUS)),
                         OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.APHRODITE_LYRE_COOLDOWN_SECONDS))
                 ));

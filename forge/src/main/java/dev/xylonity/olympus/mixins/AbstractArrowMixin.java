@@ -87,7 +87,7 @@ public abstract class AbstractArrowMixin implements ArtemisArrow {
     private void olympus$healOwnedPet(final EntityHitResult hitResult, final CallbackInfo callback) {
         // Whether if the arrow comes from the artemis bow
         final AbstractArrow arrow = (AbstractArrow) (Object) this;
-        if (!olympus$isArtemisArrow() || !(hitResult.getEntity() instanceof TamableAnimal pet) || !(arrow.getOwner() instanceof Player player) || !pet.isOwnedBy(player)) {
+        if (!OlympusConfig.ARTEMIS_BOW_GUARDIAN_ARROW_ENABLED || !olympus$isArtemisArrow() || !(hitResult.getEntity() instanceof TamableAnimal pet) || !(arrow.getOwner() instanceof Player player) || !pet.isOwnedBy(player)) {
             return;
         }
 

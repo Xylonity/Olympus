@@ -1,6 +1,7 @@
 package dev.xylonity.olympus.common.entity.projectile;
 
 import dev.xylonity.olympus.common.item.PersephoneCupItem;
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.payload.SoulSalvationPayload;
 import dev.xylonity.olympus.network.OlympusNetwork;
 import dev.xylonity.olympus.registry.OlympusEntities;
@@ -144,7 +145,7 @@ public final class AbsorbedSoulEntity extends Entity implements KnightLibAnimata
 
     @Override
     public void playerTouch(final Player player) {
-        if (!(player instanceof ServerPlayer serverPlayer) || age <= HOMING_DELAY || player.getId() != entityData.get(DATA_TARGET_ID) || player.takeXpDelay != 0) {
+        if (!OlympusConfig.PERSEPHONE_CUP_SOUL_HARVEST_ENABLED || !(player instanceof ServerPlayer serverPlayer) || age <= HOMING_DELAY || player.getId() != entityData.get(DATA_TARGET_ID) || player.takeXpDelay != 0) {
             return;
         }
 

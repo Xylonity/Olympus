@@ -57,12 +57,14 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
         final double maximumStun = OlympusConfig.ZEUS_BRACERS_MAXIMUM_STUN_SECONDS;
         final String stunDuration = OlympusTooltip.number(Math.min(minimumStun, maximumStun)) + "–" + OlympusTooltip.seconds(Math.max(minimumStun, maximumStun));
         OlympusTooltip.append(tooltip::add, "bracers_of_zeus", 0xF2D35E,
-                OlympusTooltip.ability(1,
+                OlympusTooltip.abilityIf(OlympusConfig.ZEUS_BRACERS_CHAIN_LIGHTNING_ENABLED, 1,
                         OlympusTooltip.property("damage", OlympusTooltip.number(OlympusConfig.ZEUS_BRACERS_DAMAGE)),
-                        OlympusTooltip.property("chain_targets", Integer.toString(OlympusConfig.ZEUS_BRACERS_CHAIN_JUMPS)),
-                        OlympusTooltip.property("chain_range", OlympusTooltip.number(OlympusConfig.ZEUS_BRACERS_CHAIN_RANGE)),
                         OlympusTooltip.property("stun_duration", stunDuration),
                         OlympusTooltip.property("cooldown", OlympusTooltip.seconds(OlympusConfig.ZEUS_BRACERS_COOLDOWN_SECONDS))
+                ),
+                OlympusTooltip.abilityIf(OlympusConfig.ZEUS_BRACERS_CHAIN_LIGHTNING_ENABLED && OlympusConfig.ZEUS_BRACERS_LIGHTNING_BOUNCE_ENABLED, 2,
+                        OlympusTooltip.property("chain_targets", Integer.toString(OlympusConfig.ZEUS_BRACERS_CHAIN_JUMPS)),
+                        OlympusTooltip.property("chain_range", OlympusTooltip.number(OlympusConfig.ZEUS_BRACERS_CHAIN_RANGE))
                 ));
 
     }
@@ -70,7 +72,7 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
     /// Applies the special effect of the bracers (thunder damage)
     public static void tryActivateAbility(Mob firstTarget, ServerPlayer player, DamageSource triggeringSource, float healthDamage) {
         // Only applied by the bracers damage type
-        if (!(firstTarget.level() instanceof ServerLevel level) || triggeringSource.is(OlympusDamageTypes.LIGHTNING) || healthDamage <= 0) {
+        if (!OlympusConfig.ZEUS_BRACERS_CHAIN_LIGHTNING_ENABLED || !(firstTarget.level() instanceof ServerLevel level) || triggeringSource.is(OlympusDamageTypes.LIGHTNING) || healthDamage <= 0) {
             return;
         }
 
@@ -99,6 +101,10 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
         final Vec3 ground = firstTarget.position();
         final Vec3 sky = new Vec3(firstTarget.getX(), level.getMaxBuildHeight() + 8, firstTarget.getZ());
         strike(level, player, firstTarget, sky, ground, lightningDamage, damageSource, true);
+
+        if (!OlympusConfig.ZEUS_BRACERS_LIGHTNING_BOUNCE_ENABLED) {
+            return;
+        }
 
         // For each entity nearby, in chain (normal iterator)
         Mob current = firstTarget;

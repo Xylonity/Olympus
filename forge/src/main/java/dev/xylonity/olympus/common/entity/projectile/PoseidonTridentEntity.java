@@ -79,6 +79,10 @@ public final class PoseidonTridentEntity extends ThrownTrident implements Knight
 
     @Override
     public void tick() {
+        if (!level().isClientSide && !OlympusConfig.POSEIDON_TRIDENT_THROW_ENABLED && !isReturning()) {
+            entityData.set(RETURNING, true);
+        }
+
         // Returns after 20 ticks
         if (!level().isClientSide && !isReturning() && inGroundTime >= 20) {
             entityData.set(RETURNING, true);
@@ -142,7 +146,7 @@ public final class PoseidonTridentEntity extends ThrownTrident implements Knight
             // Applies the same damage as the trident item
             final float projectileDamage = (float) OlympusConfig.POSEIDON_TRIDENT_PROJECTILE_DAMAGE;
             final float damage = projectileDamage + (target instanceof LivingEntity livingTarget ? EnchantmentHelper.getDamageBonus(getTridentStack(), livingTarget.getMobType()) : 0.0F);
-            if (firstImpact) {
+            if (firstImpact && OlympusConfig.POSEIDON_TRIDENT_WRATH_OF_UNDERWATER_ENABLED) {
                 // Splash particle
                 createSplash(serverLevel, target.getBoundingBox().getCenter(), target);
             }
@@ -198,7 +202,10 @@ public final class PoseidonTridentEntity extends ThrownTrident implements Knight
 
             if (!hasSplashed) {
                 hasSplashed = true;
-                createSplash(level, hitResult.getLocation(), null);
+                if (OlympusConfig.POSEIDON_TRIDENT_WRATH_OF_UNDERWATER_ENABLED) {
+                    createSplash(level, hitResult.getLocation(), null);
+                }
+
             }
 
         }

@@ -1,3 +1,8 @@
+# 1.0.4
+- Added extra config options to enable/disable item abilities at will
+- Decreased min default spear of ares ground ability height from 3 to 2.5
+- Persephone's Cup now empties by default when preventing a mortal blow
+
 # 1.0.3
 - Increased Harpy melee attack range
 

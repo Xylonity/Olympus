@@ -89,9 +89,11 @@
 
   "tooltip.olympus.bracers_of_zeus.flavor": "The fury of the storm rests upon your wrists",
   "tooltip.olympus.bracers_of_zeus.abilities": "Abilities ⚡",
-  "tooltip.olympus.bracers_of_zeus.ability_title_1": " Chain Lightning",
-  "tooltip.olympus.bracers_of_zeus.ability_description_1": "  Damaging an enemy calls a lightning that leaps to nearby enemies",
+  "tooltip.olympus.bracers_of_zeus.ability_title_1": " Thunderstruck",
+  "tooltip.olympus.bracers_of_zeus.ability_description_1": "  Damaging an enemy calls lightning down upon it",
   "tooltip.olympus.bracers_of_zeus.properties.damage": "Lightning damage: %1$s",
+  "tooltip.olympus.bracers_of_zeus.ability_title_2": " Chain Lightning",
+  "tooltip.olympus.bracers_of_zeus.ability_description_2": "  The lightning leaps from its target to nearby enemies",
   "tooltip.olympus.bracers_of_zeus.properties.chain_targets": "Additional targets: %1$s",
   "tooltip.olympus.bracers_of_zeus.properties.chain_range": "Chain range: %1$s blocks",
   "tooltip.olympus.bracers_of_zeus.properties.stun_duration": "Stun duration: %1$s",
@@ -147,9 +149,11 @@
   "tooltip.olympus.poseidon_trident.ability_title_1": " Lord of the Sea",
   "tooltip.olympus.poseidon_trident.ability_description_1": "  Holding the trident lets you swim faster",
   "tooltip.olympus.poseidon_trident.properties.swim_speed": "Swim speed: %1$s",
-  "tooltip.olympus.poseidon_trident.ability_title_2": " Wrath of Underwater",
-  "tooltip.olympus.poseidon_trident.ability_description_2": "  Throw it to unleash a damaging splash before it returns",
+  "tooltip.olympus.poseidon_trident.ability_title_2": " Returning Tide",
+  "tooltip.olympus.poseidon_trident.ability_description_2": "  Hold and release to throw the trident before it returns",
   "tooltip.olympus.poseidon_trident.properties.projectile_damage": "Impact damage: %1$s",
+  "tooltip.olympus.poseidon_trident.ability_title_3": " Wrath of Underwater",
+  "tooltip.olympus.poseidon_trident.ability_description_3": "  The thrown trident unleashes a damaging splash on impact",
   "tooltip.olympus.poseidon_trident.properties.splash_damage": "Splash damage: %1$s",
   "tooltip.olympus.poseidon_trident.properties.splash_radius": "Splash radius: %1$s blocks",
 
@@ -160,5 +164,11 @@
   "tooltip.olympus.spear_of_ares.properties.fall_distance": "Minimum fall distance: %1$s blocks",
   "tooltip.olympus.spear_of_ares.properties.cooldown": "Cooldown: %1$s",
   "tooltip.olympus.spear_of_ares.ability_title_2": " Reaper's Javelin",
-  "tooltip.olympus.spear_of_ares.ability_description_2": "  Hold and release the spear to throw it and pin your enemies"
+  "tooltip.olympus.spear_of_ares.ability_description_2": "  Hold and release to throw the spear as a deadly projectile",
+  "tooltip.olympus.spear_of_ares.properties.projectile_damage": "Impact damage: %1$s",
+  "tooltip.olympus.spear_of_ares.ability_title_3": " Unyielding Impalement",
+  "tooltip.olympus.spear_of_ares.ability_description_3": "  The thrown spear pins enemies and carries them into walls",
+  "tooltip.olympus.spear_of_ares.properties.pinned_distance": "Maximum carry distance: %1$s blocks",
+  "tooltip.olympus.spear_of_ares.properties.wall_damage": "Wall impact damage: %1$s",
+  "tooltip.olympus.spear_of_ares.properties.slowness": "Wall impact Slowness: %1$s"
 }

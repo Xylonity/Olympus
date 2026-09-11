@@ -44,7 +44,7 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
 
     @Override
     public void tick(final BlockState state, final ServerLevel level, final BlockPos pos, final RandomSource random) {
-        if (level.getBlockEntity(pos) instanceof PoppyOfDemeterBlockEntity poppy) {
+        if (OlympusConfig.DEMETER_POPPY_CRIMSON_PETALS_ENABLED && level.getBlockEntity(pos) instanceof PoppyOfDemeterBlockEntity poppy) {
             updateBlockCycle(level, pos, random, poppy);
         }
 

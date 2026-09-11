@@ -1,6 +1,7 @@
 package dev.xylonity.olympus.common.util;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
@@ -27,6 +28,11 @@ public class OlympusTooltip {
             tooltip.accept(status);
         }
 
+        final List<Ability> enabledAbilities = Arrays.stream(abilities).filter(ability -> ability != null).toList();
+        if (enabledAbilities.isEmpty()) {
+            return;
+        }
+
         tooltip.accept(Component.empty());
 
         if (!Screen.hasShiftDown()) {
@@ -39,7 +45,7 @@ public class OlympusTooltip {
         tooltip.accept(Component.translatable(key(itemKey, "abilities"))
                 .withStyle(ChatFormatting.DARK_GRAY));
 
-        for (final Ability ability : abilities) {
+        for (final Ability ability : enabledAbilities) {
             tooltip.accept(Component.translatable(key(itemKey, "ability_title_" + ability.number()))
                     .withStyle(style -> style.withColor(TextColor.fromRgb(titleColor))));
             tooltip.accept(Component.translatable(key(itemKey, "ability_description_" + ability.number()))
@@ -65,6 +71,10 @@ public class OlympusTooltip {
 
     public static Ability ability(final int number, final Property... properties) {
         return new Ability(number, List.of(properties));
+    }
+
+    public static Ability abilityIf(final boolean enabled, final int number, final Property... properties) {
+        return enabled ? ability(number, properties) : null;
     }
 
     public static Property property(final String name, final String value) {

@@ -12,6 +12,12 @@ public final class OlympusConfig {
 
     @ConfigEntry(
             category = "Aphrodite's Lyre",
+            comment = "Whether the Song of Cythera breeding ability is enabled"
+    )
+    public static boolean APHRODITE_LYRE_SONG_OF_CYTHERA_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Aphrodite's Lyre",
             comment = "Cooldown (in seconds) after playing Aphrodite's Lyre",
             min = 0.0D,
             max = 3600.0D
@@ -25,6 +31,12 @@ public final class OlympusConfig {
             max = 64.0D
     )
     public static double APHRODITE_LYRE_BREEDING_RADIUS = 8.0D;
+
+    @ConfigEntry(
+            category = "Artemis's Bow",
+            comment = "Whether the Moonlit Hunt projectile speed and Looting ability is enabled"
+    )
+    public static boolean ARTEMIS_BOW_MOONLIT_HUNT_ENABLED = true;
 
     @ConfigEntry(
             category = "Artemis's Bow",
@@ -44,11 +56,29 @@ public final class OlympusConfig {
 
     @ConfigEntry(
             category = "Artemis's Bow",
+            comment = "Whether the Guardian Arrow tamed animal healing ability is enabled"
+    )
+    public static boolean ARTEMIS_BOW_GUARDIAN_ARROW_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Artemis's Bow",
             comment = "Fraction of the arrow's damage restored as health when hitting one of the shooter's tamed animals (0.35 = 35%)",
             min = 0.0D,
             max = 100.0D
     )
     public static double ARTEMIS_BOW_TAMED_HEALING_MULTIPLIER = 0.5D;
+
+    @ConfigEntry(
+            category = "Bracers of Zeus",
+            comment = "Whether the Chain Lightning ability is enabled"
+    )
+    public static boolean ZEUS_BRACERS_CHAIN_LIGHTNING_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Bracers of Zeus",
+            comment = "Whether lightning bounces from its first target to nearby enemies"
+    )
+    public static boolean ZEUS_BRACERS_LIGHTNING_BOUNCE_ENABLED = true;
 
     @ConfigEntry(
             category = "Bracers of Zeus",
@@ -108,6 +138,12 @@ public final class OlympusConfig {
 
     @ConfigEntry(
             category = "Persephone's Cup",
+            comment = "Whether the Soul Harvest soul collection and damage bonus ability is enabled"
+    )
+    public static boolean PERSEPHONE_CUP_SOUL_HARVEST_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Persephone's Cup",
             comment = "Duration (in seconds) of the Regeneration II effect granted by Persephone's Cup",
             min = 0.0D,
             max = 3600.0D
@@ -130,6 +166,12 @@ public final class OlympusConfig {
 
     @ConfigEntry(
             category = "Persephone's Cup",
+            comment = "Whether the Spring's Return death protection ability is enabled"
+    )
+    public static boolean PERSEPHONE_CUP_SPRINGS_RETURN_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Persephone's Cup",
             comment = "Percentage of maximum health restored by the Cup's death protection (0.3 = 30%)",
             min = 0.01D,
             max = 1.0D
@@ -142,7 +184,13 @@ public final class OlympusConfig {
             min = 0,
             max = 40
     )
-    public static int PERSEPHONE_CUP_DEATH_PROTECTION_CHARGE_COST = 20;
+    public static int PERSEPHONE_CUP_DEATH_PROTECTION_CHARGE_COST = 40;
+
+    @ConfigEntry(
+            category = "Helmet of Hades",
+            comment = "Whether the Soul's Defiance death protection ability is enabled"
+    )
+    public static boolean HELMET_OF_HADES_SOULS_DEFIANCE_ENABLED = true;
 
     @ConfigEntry(
             category = "Helmet of Hades",
@@ -178,6 +226,12 @@ public final class OlympusConfig {
 
     @ConfigEntry(
             category = "Hermes' Sandals",
+            comment = "Whether the Sandals of Wind movement speed and extra jump ability is enabled"
+    )
+    public static boolean HERMES_SANDALS_WIND_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Hermes' Sandals",
             comment = "Armor points granted by Hermes' Sandals",
             min = 0.0D,
             max = 100.0D
@@ -199,6 +253,12 @@ public final class OlympusConfig {
             max = 2000
     )
     public static int HERMES_SANDALS_JUMP_AMOUNT = 3;
+
+    @ConfigEntry(
+            category = "Instruments of Hephaestus",
+            comment = "Whether the Divine Forge automatic repair ability is enabled"
+    )
+    public static boolean HEPHAESTUS_INSTRUMENTS_DIVINE_FORGE_ENABLED = true;
 
     @ConfigEntry(
             category = "Instruments of Hephaestus",
@@ -226,6 +286,12 @@ public final class OlympusConfig {
 
     @ConfigEntry(
             category = "Poseidon's Trident",
+            comment = "Whether the Lord of the Sea swim speed ability is enabled"
+    )
+    public static boolean POSEIDON_TRIDENT_LORD_OF_THE_SEA_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Poseidon's Trident",
             comment = "Melee attack damage added by Poseidon's Trident",
             min = 0.0D,
             max = 1000.0D
@@ -234,11 +300,31 @@ public final class OlympusConfig {
 
     @ConfigEntry(
             category = "Poseidon's Trident",
+            comment = "Attack speed modifier added while holding Poseidon's Trident (the player's base attack speed is 4.0)",
+            min = -100.0D,
+            max = 100.0D
+    )
+    public static double POSEIDON_TRIDENT_ATTACK_SPEED_MODIFIER = -2.8D;
+
+    @ConfigEntry(
+            category = "Poseidon's Trident",
             comment = "Swim speed multiplier bonus while holding Poseidon's Trident (0.4 = 40%)",
             min = 0.0D,
             max = 10.0D
     )
     public static double POSEIDON_TRIDENT_SWIM_SPEED_BONUS = 0.4D;
+
+    @ConfigEntry(
+            category = "Poseidon's Trident",
+            comment = "Whether Poseidon's Trident can be thrown"
+    )
+    public static boolean POSEIDON_TRIDENT_THROW_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Poseidon's Trident",
+            comment = "Whether a thrown Poseidon's Trident creates a damaging splash on impact"
+    )
+    public static boolean POSEIDON_TRIDENT_WRATH_OF_UNDERWATER_ENABLED = true;
 
     @ConfigEntry(
             category = "Poseidon's Trident",
@@ -266,11 +352,37 @@ public final class OlympusConfig {
 
     @ConfigEntry(
             category = "Spear of Ares",
+            comment = "Whether the Ares' Descent charged ground ability is enabled"
+    )
+    public static boolean ARES_SPEAR_DESCENT_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Spear of Ares",
             comment = "Melee attack damage added by the Spear of Ares",
             min = 0.0D,
             max = 1000.0D
     )
     public static double ARES_SPEAR_ATTACK_DAMAGE_BONUS = 8.0D;
+
+    @ConfigEntry(
+            category = "Spear of Ares",
+            comment = "Attack speed modifier added while holding the Spear of Ares (the player's base attack speed is 4.0)",
+            min = -100.0D,
+            max = 100.0D
+    )
+    public static double ARES_SPEAR_ATTACK_SPEED_MODIFIER = -2.7D;
+
+    @ConfigEntry(
+            category = "Spear of Ares",
+            comment = "Whether the Spear of Ares can be thrown"
+    )
+    public static boolean ARES_SPEAR_THROW_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Spear of Ares",
+            comment = "Whether a thrown Spear of Ares pins and carries hit entities"
+    )
+    public static boolean ARES_SPEAR_REAPERS_JAVELIN_ENABLED = true;
 
     @ConfigEntry(
             category = "Spear of Ares",
@@ -326,7 +438,7 @@ public final class OlympusConfig {
             min = 0.0D,
             max = 256.0D
     )
-    public static double ARES_SPEAR_ABILITY_MINIMUM_FALL_DISTANCE = 3.0D;
+    public static double ARES_SPEAR_ABILITY_MINIMUM_FALL_DISTANCE = 2.5;
 
     @ConfigEntry(
             category = "Spear of Ares",
@@ -367,6 +479,12 @@ public final class OlympusConfig {
             max = 64
     )
     public static int PARTHENON_SECOND_WAVE_ELITE_HARPIES = 1;
+
+    @ConfigEntry(
+            category = "Poppy of Demeter",
+            comment = "Whether the Crimson Petals plant growth ability is enabled"
+    )
+    public static boolean DEMETER_POPPY_CRIMSON_PETALS_ENABLED = true;
 
     @ConfigEntry(
             category = "Poppy of Demeter",
