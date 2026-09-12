@@ -1,5 +1,6 @@
 # 1.0.5
 - Added configurability to the Celestial Parthenon structure spawning, such as permitted biomes, dimensions, % of spawning, structure separation, etc.
+- Fixed a case where the Spear of Ares hand transforms could potentially conflict with other mods
 
 # 1.0.4
 - Added extra config options to enable/disable item abilities at will
