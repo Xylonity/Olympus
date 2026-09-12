@@ -27,6 +27,7 @@ public class OlympusForge {
         OlympusParticles.PARTICLES.init();
         OlympusSounds.SOUND_EVENTS.init();
         OlympusStructureTypes.STRUCTURE_TYPES.init();
+        OlympusStructureTypes.PLACEMENT_TYPES.init();
 
         OlympusNetwork.register();
         ConfigComposer.registerConfig(Olympus.MOD_ID, OlympusConfig.class);

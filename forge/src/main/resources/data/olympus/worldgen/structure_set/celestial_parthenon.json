@@ -1,6 +1,6 @@
 {
   "placement": {
-    "type": "minecraft:random_spread",
+    "type": "olympus:celestial_parthenon",
     "salt": 19707121,
     "separation": 8,
     "spacing": 24,

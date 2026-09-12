@@ -481,6 +481,79 @@ public final class OlympusConfig {
     public static int PARTHENON_SECOND_WAVE_ELITE_HARPIES = 1;
 
     @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Whether Celestial Parthenons generate naturally",
+            requiresRestart = true
+    )
+    public static boolean PARTHENON_GENERATION_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Comma-separated dimension ids (minecraft:overworld, parallax:sere, etc.) allowed for natural generation. Use * for all dimensions, or leave empty to allow none. Biomes and height must also be suitable",
+            requiresRestart = true
+    )
+    public static String PARTHENON_DIMENSIONS = "minecraft:overworld";
+
+    @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Use datapack biome, start_height and placement values instead of the config below. Enabled and dimension restrictions still apply",
+            requiresRestart = true
+    )
+    public static boolean PARTHENON_USE_DATAPACK_SETTINGS = false;
+
+    @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Comma-separated biome ids or biome tags. Use * for all biomes, or leave empty to use the structure's datapack biomes",
+            requiresRestart = true
+    )
+    public static String PARTHENON_BIOMES = "";
+
+    @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Placement region size in chunks (24 chunks = 384 blocks). Larger values makes the structure spawning rarer",
+            min = 1,
+            max = 4096,
+            requiresRestart = true
+    )
+    public static int PARTHENON_SPACING = 24;
+
+    @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Minimum separation between placement regions in chunks",
+            min = 0,
+            max = 4095,
+            requiresRestart = true
+    )
+    public static int PARTHENON_SEPARATION = 8;
+
+    @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Chance of attempting generation in each placement region (1 = 100%, 0 = disabled)",
+            min = 0,
+            max = 1,
+            requiresRestart = true
+    )
+    public static double PARTHENON_GENERATION_CHANCE = 1;
+
+    @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Minimum generation Y, where the height range is restricted to the dimension's build limits",
+            min = -2032,
+            max = 2031,
+            requiresRestart = true
+    )
+    public static int PARTHENON_MIN_HEIGHT = 155;
+
+    @ConfigEntry(
+            category = "Celestial Parthenon",
+            comment = "Maximum generation Y, where the height range is restricted to the dimension's build limits",
+            min = -2032,
+            max = 2031,
+            requiresRestart = true
+    )
+    public static int PARTHENON_MAX_HEIGHT = 190;
+
+    @ConfigEntry(
             category = "Poppy of Demeter",
             comment = "Whether the Crimson Petals plant growth ability is enabled"
     )
