@@ -1,3 +1,6 @@
+# 1.0.5
+- Added configurability to the Celestial Parthenon structure spawning, such as permitted biomes, dimensions, % of spawning, structure separation, etc.
+
 # 1.0.4
 - Added extra config options to enable/disable item abilities at will
 - Decreased min default spear of ares ground ability height from 3 to 2.5

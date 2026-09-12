@@ -12,6 +12,9 @@ import dev.xylonity.olympus.common.item.PersephoneCupItem;
 import dev.xylonity.olympus.common.item.PoseidonTridentItem;
 import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import dev.xylonity.olympus.config.OlympusConfig;
+import dev.xylonity.olympus.common.worldgen.ParthenonWorldgen;
+import net.minecraft.server.level.ServerLevel;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import dev.xylonity.olympus.registry.OlympusDamageTypes;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
@@ -66,6 +69,22 @@ public final class OlympusServerEvents {
 
     @EventBusSubscriber(modid = Olympus.MOD_ID)
     public static final class ForgeEvents {
+
+        @SubscribeEvent
+        public static void onLevelLoad(final LevelEvent.Load event) {
+            if (event.getLevel() instanceof ServerLevel level) {
+                ParthenonWorldgen.loadLevel(level);
+            }
+
+        }
+
+        @SubscribeEvent
+        public static void onLevelUnload(final LevelEvent.Unload event) {
+            if (event.getLevel() instanceof ServerLevel level) {
+                ParthenonWorldgen.unloadLevel(level);
+            }
+
+        }
 
         @SubscribeEvent
         public static void onItemAttributeModifiers(final ItemAttributeModifierEvent event) {
