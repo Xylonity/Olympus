@@ -50,9 +50,9 @@ public final class HelmetOfHadesRenderer implements ICurioRenderer {
 
     @Override
     public <T extends LivingEntity, M extends EntityModel<T>> void render(final ItemStack stack, final SlotContext slotContext, final PoseStack poseStack, final RenderLayerParent<T, M> renderLayerParent, final MultiBufferSource buffers, final int packedLight, final float limbSwing, final float limbSwingAmount, final float partialTicks, final float ageInTicks, final float netHeadYaw, final float headPitch) {
-        ICurioRenderer.followBodyRotations(slotContext.entity(), model);
         model.prepareMobModel(slotContext.entity(), limbSwing, limbSwingAmount, partialTicks);
         model.setupAnim(slotContext.entity(), limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        ICurioRenderer.followBodyRotations(slotContext.entity(), model);
         renderModel(stack, slotContext, poseStack, null, buffers, packedLight);
     }
 

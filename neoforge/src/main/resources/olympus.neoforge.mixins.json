@@ -12,7 +12,8 @@
     "HumanoidModelMixin",
     "ItemInHandRendererMixin",
     "ItemInHandLayerMixin",
-    "LivingEntityRendererMixin"
+    "LivingEntityRendererMixin",
+    "PlayerRendererMixin"
   ],
   "server": [],
   "injectors": {

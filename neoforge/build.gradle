@@ -46,11 +46,21 @@ neoForge {
     }
 }
 
+repositories {
+    maven {
+        url "https://cursemaven.com"
+    }
+}
+
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     implementation "dev.xylonity.knightlib:knightlib-neoforge-${minecraft_version}:${knightlib_version}"
     implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+
+    implementation "curse.maven:entity-texture-features-fabric-568563:8782694"
+    implementation "curse.maven:entity-model-features-844662:8799082"
+
     compileOnly "org.jspecify:jspecify:1.0.0"
     compileOnly "org.jetbrains:annotations:24.1.0"
 }

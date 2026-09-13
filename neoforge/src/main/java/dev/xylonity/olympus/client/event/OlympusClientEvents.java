@@ -1,6 +1,7 @@
 package dev.xylonity.olympus.client.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.xylonity.knightlib.network.ClientPacketDispatcher;
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.client.entity.renderer.AbsorbedSoulEntityRenderer;
@@ -49,6 +50,9 @@ import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusMobEffects;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -58,6 +62,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -69,7 +74,6 @@ import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.client.event.RenderArmEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -90,6 +94,16 @@ public final class OlympusClientEvents {
     private static boolean lightningStunEffectActive;
 
     private static BracersOfZeusRenderer bracersRenderer;
+
+    public static void renderFirstPersonBracers(final AbstractClientPlayer player, final HumanoidArm arm, final ModelPart armPart, final PoseStack poseStack, final MultiBufferSource buffers, final int packedLight) {
+        if (bracersRenderer == null) {
+            return;
+        }
+
+        CuriosApi.getCuriosInventory(player)
+                .flatMap(handler -> handler.findFirstCurio(OlympusItems.BRACERS_OF_ZEUS.get()))
+                .ifPresent(slot -> bracersRenderer.renderFirstPersonHand(slot.stack(), arm, poseStack, buffers, packedLight, player, armPart));
+    }
 
     @SubscribeEvent
     public static void clientSetup(final FMLClientSetupEvent event) {
@@ -337,17 +351,6 @@ public final class OlympusClientEvents {
                 lightningStunEffectActive = false;
             }
 
-        }
-
-        @SubscribeEvent
-        public static void onRenderArm(final RenderArmEvent event) {
-            if (bracersRenderer == null) {
-                return;
-            }
-
-            CuriosApi.getCuriosInventory(event.getPlayer())
-                    .flatMap(handler -> handler.findFirstCurio(OlympusItems.BRACERS_OF_ZEUS.get()))
-                    .ifPresent(slot -> bracersRenderer.renderFirstPersonHand(slot.stack(), event.getArm(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPlayer()));
         }
 
     }

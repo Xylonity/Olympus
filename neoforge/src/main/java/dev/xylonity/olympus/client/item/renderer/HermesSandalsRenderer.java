@@ -37,9 +37,9 @@ public final class HermesSandalsRenderer implements ICurioRenderer {
 
     @Override
     public <T extends LivingEntity, M extends EntityModel<T>> void render(final ItemStack stack, final SlotContext slotContext, final PoseStack poseStack, final RenderLayerParent<T, M> renderLayerParent, final MultiBufferSource buffers, final int packedLight, final float limbSwing, final float limbSwingAmount, final float partialTicks, final float ageInTicks, final float netHeadYaw, final float headPitch) {
-        ICurioRenderer.followBodyRotations(slotContext.entity(), model);
         model.prepareMobModel(slotContext.entity(), limbSwing, limbSwingAmount, partialTicks);
         model.setupAnim(slotContext.entity(), limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        ICurioRenderer.followBodyRotations(slotContext.entity(), model);
         model.renderToBuffer(poseStack, ItemRenderer.getArmorFoilBuffer(buffers, RenderType.armorCutoutNoCull(TEXTURE), stack.hasFoil()), packedLight, OverlayTexture.NO_OVERLAY);
     }
 
