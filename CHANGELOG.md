@@ -1,3 +1,6 @@
+# 1.0.6
+- Moved armor rendering call, potentially fixing wrong transforms when using external mods that tweak bone mutations (like the resourcepack Fresh Animations: Player Extension)
+
 # 1.0.5
 - Added configurability to the Celestial Parthenon structure spawning, such as permitted biomes, dimensions, % of spawning, structure separation, etc.
 - Fixed a case where the Spear of Ares hand transforms could potentially conflict with other mods
