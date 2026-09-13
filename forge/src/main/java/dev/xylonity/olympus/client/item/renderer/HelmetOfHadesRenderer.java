@@ -31,6 +31,15 @@ public final class HelmetOfHadesRenderer implements ICurioRenderer.HumanoidRende
     }
 
     @Override
+    public void prepareModel(final ItemStack stack, final SlotContext slotContext, final PoseStack poseStack, final RenderLayerParent<LivingEntity, EntityModel<LivingEntity>> renderLayerParent, final float limbSwing, final float limbSwingAmount, final float partialTicks, final float ageInTicks, final float netHeadYaw, final float headPitch) {
+        ICurioRenderer.HumanoidRender.super.prepareModel(stack, slotContext, poseStack, renderLayerParent, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+        if (renderLayerParent.getModel() instanceof HumanoidModel<LivingEntity> humanoidModel) {
+            humanoidModel.copyPropertiesTo(getModel(stack, slotContext));
+        }
+
+    }
+
+    @Override
     public HumanoidModel<LivingEntity> getModel(final ItemStack stack, final SlotContext slotContext) {
         return model;
     }

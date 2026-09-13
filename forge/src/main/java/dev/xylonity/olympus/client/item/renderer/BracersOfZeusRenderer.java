@@ -38,6 +38,15 @@ public final class BracersOfZeusRenderer implements ICurioRenderer.HumanoidRende
     }
 
     @Override
+    public void prepareModel(final ItemStack stack, final SlotContext slotContext, final PoseStack poseStack, final RenderLayerParent<LivingEntity, EntityModel<LivingEntity>> renderLayerParent, final float limbSwing, final float limbSwingAmount, final float partialTicks, final float ageInTicks, final float netHeadYaw, final float headPitch) {
+        ICurioRenderer.HumanoidRender.super.prepareModel(stack, slotContext, poseStack, renderLayerParent, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+        if (renderLayerParent.getModel() instanceof HumanoidModel<LivingEntity> humanoidModel) {
+            humanoidModel.copyPropertiesTo(getModel(stack, slotContext));
+        }
+
+    }
+
+    @Override
     public HumanoidModel<LivingEntity> getModel(final ItemStack stack, final SlotContext slotContext) {
         return modelFor(slotContext.entity());
     }
@@ -54,12 +63,9 @@ public final class BracersOfZeusRenderer implements ICurioRenderer.HumanoidRende
         renderArm(model, stack, HumanoidArm.RIGHT, poseStack, buffers, packedLight, THIRD_PERSON_Y_OFFSET, false);
     }
 
-    public void renderFirstPersonHand(final ItemStack stack, final HumanoidArm arm, final PoseStack poseStack, final MultiBufferSource buffers, final int packedLight, final AbstractClientPlayer player) {
+    public void renderFirstPersonHand(final ItemStack stack, final HumanoidArm arm, final PoseStack poseStack, final MultiBufferSource buffers, final int packedLight, final AbstractClientPlayer player, final ModelPart armPart) {
         final BracersOfZeusModel model = modelFor(player);
-        model.arm(arm).getAllParts().forEach(ModelPart::resetPose);
-
-        // Extra tilt so the bracers and the hand point at the same rotation
-        model.arm(arm).zRot = arm == HumanoidArm.LEFT ? -0.1F : 0.1F;
+        model.arm(arm).copyFrom(armPart);
 
         renderArm(model, stack, arm, poseStack, buffers, packedLight, 0, true);
     }
