@@ -1,3 +1,6 @@
+# 1.0.7
+- Fixed a case where the Hades Invisibility status effect screen filter wouldn't compute transparency when using Iris Shaders
+
 # 1.0.6
 - Moved armor rendering call, potentially fixing wrong transforms when using external mods that tweak bone mutations (like the resourcepack Fresh Animations: Player Extension)
 

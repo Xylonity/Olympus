@@ -86,6 +86,7 @@ import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 @EventBusSubscriber(modid = Olympus.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public final class OlympusClientEvents {
 
+    private static final ResourceLocation HADES_SCREEN_FILTER = Olympus.of("textures/gui/invisibility_of_hades_screen_filter.png");
     private static final ResourceLocation LIGHTNING_STUN_POST_EFFECT = Olympus.of("shaders/post/lightning_stun.json");
 
     private static int hermesExtraJumps;
@@ -230,10 +231,20 @@ public final class OlympusClientEvents {
                         return;
                     }
 
+                    RenderSystem.disableDepthTest();
+
+                    RenderSystem.depthMask(false);
+
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
-                    guiGraphics.blit(Olympus.of("textures/gui/invisibility_of_hades_screen_filter.png"), 0, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight(), 0.0F, 0.0F, 256, 256, 256, 256);
+                    guiGraphics.setColor(1, 1, 1, 1);
+                    guiGraphics.blit(HADES_SCREEN_FILTER, 0, 0, -90, 0.0F, 0.0F, guiGraphics.guiWidth(), guiGraphics.guiHeight(), guiGraphics.guiWidth(), guiGraphics.guiHeight());
+                    guiGraphics.setColor(1, 1, 1, 1);
                     RenderSystem.disableBlend();
+
+                    RenderSystem.depthMask(true);
+
+                    RenderSystem.enableDepthTest();
                 }
 
         );
