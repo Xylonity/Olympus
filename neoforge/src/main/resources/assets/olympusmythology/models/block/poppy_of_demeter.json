@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "olympusmythology:block/poppy_of_demeter"
+  }
+}

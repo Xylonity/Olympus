@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": { "item": "olympusmythology:pentelic_marble_brick" },
+  "result": {
+    "id": "olympusmythology:pentelic_marble_brick_stairs",
+    "count": 1
+  }
+}

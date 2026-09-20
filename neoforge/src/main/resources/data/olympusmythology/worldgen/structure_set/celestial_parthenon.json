@@ -1,0 +1,15 @@
+{
+  "placement": {
+    "type": "olympusmythology:celestial_parthenon",
+    "salt": 19707121,
+    "separation": 8,
+    "spacing": 24,
+    "spread_type": "triangular"
+  },
+  "structures": [
+    {
+      "structure": "olympusmythology:celestial_parthenon",
+      "weight": 1
+    }
+  ]
+}

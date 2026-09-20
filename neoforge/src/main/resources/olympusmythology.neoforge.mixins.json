@@ -1,0 +1,28 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.xylonity.olympus.mixins",
+  "refmap": "olympusmythology.refmap.json",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractArrowMixin",
+    "LivingEntityMixin",
+    "ChunkSerializerMixin",
+    "PlayerAdvancementsMixin",
+    "ServerRecipeBookMixin"
+  ],
+  "client": [
+    "HumanoidModelMixin",
+    "ItemInHandRendererMixin",
+    "ItemInHandLayerMixin",
+    "LivingEntityRendererMixin",
+    "PlayerRendererMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

@@ -1,3 +1,8 @@
+# 1.0.8
+- Changed the modid from olympus to olympusmythology to avoid clashing with a private library with the same id (crashing on load with mods like tempad)
+- Things should be migrated automatically, but existing generated structures may fail (it's better to do this now before the mod becomes more popular)
+- Sorry for the inconvenient, I tried my best. Remember to save your world before uploading
+
 # 1.0.7
 - Fixed a case where the Hades Invisibility status effect screen filter wouldn't compute transparency when using Iris Shaders
 

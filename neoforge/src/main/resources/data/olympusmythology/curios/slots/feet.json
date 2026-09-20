@@ -1,0 +1,7 @@
+{
+  "order": 190,
+  "icon": "olympusmythology:slot/empty_feet_slot",
+  "validators": [
+    "curios:tag"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "type": "olympusmythology:celestial_parthenon",
+  "biomes": "#olympusmythology:has_celestial_parthenon",
+  "max_distance_from_center": 64,
+  "size": 1,
+  "spawn_overrides": {},
+  "start_height": {
+    "type": "minecraft:uniform",
+    "min_inclusive": {
+      "absolute": 155
+    },
+    "max_inclusive": {
+      "absolute": 190
+    }
+  },
+  "start_pool": "olympusmythology:celestial_parthenon",
+  "step": "top_layer_modification",
+  "terrain_adaptation": "none",
+  "use_expansion_hack": false
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "olympusmythology:block/pentelic_marble",
+    "side": "olympusmythology:block/pentelic_marble",
+    "top": "olympusmythology:block/pentelic_marble"
+  }
+}

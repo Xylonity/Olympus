@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#olympusmythology:has_pentelic_marble",
+  "features": "olympusmythology:pentelic_marble",
+  "step": "underground_ores"
+}

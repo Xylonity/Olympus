@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.common.item;
 
+import dev.xylonity.olympus.Olympus;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -17,7 +18,7 @@ public final class ParthenonKeyItem extends Item {
     @Override
     public void appendHoverText(final ItemStack stack, final Item.TooltipContext context, final List<Component> tooltip, final TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.olympus.parthenon_key").withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.add(Component.translatable("tooltip." + Olympus.MOD_ID + ".parthenon_key").withStyle(ChatFormatting.DARK_GRAY));
     }
 
 }

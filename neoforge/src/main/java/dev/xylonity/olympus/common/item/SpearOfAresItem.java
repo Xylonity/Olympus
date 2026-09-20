@@ -1,6 +1,7 @@
 package dev.xylonity.olympus.common.item;
 
 import dev.xylonity.knightlib.api.item.KnightLibRenderedItem;
+import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.client.item.renderer.SpearOfAresItemRenderer;
 import dev.xylonity.olympus.client.item.SpearAttackTransforms;
 import dev.xylonity.olympus.common.entity.projectile.SpearOfAresEntity;
@@ -54,7 +55,7 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
 
     public static final int SWING_DURATION = 10;
 
-    public static ResourceLocation ARES_SPEAR_REACH_UUID = ResourceLocation.fromNamespaceAndPath("olympus", "ares_spear_reach");
+    public static ResourceLocation ARES_SPEAR_REACH_UUID = Olympus.of("ares_spear_reach");
 
     private static final String TAG_SPECIAL_ABILITY_CHARGED = "olympus_special_ability_charged";
     private static final String TAG_SPECIAL_ABILITY_COOLDOWN_END = "olympus_special_ability_cooldown_end";
