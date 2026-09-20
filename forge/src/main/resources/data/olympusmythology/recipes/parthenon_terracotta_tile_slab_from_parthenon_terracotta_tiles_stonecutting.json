@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": { "item": "olympusmythology:parthenon_terracotta_tiles" },
+  "result": "olympusmythology:parthenon_terracotta_tile_slab",
+  "count": 2
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "olympusmythology:item/bow_of_artemis",
+  "textures": {
+    "layer0": "olympusmythology:item/bow_of_artemis_drawn1"
+  }
+}

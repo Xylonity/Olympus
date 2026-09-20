@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "olympusmythology:item/aphrodite_lyre"
+  },
+  "overrides": [
+    {
+      "predicate": { "olympusmythology:playing": 1.0 },
+      "model": "olympusmythology:item/playing_aphrodite_lyre"
+    }
+  ]
+}

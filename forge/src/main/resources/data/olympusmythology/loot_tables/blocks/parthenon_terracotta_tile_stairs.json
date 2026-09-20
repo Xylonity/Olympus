@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "olympusmythology:parthenon_terracotta_tile_stairs"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "olympusmythology:blocks/parthenon_terracotta_tile_stairs"
+}

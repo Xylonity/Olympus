@@ -15,7 +15,7 @@ public final class OlympusCreativeModeTabs {
 
     public static final ResourceEntry<CreativeModeTab> OLYMPUS = CREATIVE_MODE_TABS.register("olympus",
             () -> CreativeModeTab.builder()
-                    .title(Component.translatable("creativetab.olympus.title"))
+                    .title(Component.translatable("creativetab.olympusmythology.title"))
                     .icon(() -> new ItemStack(OlympusItems.HELMET_OF_HADES.get()))
                     .displayItems((parameters, output) -> {
                         output.accept(OlympusItems.APHRODITE_LYRE.get());

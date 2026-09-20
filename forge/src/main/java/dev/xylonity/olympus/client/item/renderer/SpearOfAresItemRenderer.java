@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.client.item.renderer;
 
+import dev.xylonity.olympus.Olympus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.xylonity.knightlib.client.animation.KnightLibAnimationSource;
@@ -27,8 +28,8 @@ import java.util.Set;
 
 public final class SpearOfAresItemRenderer extends KnightLibItemRenderer {
 
-    public static final ModelResourceLocation INVENTORY_MODEL = new ModelResourceLocation("olympus", "spear_of_ares_item", "inventory");
-    public static final ModelResourceLocation CHARGED_INVENTORY_MODEL = new ModelResourceLocation("olympus", "spear_of_ares_item_charged", "inventory");
+    public static final ModelResourceLocation INVENTORY_MODEL = new ModelResourceLocation(Olympus.MOD_ID, "spear_of_ares_item", "inventory");
+    public static final ModelResourceLocation CHARGED_INVENTORY_MODEL = new ModelResourceLocation(Olympus.MOD_ID, "spear_of_ares_item_charged", "inventory");
 
     private static final String OUTLINE_BONE = "cube_outline";
     private static final Set<String> OUTLINE_BONES = Set.of(OUTLINE_BONE);

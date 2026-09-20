@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/inner_stairs",
-  "textures": {
-    "bottom": "olympus:block/pentelic_marble",
-    "side": "olympus:block/pentelic_marble",
-    "top": "olympus:block/pentelic_marble"
-  }
-}

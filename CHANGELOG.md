@@ -1,3 +1,8 @@
+# 1.0.7
+- Changed the modid from olympus to olympusmythology to avoid clashing with a private library with the same id (crashing on load with mods like tempad)
+- Things should be migrated automatically, but existing generated structures may fail (it's better to do this now before the mod becomes more popular)
+- Sorry for the inconvenient, I tried my best. Remember to save your world before uploading
+
 # 1.0.6
 - Moved armor rendering call, potentially fixing wrong transforms when using external mods that tweak bone mutations (like the resourcepack Fresh Animations: Player Extension)
 

@@ -37,7 +37,7 @@ public class OlympusTooltip {
 
         if (!Screen.hasShiftDown()) {
             final Component shift = Component.literal("[Shift]").withStyle(ChatFormatting.GRAY);
-            tooltip.accept(Component.translatable("tooltip.olympus.hold_shift", shift)
+            tooltip.accept(Component.translatable("tooltip.olympusmythology.hold_shift", shift)
                     .withStyle(ChatFormatting.DARK_GRAY));
             return;
         }
@@ -55,7 +55,7 @@ public class OlympusTooltip {
                 continue;
             }
 
-            tooltip.accept(Component.translatable("tooltip.olympus.properties")
+            tooltip.accept(Component.translatable("tooltip.olympusmythology.properties")
                     .withStyle(ChatFormatting.DARK_GRAY));
             for (final Property property : ability.properties()) {
                 final Component value = Component.literal(property.value())
@@ -94,7 +94,7 @@ public class OlympusTooltip {
     }
 
     private static String key(final String itemKey, final String suffix) {
-        return "tooltip.olympus." + itemKey + "." + suffix;
+        return "tooltip.olympusmythology." + itemKey + "." + suffix;
     }
 
     public record Ability(

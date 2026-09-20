@@ -1,0 +1,72 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "gui_light": "front",
+  "texture_size": [
+    64,
+    64
+  ],
+  "textures": {
+    "particle": "olympusmythology:item/poseidon_trident"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "translation": [
+        -0.5,
+        -3.5,
+        1.75
+      ],
+      "scale": [
+        0.68555,
+        0.68555,
+        0.68555
+      ]
+    },
+    "thirdperson_lefthand": {
+      "translation": [
+        -0.5,
+        -3.5,
+        1.75
+      ],
+      "scale": [
+        0.68555,
+        0.68555,
+        0.68555
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        12.760000000000218,
+        0.5300000000002001,
+        -1.199999999999818
+      ],
+      "translation": [
+        0.75,
+        0,
+        -0.5
+      ],
+      "scale": [
+        0.42383,
+        0.42383,
+        0.42383
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        12.760000000000218,
+        0.5300000000002001,
+        -1.199999999999818
+      ],
+      "translation": [
+        0.75,
+        0,
+        -0.5
+      ],
+      "scale": [
+        0.42383,
+        0.42383,
+        0.42383
+      ]
+    }
+  }
+}

@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.client.item.renderer;
 
+import dev.xylonity.olympus.Olympus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.xylonity.knightlib.client.animation.KnightLibAnimationSource;
@@ -17,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 
 public final class PoseidonTridentItemRenderer extends KnightLibItemRenderer {
 
-    public static final ModelResourceLocation INVENTORY_MODEL = new ModelResourceLocation("olympus", "poseidon_trident_item", "inventory");
+    public static final ModelResourceLocation INVENTORY_MODEL = new ModelResourceLocation(Olympus.MOD_ID, "poseidon_trident_item", "inventory");
 
     @Override
     protected KnightLibModelSource defineModel(final ItemStack stack) {

@@ -82,7 +82,7 @@ public final class PersephoneCupItem extends Item implements ICurioItem {
     @Override
     public void appendHoverText(final ItemStack stack, final Level level, final List<Component> builder, final TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, level, builder, tooltipFlag);
-        final Component soulCharges = Component.translatable("item.olympus.persephone_cup.soul_charges", getSoulCharges(stack), MAX_SOUL_CHARGES).withStyle(ChatFormatting.DARK_PURPLE);
+        final Component soulCharges = Component.translatable("item.olympusmythology.persephone_cup.soul_charges", getSoulCharges(stack), MAX_SOUL_CHARGES).withStyle(ChatFormatting.DARK_PURPLE);
         OlympusTooltip.appendWithStatus(builder::add, "persephone_cup", 0xC987D4, soulCharges,
                 OlympusTooltip.abilityIf(OlympusConfig.PERSEPHONE_CUP_SOUL_HARVEST_ENABLED, 1,
                         OlympusTooltip.property("damage_per_soul", "+" + OlympusTooltip.number(OlympusConfig.PERSEPHONE_CUP_DAMAGE_PER_SOUL)),

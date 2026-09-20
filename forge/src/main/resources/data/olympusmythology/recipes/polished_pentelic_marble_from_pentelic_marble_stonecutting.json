@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": { "item": "olympusmythology:pentelic_marble" },
+  "result": "olympusmythology:polished_pentelic_marble",
+  "count": 1
+}

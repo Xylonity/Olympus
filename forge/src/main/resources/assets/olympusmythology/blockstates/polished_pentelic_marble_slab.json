@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=bottom": { "model": "olympusmythology:block/polished_pentelic_marble_slab" },
+    "type=double": { "model": "olympusmythology:block/polished_pentelic_marble" },
+    "type=top": { "model": "olympusmythology:block/polished_pentelic_marble_slab_top" }
+  }
+}

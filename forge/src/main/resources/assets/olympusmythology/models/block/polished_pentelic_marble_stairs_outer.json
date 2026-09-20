@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "olympusmythology:block/polished_pentelic_marble",
+    "side": "olympusmythology:block/polished_pentelic_marble",
+    "top": "olympusmythology:block/polished_pentelic_marble"
+  }
+}

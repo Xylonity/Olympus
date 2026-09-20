@@ -17,7 +17,7 @@ public final class ParthenonKeyItem extends Item {
     @Override
     public void appendHoverText(final ItemStack stack, final Level level, final List<Component> tooltip, final TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.olympus.parthenon_key").withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.add(Component.translatable("tooltip.olympusmythology.parthenon_key").withStyle(ChatFormatting.DARK_GRAY));
     }
 
 }

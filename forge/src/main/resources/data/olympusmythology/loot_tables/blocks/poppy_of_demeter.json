@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "olympusmythology:poppy_of_demeter"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "olympusmythology:blocks/poppy_of_demeter"
+}
