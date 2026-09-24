@@ -81,6 +81,11 @@ public final class AphroditeLyreItem extends Item {
     }
 
     @Override
+    public void onStopUsing(final ItemStack stack, final LivingEntity user, final int remainingUseDuration) {
+        stopPlaying(stack, user);
+    }
+
+    @Override
     public @NonNull ItemStack finishUsingItem(final @NonNull ItemStack stack, final @NonNull Level level, final @NonNull LivingEntity user) {
         stopPlaying(stack, user);
         return stack;
@@ -101,14 +106,16 @@ public final class AphroditeLyreItem extends Item {
             return;
         }
 
-        ENTITIES.remove(player.getUUID());
-        if (player.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (ENTITIES.remove(player.getUUID()) == null) {
             return;
         }
 
-        final int cooldownTicks = OlympusConfig.APHRODITE_LYRE_SONG_OF_CYTHERA_ENABLED ? OlympusConfig.secondsToTicks(OlympusConfig.APHRODITE_LYRE_COOLDOWN_SECONDS) : 0;
-        if (cooldownTicks > 0) {
-            player.getCooldowns().addCooldown(stack.getItem(), cooldownTicks);
+        if (!player.getCooldowns().isOnCooldown(stack.getItem())) {
+            final int cooldownTicks = OlympusConfig.APHRODITE_LYRE_SONG_OF_CYTHERA_ENABLED ? OlympusConfig.secondsToTicks(OlympusConfig.APHRODITE_LYRE_COOLDOWN_SECONDS) : 0;
+            if (cooldownTicks > 0) {
+                player.getCooldowns().addCooldown(stack.getItem(), cooldownTicks);
+            }
+
         }
 
         // Stops the music

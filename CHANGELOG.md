@@ -1,3 +1,7 @@
+# 1.0.8
+- Micro-optimization for the Poppy of Demeter, now checks for nearby blocks once per second if the poppy is idling
+- Fixed a case where the Aphrodite's Lyre keeps playing the music after a slot change while using it
+
 # 1.0.7
 - Changed the modid from olympus to olympusmythology to avoid clashing with a private library with the same id (crashing on load with mods like tempad)
 - Things should be migrated automatically, but existing generated structures may fail (it's better to do this now before the mod becomes more popular)
