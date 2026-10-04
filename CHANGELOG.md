@@ -1,3 +1,7 @@
+# 1.0.9
+- Added some basic advancements
+- Fixed Hades invisibility screen filter transparency not working properly with certain mods
+
 # 1.0.8
 - Micro-optimization for the Poppy of Demeter, now checks for nearby blocks once per second if the poppy is idling
 - Fixed a case where the Aphrodite's Lyre keeps playing the music after a slot change while using it

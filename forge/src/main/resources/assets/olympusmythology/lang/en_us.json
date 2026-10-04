@@ -170,5 +170,16 @@
   "tooltip.olympusmythology.spear_of_ares.ability_description_3": "  The thrown spear pins enemies and carries them into walls",
   "tooltip.olympusmythology.spear_of_ares.properties.pinned_distance": "Maximum carry distance: %1$s blocks",
   "tooltip.olympusmythology.spear_of_ares.properties.wall_damage": "Wall impact damage: %1$s",
-  "tooltip.olympusmythology.spear_of_ares.properties.slowness": "Wall impact Slowness: %1$s"
+  "tooltip.olympusmythology.spear_of_ares.properties.slowness": "Wall impact Slowness: %1$s",
+
+  "advancements.olympusmythology.root.title": "Olympus",
+  "advancements.olympusmythology.root.description": "Walk in the footsteps of the gods",
+  "advancements.olympusmythology.first_artifact.title": "Divine Favor",
+  "advancements.olympusmythology.first_artifact.description": "Obtain your first Olympian artifact",
+  "advancements.olympusmythology.slay_harpy.title": "Wings of Defeat",
+  "advancements.olympusmythology.slay_harpy.description": "Defeat a Harpy or an Elite Harpy",
+  "advancements.olympusmythology.parthenon_key.title": "The Key to Olympus",
+  "advancements.olympusmythology.parthenon_key.description": "Obtain a Parthenon Key",
+  "advancements.olympusmythology.collect_all_artifacts.title": "Pantheon Collector",
+  "advancements.olympusmythology.collect_all_artifacts.description": "Obtain all ten Olympian artifacts"
 }
