@@ -1,5 +1,6 @@
 package dev.xylonity.olympus.client.event;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.xylonity.knightlib.network.ClientPacketDispatcher;
 import dev.xylonity.olympus.Olympus;
@@ -228,7 +229,20 @@ public final class OlympusClientEvents {
                         return;
                     }
 
-                    guiGraphics.blit(Olympus.of("textures/gui/invisibility_of_hades_screen_filter.png"), 0, 0, width, height, 0.0F, 0.0F, 256, 256, 256, 256);
+                    guiGraphics.flush();
+
+                    forgeGui.setupOverlayRenderState(true, false);
+                    RenderSystem.depthMask(false);
+                    try {
+                        guiGraphics.blit(Olympus.of("textures/gui/invisibility_of_hades_screen_filter.png"), 0, 0, width, height, 0, 0, 256, 256, 256, 256);
+                    }
+                    finally {
+                        RenderSystem.depthMask(true);
+                        RenderSystem.enableDepthTest();
+                        RenderSystem.disableBlend();
+                        RenderSystem.setShaderColor(1, 1, 1, 1);
+                    }
+
                 }
 
         );
