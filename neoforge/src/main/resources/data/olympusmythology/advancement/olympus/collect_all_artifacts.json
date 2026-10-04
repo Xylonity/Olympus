@@ -1,0 +1,175 @@
+{
+  "parent": "olympusmythology:olympus/first_artifact",
+  "display": {
+    "icon": {
+      "id": "olympusmythology:spear_of_ares"
+    },
+    "title": {
+      "translate": "advancements.olympusmythology.collect_all_artifacts.title"
+    },
+    "description": {
+      "translate": "advancements.olympusmythology.collect_all_artifacts.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "bracers_of_zeus": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "olympusmythology:bracers_of_zeus"
+            ]
+          }
+        ]
+      }
+    },
+    "bow_of_artemis": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "olympusmythology:bow_of_artemis"
+            ]
+          }
+        ]
+      }
+    },
+    "aphrodite_lyre": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "olympusmythology:aphrodite_lyre"
+            ]
+          }
+        ]
+      }
+    },
+    "helmet_of_hades": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "olympusmythology:helmet_of_hades"
+            ]
+          }
+        ]
+      }
+    },
+    "hermes_sandals": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "olympusmythology:hermes_sandals"
+            ]
+          }
+        ]
+      }
+    },
+    "instruments_of_hephaestus": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "olympusmythology:instruments_of_hephaestus"
+            ]
+          }
+        ]
+      }
+    },
+    "persephone_cup": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "olympusmythology:persephone_cup"
+            ]
+          }
+        ]
+      }
+    },
+    "poppy_of_demeter": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "olympusmythology:poppy_of_demeter"
+            ]
+          }
+        ]
+      }
+    },
+    "poseidon_trident": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "olympusmythology:poseidon_trident"
+            ]
+          }
+        ]
+      }
+    },
+    "spear_of_ares": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "olympusmythology:spear_of_ares"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "bracers_of_zeus"
+    ],
+    [
+      "bow_of_artemis"
+    ],
+    [
+      "aphrodite_lyre"
+    ],
+    [
+      "helmet_of_hades"
+    ],
+    [
+      "hermes_sandals"
+    ],
+    [
+      "instruments_of_hephaestus"
+    ],
+    [
+      "persephone_cup"
+    ],
+    [
+      "poppy_of_demeter"
+    ],
+    [
+      "poseidon_trident"
+    ],
+    [
+      "spear_of_ares"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  }
+}

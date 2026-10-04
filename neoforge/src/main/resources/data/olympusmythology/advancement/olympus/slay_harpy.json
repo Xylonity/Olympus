@@ -1,0 +1,42 @@
+{
+  "parent": "olympusmythology:olympus/root",
+  "display": {
+    "icon": {
+      "id": "olympusmythology:harpy_spawn_egg"
+    },
+    "title": {
+      "translate": "advancements.olympusmythology.slay_harpy.title"
+    },
+    "description": {
+      "translate": "advancements.olympusmythology.slay_harpy.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "harpy": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "olympusmythology:harpy"
+        }
+      }
+    },
+    "elite_harpy": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "olympusmythology:elite_harpy"
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "harpy",
+      "elite_harpy"
+    ]
+  ]
+}
