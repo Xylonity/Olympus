@@ -1,3 +1,6 @@
+# 1.0.11
+- Added a config option to disable Hermes' Sandals mid air jump particles
+
 # 1.0.10
 - Added some basic advancements
 
