@@ -1,3 +1,6 @@
+# 1.0.10
+- Added a config option to disable Hermes' Sandals mid air jump particles
+
 # 1.0.9
 - Added some basic advancements
 - Fixed Hades invisibility screen filter transparency not working properly with certain mods
