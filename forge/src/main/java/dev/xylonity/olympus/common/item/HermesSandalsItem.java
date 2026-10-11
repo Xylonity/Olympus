@@ -114,6 +114,10 @@ public final class HermesSandalsItem extends Item implements ICurioItem {
         }
 
         level.playSound(null, player.getX(), player.getY(), player.getZ(), OlympusSounds.HERMES_JUMP.get(), SoundSource.PLAYERS, 0.6f, 1.1f);
+        if (!OlympusConfig.HERMES_SANDALS_JUMP_PARTICLES_ENABLED) {
+            return;
+        }
+
         for (int direction = 0; direction < 16; direction++) {
             final double angle = Math.PI * 2D * direction / 16;
             level.sendParticles(ParticleTypes.POOF, player.getX(), player.getY() + 0.08D, player.getZ(), 0, Math.cos(angle) * 0.23225D, 0, Math.sin(angle) * 0.23225D, 1);
