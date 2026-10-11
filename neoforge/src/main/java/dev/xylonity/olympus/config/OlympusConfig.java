@@ -255,6 +255,12 @@ public final class OlympusConfig {
     public static int HERMES_SANDALS_JUMP_AMOUNT = 3;
 
     @ConfigEntry(
+            category = "Hermes' Sandals",
+            comment = "Whether Hermes' Sandals spawn particles when performing an extra mid-air jump"
+    )
+    public static boolean HERMES_SANDALS_JUMP_PARTICLES_ENABLED = true;
+
+    @ConfigEntry(
             category = "Instruments of Hephaestus",
             comment = "Whether the Divine Forge automatic repair ability is enabled"
     )
