@@ -1,3 +1,7 @@
+# 1.0.11
+- Added a config option to disable Hermes' Sandals mid air jump sound
+- Added a config option to disable Bracers of Zeus' sky lightning camera shake
+
 # 1.0.10
 - Added a config option to disable Hermes' Sandals mid air jump particles
 

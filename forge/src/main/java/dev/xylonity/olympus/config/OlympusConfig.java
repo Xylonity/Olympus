@@ -137,6 +137,12 @@ public final class OlympusConfig {
     public static double ZEUS_BRACERS_MAXIMUM_STUN_SECONDS = 3.5D;
 
     @ConfigEntry(
+            category = "Bracers of Zeus",
+            comment = "Whether the sky lightning strike of the Bracers of Zeus shakes the camera of nearby players"
+    )
+    public static boolean ZEUS_BRACERS_CAMERA_SHAKE_ENABLED = true;
+
+    @ConfigEntry(
             category = "Persephone's Cup",
             comment = "Whether the Soul Harvest soul collection and damage bonus ability is enabled"
     )
@@ -259,6 +265,12 @@ public final class OlympusConfig {
             comment = "Whether Hermes' Sandals spawn particles when performing an extra mid-air jump"
     )
     public static boolean HERMES_SANDALS_JUMP_PARTICLES_ENABLED = true;
+
+    @ConfigEntry(
+            category = "Hermes' Sandals",
+            comment = "Whether Hermes' Sandals play a sound when performing an extra mid-air jump"
+    )
+    public static boolean HERMES_SANDALS_JUMP_SOUND_ENABLED = true;
 
     @ConfigEntry(
             category = "Instruments of Hephaestus",
