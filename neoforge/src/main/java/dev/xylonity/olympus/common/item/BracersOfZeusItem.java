@@ -141,7 +141,7 @@ public class BracersOfZeusItem extends Item implements ICurioItem {
         level.playSound(null, end.x, end.y, end.z, OlympusSounds.ZEUS_BRACERS_LIGHTNING_STRIKE.get(), SoundSource.PLAYERS, skyStrike ? 2.5F : 0.8F, 0.9F + level.getRandom().nextFloat() * 0.2F);
 
         // Camera shake
-        if (skyStrike) {
+        if (skyStrike && OlympusConfig.ZEUS_BRACERS_CAMERA_SHAKE_ENABLED) {
             OlympusNetwork.shake(level, end, 36, 1.7f, 35);
         }
 

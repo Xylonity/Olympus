@@ -112,7 +112,10 @@ public final class HermesSandalsItem extends Item implements ICurioItem {
             return;
         }
 
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), OlympusSounds.HERMES_JUMP.get(), SoundSource.PLAYERS, 0.6f, 1.1f);
+        if (OlympusConfig.HERMES_SANDALS_JUMP_SOUND_ENABLED) {
+            level.playSound(null, player.getX(), player.getY(), player.getZ(), OlympusSounds.HERMES_JUMP.get(), SoundSource.PLAYERS, 0.6f, 1.1f);
+        }
+
         if (!OlympusConfig.HERMES_SANDALS_JUMP_PARTICLES_ENABLED) {
             return;
         }
