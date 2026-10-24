@@ -1,3 +1,7 @@
+# 1.0.12
+- Added config options to modify the Spear of Ares minimum melee attack range and extra reach
+- Added a config option to disable the Spear of Ares fully charged attack requirement
+
 # 1.0.11
 - Added a config option to disable Hermes' Sandals mid air jump sound
 - Added a config option to disable Bracers of Zeus' sky lightning camera shake

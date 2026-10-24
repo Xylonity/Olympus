@@ -130,7 +130,7 @@ public final class OlympusServerEvents {
                 );
                 event.addModifier(
                         ForgeMod.ENTITY_REACH.get(),
-                        new AttributeModifier(SpearOfAresItem.ARES_SPEAR_REACH_UUID, "olympus.ares_spear_reach", 1.5D, AttributeModifier.Operation.ADDITION)
+                        new AttributeModifier(SpearOfAresItem.ARES_SPEAR_REACH_UUID, "olympus.ares_spear_reach", OlympusConfig.ARES_SPEAR_EXTRA_ATTACK_RANGE, AttributeModifier.Operation.ADDITION)
                 );
 
             }
@@ -146,9 +146,10 @@ public final class OlympusServerEvents {
 
             // Backport of the mc26+ AttackRange (for the spears)
             final double distance = Math.sqrt(event.getTarget().getBoundingBox().distanceToSqr(player.getEyePosition()));
-            final double maximumReach = player.isCreative() ? 6.5 : 4.5;
+            final double maximumReach = (player.isCreative() ? 5.0 : 3.0) + OlympusConfig.ARES_SPEAR_EXTRA_ATTACK_RANGE;
             final float chargeValidationTicks = player.level().isClientSide ? 0.0F : 5.0F;
-            if (distance < 2 - 0.125 || distance > maximumReach + 0.125 || player.getAttackStrengthScale(chargeValidationTicks) < 1.0F) {
+            final boolean isUncharged = OlympusConfig.ARES_SPEAR_REQUIRES_FULL_CHARGE && player.getAttackStrengthScale(chargeValidationTicks) < 1.0F;
+            if (distance < OlympusConfig.ARES_SPEAR_MINIMUM_ATTACK_RANGE - 0.125 || distance > maximumReach + 0.125 || isUncharged) {
                 event.setCanceled(true);
             }
 

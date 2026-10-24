@@ -39,6 +39,7 @@ import dev.xylonity.olympus.client.texture.SpearDissolveTextures;
 import dev.xylonity.olympus.common.entity.projectile.AbsorbedSoulEntity;
 import dev.xylonity.olympus.common.entity.projectile.HarpyProjectileEntity;
 import dev.xylonity.olympus.common.item.HermesSandalsItem;
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.network.OlympusNetwork;
 import dev.xylonity.olympus.network.payload.HermesJumpPayload;
 import dev.xylonity.olympus.network.payload.LightningBoltPayload;
@@ -292,7 +293,7 @@ public final class OlympusClientEvents {
                 return;
             }
 
-            if (minecraft.player.getAttackStrengthScale(0.0F) < 1.0F) {
+            if (OlympusConfig.ARES_SPEAR_REQUIRES_FULL_CHARGE && minecraft.player.getAttackStrengthScale(0.0F) < 1.0F) {
                 event.setSwingHand(false);
                 event.setCanceled(true);
                 return;
