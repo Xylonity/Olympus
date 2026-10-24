@@ -392,6 +392,28 @@ public final class OlympusConfig {
 
     @ConfigEntry(
             category = "Spear of Ares",
+            comment = "Extra melee reach granted while holding the Spear of Ares",
+            min = 0.0D,
+            max = 32.0D
+    )
+    public static double ARES_SPEAR_EXTRA_ATTACK_RANGE = 1.5D;
+
+    @ConfigEntry(
+            category = "Spear of Ares",
+            comment = "Minimum distance to the target required to land a melee hit with the Spear of Ares. Set to 0 to allow close-range hits.",
+            min = 0.0D,
+            max = 32.0D
+    )
+    public static double ARES_SPEAR_MINIMUM_ATTACK_RANGE = 2.0D;
+
+    @ConfigEntry(
+            category = "Spear of Ares",
+            comment = "Whether Spear of Ares melee attacks only land when fully charged. Disable it if it conflicts with combat mods like Better Combat or Epic Fight"
+    )
+    public static boolean ARES_SPEAR_REQUIRES_FULL_CHARGE = true;
+
+    @ConfigEntry(
+            category = "Spear of Ares",
             comment = "Whether the Spear of Ares can be thrown"
     )
     public static boolean ARES_SPEAR_THROW_ENABLED = true;
