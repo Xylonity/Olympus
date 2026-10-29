@@ -3,6 +3,7 @@ package dev.xylonity.olympus.common.entity.projectile;
 import dev.xylonity.knightlib.api.animation.KnightLibAnimatable;
 import dev.xylonity.knightlib.api.animation.KnightLibAnimationControllerRegistrar;
 import dev.xylonity.knightlib.api.animation.KnightLibAnimationHandler;
+import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusItems;
@@ -44,6 +45,8 @@ public final class SpearOfAresEntity extends ThrownTrident implements KnightLibA
 
     // First tick in which the spear collides with an entity or block
     private static final EntityDataAccessor<Long> COLLISION_START_TICK = SynchedEntityData.defineId(SpearOfAresEntity.class, EntityDataSerializers.LONG);
+    // The client never receives the spear stack, so the charged state is synced on its own
+    private static final EntityDataAccessor<Boolean> CHARGED = SynchedEntityData.defineId(SpearOfAresEntity.class, EntityDataSerializers.BOOLEAN);
 
     private static final String TAG_COLLISION_START_TICK = "CollisionStartTick";
 
@@ -87,6 +90,7 @@ public final class SpearOfAresEntity extends ThrownTrident implements KnightLibA
         // Keeps a single copy of the thrown item
         spearStack = stack.copy();
         spearStack.setCount(1);
+        entityData.set(CHARGED, SpearOfAresItem.isSpecialAbilityCharged(spearStack));
         setPierceLevel(Byte.MAX_VALUE);
         pickup = Pickup.DISALLOWED;
     }
@@ -95,6 +99,7 @@ public final class SpearOfAresEntity extends ThrownTrident implements KnightLibA
     protected void defineSynchedData() {
         super.defineSynchedData();
         entityData.define(COLLISION_START_TICK, -1L);
+        entityData.define(CHARGED, false);
     }
 
     @Override
@@ -409,6 +414,10 @@ public final class SpearOfAresEntity extends ThrownTrident implements KnightLibA
         return spearStack;
     }
 
+    public boolean isCharged() {
+        return entityData.get(CHARGED);
+    }
+
     @Override
     public void playSound(final SoundEvent sound, final float volume, final float pitch) {
         super.playSound(sound, sound == OlympusSounds.ARES_SPEAR_NAILING.get() ? 2 : volume, pitch);
@@ -425,6 +434,7 @@ public final class SpearOfAresEntity extends ThrownTrident implements KnightLibA
         entityData.set(COLLISION_START_TICK, input.contains(TAG_COLLISION_START_TICK) ? input.getLong(TAG_COLLISION_START_TICK) : -1L);
         if (input.contains("Weapon", 10)) {
             spearStack = ItemStack.of(input.getCompound("Weapon"));
+            entityData.set(CHARGED, SpearOfAresItem.isSpecialAbilityCharged(spearStack));
         }
 
     }

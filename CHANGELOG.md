@@ -1,3 +1,6 @@
+# 1.0.13
+- Fixed the thrown Spear of Ares not displaying its charged appearance
+
 # 1.0.12
 - Added config options to modify the Spear of Ares minimum melee attack range and extra reach
 - Added a config option to disable the Spear of Ares fully charged attack requirement

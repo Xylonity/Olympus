@@ -9,7 +9,6 @@ import dev.xylonity.knightlib.client.animation.model.KnightLibModel;
 import dev.xylonity.olympus.client.item.model.SpearOfAresModel;
 import dev.xylonity.olympus.client.texture.SpearDissolveTextures;
 import dev.xylonity.olympus.common.entity.projectile.SpearOfAresEntity;
-import dev.xylonity.olympus.common.item.SpearOfAresItem;
 import dev.xylonity.olympus.registry.OlympusRenderTypes;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -38,7 +37,7 @@ public final class SpearOfAresEntityRenderer extends EntityRenderer<SpearOfAresE
 
     @Override
     public void render(final SpearOfAresEntity entity, final float entityYaw, final float partialTick, final PoseStack poseStack, final MultiBufferSource buffers, final int packedLight) {
-        final boolean charged = SpearOfAresItem.isSpecialAbilityCharged(entity.getSpearStack());
+        final boolean charged = entity.isCharged();
         final ResourceLocation modelLocation = charged ? SpearOfAresModel.CHARGED_MODEL : SpearOfAresModel.BASE_MODEL;
         final ResourceLocation texture = charged ? SpearOfAresModel.CHARGED_TEXTURE : SpearOfAresModel.BASE_TEXTURE;
         final ResourceLocation renderTexture = SpearDissolveTextures.textureFor(texture, entity.getDissolveVisibility(partialTick));
@@ -81,7 +80,7 @@ public final class SpearOfAresEntityRenderer extends EntityRenderer<SpearOfAresE
 
     @Override
     public ResourceLocation getTextureLocation(final SpearOfAresEntity entity) {
-        return SpearOfAresItem.isSpecialAbilityCharged(entity.getSpearStack()) ? SpearOfAresModel.CHARGED_TEXTURE : SpearOfAresModel.BASE_TEXTURE;
+        return entity.isCharged() ? SpearOfAresModel.CHARGED_TEXTURE : SpearOfAresModel.BASE_TEXTURE;
     }
 
 }
