@@ -56,7 +56,8 @@ public final class PoseidonTridentEntityRenderer extends EntityRenderer<Poseidon
 
     @Override
     protected int getBlockLightLevel(final PoseidonTridentEntity entity, final BlockPos blockPos) {
-        return entity.isInWall() ? 15 : super.getBlockLightLevel(entity, blockPos);
+        // No black overlay (not using isInWall, some mods assume its called on living entities)
+        return entity.level().getBlockState(blockPos).isSolidRender(entity.level(), blockPos) ? 15 : super.getBlockLightLevel(entity, blockPos);
     }
 
     @Override
