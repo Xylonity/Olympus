@@ -1,3 +1,6 @@
+# 1.0.15
+- Fixed a crash when rendering a thrown Spear of Ares or Poseidon's Trident alongside Origins
+
 # 1.0.14
 - Fixed the thrown Spear of Ares not displaying its charged appearance
 

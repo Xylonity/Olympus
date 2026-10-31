@@ -74,8 +74,8 @@ public final class SpearOfAresEntityRenderer extends EntityRenderer<SpearOfAresE
 
     @Override
     protected int getBlockLightLevel(final SpearOfAresEntity entity, final @NonNull BlockPos blockPos) {
-        // No black overlay
-        return entity.isInWall() ? 15 : super.getBlockLightLevel(entity, blockPos);
+        // No black overlay (not using isInWall, some mods assume its called on living entities)
+        return entity.level().getBlockState(blockPos).isSolidRender(entity.level(), blockPos) ? 15 : super.getBlockLightLevel(entity, blockPos);
     }
 
     @Override
