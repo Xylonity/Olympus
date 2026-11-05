@@ -1,4 +1,4 @@
-# 1.0.16
+# 1.1.0
 - Reworked the visuals for the lightning stun screen effect
 - Fixed the Helmet of Hades cooldown being reset after leaving and rejoining the world
 - Fixed the Bow of Artemis effects applying to any projectile launched while holding it
