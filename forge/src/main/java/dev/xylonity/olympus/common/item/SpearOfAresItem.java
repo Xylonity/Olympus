@@ -30,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -398,7 +399,12 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
 
     @Override
     public boolean canApplyAtEnchantingTable(final ItemStack stack, final Enchantment enchantment) {
-        return enchantment != Enchantments.LOYALTY && enchantment != Enchantments.RIPTIDE && super.canApplyAtEnchantingTable(stack, enchantment);
+        if (enchantment == Enchantments.LOYALTY || enchantment == Enchantments.RIPTIDE || enchantment == Enchantments.SWEEPING_EDGE) {
+            return false;
+        }
+
+        // Sword enchantments too, except sweeping edge cuz the spear doesn't sweep
+        return enchantment.category == EnchantmentCategory.WEAPON || super.canApplyAtEnchantingTable(stack, enchantment);
     }
 
     @Override
