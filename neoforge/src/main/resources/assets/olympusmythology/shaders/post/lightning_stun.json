@@ -6,7 +6,16 @@
     {
       "name": "olympusmythology:lightning_stun",
       "intarget": "minecraft:main",
-      "outtarget": "swap"
+      "outtarget": "swap",
+      "auxtargets": [
+        {
+          "name": "SparkSampler",
+          "id": "olympusmythology:lightning_stun_sparks",
+          "width": 96,
+          "height": 16,
+          "bilinear": false
+        }
+      ]
     },
     {
       "name": "blit",

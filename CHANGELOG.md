@@ -1,3 +1,9 @@
+# 1.0.16
+- Reworked the visuals for the lightning stun screen effect
+- Fixed the Helmet of Hades cooldown being reset after leaving and rejoining the world
+- Fixed the Bow of Artemis effects applying to any projectile launched while holding it
+- Fixed Bow of Artemis arrows gaining extra speed again after going through a portal
+
 # 1.0.15
 - Fixed a crash when rendering a thrown Spear of Ares or Poseidon's Trident alongside Origins
 
