@@ -28,6 +28,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -157,13 +158,14 @@ public final class OlympusServerEvents {
 
         @SubscribeEvent
         public static void onEntityJoinLevel(final EntityJoinLevelEvent event) {
-            if (event.getLevel().isClientSide || !(event.getEntity() instanceof AbstractArrow arrow) || !(arrow.getOwner() instanceof LivingEntity owner)) {
+            if (event.getLevel().isClientSide || event.loadedFromDisk() || !(event.getEntity() instanceof AbstractArrow arrow) || !(arrow instanceof ArtemisArrow artemisArrow) || artemisArrow.olympus$isArtemisArrow() || !(arrow.getOwner() instanceof LivingEntity owner)) {
                 return;
             }
 
-            final boolean artemisBow = owner.getMainHandItem().is(OlympusItems.BOW_OF_ARTEMIS.get()) || owner.getOffhandItem().is(OlympusItems.BOW_OF_ARTEMIS.get());
+            // Only arrows actually shot by the bow, not any projectile launched while holding it
+            final boolean artemisBow = owner instanceof Player ? owner.getUseItem().is(OlympusItems.BOW_OF_ARTEMIS.get()) : owner.getMainHandItem().is(OlympusItems.BOW_OF_ARTEMIS.get()) || owner.getOffhandItem().is(OlympusItems.BOW_OF_ARTEMIS.get());
             final boolean hasEnabledArrowAbility = OlympusConfig.ARTEMIS_BOW_MOONLIT_HUNT_ENABLED || OlympusConfig.ARTEMIS_BOW_GUARDIAN_ARROW_ENABLED;
-            if (artemisBow && hasEnabledArrowAbility && arrow instanceof ArtemisArrow artemisArrow) {
+            if (artemisBow && hasEnabledArrowAbility) {
                 artemisArrow.olympus$setArtemisArrow(true);
                 if (OlympusConfig.ARTEMIS_BOW_MOONLIT_HUNT_ENABLED) {
                     arrow.setDeltaMovement(arrow.getDeltaMovement().scale(OlympusConfig.ARTEMIS_BOW_PROJECTILE_SPEED_MULTIPLIER));

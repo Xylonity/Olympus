@@ -2,6 +2,8 @@ package dev.xylonity.olympus.client.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.xylonity.knightlib.api.event.RegisterEvent;
+import dev.xylonity.knightlib.api.event.impl.client.CustomPostShaderRegistrationEvent;
 import dev.xylonity.knightlib.network.ClientPacketDispatcher;
 import dev.xylonity.olympus.Olympus;
 import dev.xylonity.olympus.client.entity.renderer.AbsorbedSoulEntityRenderer;
@@ -31,6 +33,7 @@ import dev.xylonity.olympus.client.particle.LyreNoteParticle;
 import dev.xylonity.olympus.client.particle.PoppyGrowthParticle;
 import dev.xylonity.olympus.client.particle.SoulSalvationParticle;
 import dev.xylonity.olympus.client.particle.SoulTrailParticle;
+import dev.xylonity.olympus.client.shader.LightningStunShader;
 import dev.xylonity.olympus.client.particle.TridentSplashParticle;
 import dev.xylonity.olympus.client.particle.TridentUnderwaterSplashParticle;
 import dev.xylonity.olympus.client.particle.TridentWaterDropParticle;
@@ -63,7 +66,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -86,12 +88,8 @@ import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 @Mod.EventBusSubscriber(modid = Olympus.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class OlympusClientEvents {
 
-    private static final ResourceLocation LIGHTNING_STUN_POST_EFFECT = Olympus.of("shaders/post/lightning_stun.json");
-
     private static int hermesExtraJumps;
     private static boolean hermesJumpKeyDown;
-
-    private static boolean lightningStunEffectActive;
 
     private static BracersOfZeusRenderer bracersRenderer;
 
@@ -188,6 +186,11 @@ public final class OlympusClientEvents {
 
         });
 
+    }
+
+    @RegisterEvent
+    public static void onRegisterPostShaders(final CustomPostShaderRegistrationEvent event) {
+        event.registerShader(LightningStunShader.INSTANCE);
     }
 
     @SubscribeEvent
@@ -345,28 +348,6 @@ public final class OlympusClientEvents {
             }
             else if (event.getEntity() instanceof HarpyProjectileEntity projectile && event.getLevel() instanceof ClientLevel level) {
                 Minecraft.getInstance().particleEngine.add(new HarpyProjectileTrailParticle(level, projectile));
-            }
-
-        }
-
-        @SubscribeEvent
-        public static void onClientTick(final TickEvent.ClientTickEvent event) {
-            if (event.phase != TickEvent.Phase.END) {
-                return;
-            }
-
-            final Minecraft minecraft = Minecraft.getInstance();
-            final boolean stunned = minecraft.getCameraEntity() instanceof LivingEntity livingEntity
-                    && livingEntity.hasEffect(OlympusMobEffects.LIGHTNING_STUN.get());
-
-            // Handles the screen post shader when the lightning stun effect is active
-            if (stunned && !lightningStunEffectActive) {
-                minecraft.gameRenderer.loadEffect(LIGHTNING_STUN_POST_EFFECT);
-                lightningStunEffectActive = minecraft.gameRenderer.currentEffect() != null;
-            }
-            else if (!stunned && lightningStunEffectActive) {
-                minecraft.gameRenderer.shutdownEffect();
-                lightningStunEffectActive = false;
             }
 
         }

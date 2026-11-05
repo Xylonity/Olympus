@@ -31,6 +31,8 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 public class HelmetOfHadesItem extends Item implements ICurioItem {
 
+    private static final String TAG_COOLDOWN_END = "olympus_hades_helmet_cooldown_end";
+
     public HelmetOfHadesItem(final Properties properties) {
         super(properties);
     }
@@ -76,7 +78,7 @@ public class HelmetOfHadesItem extends Item implements ICurioItem {
                 .resolve()
                 .flatMap(handler -> handler.findFirstCurio(OlympusItems.HELMET_OF_HADES.get()))
                 .map(SlotResult::stack);
-        if (equippedHelmet.isEmpty() || player.getCooldowns().isOnCooldown(equippedHelmet.get().getItem())) {
+        if (equippedHelmet.isEmpty() || player.getCooldowns().isOnCooldown(equippedHelmet.get().getItem()) || getRemainingCooldown(player) > 0) {
             return false;
         }
 
@@ -95,9 +97,28 @@ public class HelmetOfHadesItem extends Item implements ICurioItem {
         final int cooldownTicks = OlympusConfig.secondsToTicks(OlympusConfig.HELMET_OF_HADES_COOLDOWN_SECONDS);
         if (cooldownTicks > 0) {
             player.getCooldowns().addCooldown(equippedHelmet.get().getItem(), cooldownTicks);
+            player.getPersistentData().putLong(TAG_COOLDOWN_END, player.level().getGameTime() + cooldownTicks);
         }
 
         return true;
+    }
+
+    @Override
+    public void curioTick(final SlotContext slotContext, final ItemStack stack) {
+        if (slotContext.cosmetic() || !(slotContext.entity() instanceof ServerPlayer player)) {
+            return;
+        }
+
+        final int remainingCooldown = getRemainingCooldown(player);
+        if (remainingCooldown > 0 && !player.getCooldowns().isOnCooldown(stack.getItem())) {
+            player.getCooldowns().addCooldown(stack.getItem(), remainingCooldown);
+        }
+
+    }
+
+    private static int getRemainingCooldown(final ServerPlayer player) {
+        final long remainingCooldown = player.getPersistentData().getLong(TAG_COOLDOWN_END) - player.level().getGameTime();
+        return (int) Math.max(0, Math.min(remainingCooldown, OlympusConfig.secondsToTicks(OlympusConfig.HELMET_OF_HADES_COOLDOWN_SECONDS)));
     }
 
 }
