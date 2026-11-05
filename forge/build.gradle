@@ -133,18 +133,18 @@ tasks.register('publishCurseForge', TaskPublishCurseForge) {
     mainFile.changelog = changelogSection
 }
 
-//modrinth {
-//    token = System.getenv("MODRINTH_TOKEN")
-//    projectId = "clockwork_mod"
-//
-//    versionName = "[FORGE] Clockwork " + project.property('version').toString() + "-" + minecraft_version
-//
-//    loaders = ["forge"]
-//    gameVersions = ["1.20", "1.20.1"]
-//
-//    uploadFile = reobfJar
-//    versionNumber = project.property('version').toString()
-//    versionType = "release"
-//
-//    changelog = changelogSection
-//}
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = "olympus"
+
+    versionName = "Olympus! " + project.property('version').toString() + "-" + minecraft_version
+
+    loaders = ["forge"]
+    gameVersions = ["1.20", "1.20.1"]
+
+    uploadFile = reobfJar
+    versionNumber = project.property('version').toString()
+    versionType = "release"
+
+    changelog = changelogSection
+}
