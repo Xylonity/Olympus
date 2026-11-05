@@ -408,6 +408,12 @@ public final class SpearOfAresItem extends TridentItem implements KnightLibRende
     }
 
     @Override
+    public boolean supportsEnchantment(final ItemStack stack, final Holder<Enchantment> enchantment) {
+        // Sword enchantments come from the enchantable/sword tag, except sweeping edge cuz the spear doesn't sweep
+        return !enchantment.is(Enchantments.SWEEPING_EDGE) && super.supportsEnchantment(stack, enchantment);
+    }
+
+    @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
         OlympusTooltip.append(tooltip::add, "spear_of_ares", 0xE06C6C,
