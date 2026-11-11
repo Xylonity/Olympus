@@ -14,11 +14,13 @@ import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyProjectileDodge
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyRetreatGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyMeleeGoal;
 import dev.xylonity.olympus.common.entity.ai.harpy.internal.HarpyProjectileGoal;
+import dev.xylonity.olympus.config.OlympusConfig;
 import dev.xylonity.olympus.registry.OlympusEntities;
 import dev.xylonity.olympus.registry.OlympusParticles;
 import dev.xylonity.olympus.registry.OlympusSounds;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -92,8 +94,11 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
             -2.5D, 2.5D, -3.0D, 3.0D, -3.5D, 3.5D, -4.0D, 4.0D
     };
 
+    private static final String TAG_PARTHENON_GUARDIAN = "ParthenonGuardian";
+
     private long specialAttackDelayEndGameTime;
     private long nextDamageFeatherGameTime;
+    private boolean parthenonGuardian;
 
     public HarpyEntity(final EntityType<? extends HarpyEntity> type, final Level level) {
         super(type, level);
@@ -142,7 +147,7 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 25));
 
         targetSelector.addGoal(1, new HurtByTargetGoal(this, HarpyEntity.class).setAlertOthers());
-        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false));
+        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 10, false, false, target -> parthenonGuardian || !OlympusConfig.HARPY_NEUTRAL));
         targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
         targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
     }
@@ -206,6 +211,26 @@ public class HarpyEntity extends Monster implements KnightLibAnimatable {
 
     public boolean isElite() {
         return entityData.get(ELITE);
+    }
+
+    /// Harpies spawned by a Celestial Parthenon spawner, which ignore the neutral config
+    public void setParthenonGuardian(final boolean parthenonGuardian) {
+        this.parthenonGuardian = parthenonGuardian;
+    }
+
+    @Override
+    public void addAdditionalSaveData(final @NonNull CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        if (parthenonGuardian) {
+            tag.putBoolean(TAG_PARTHENON_GUARDIAN, true);
+        }
+
+    }
+
+    @Override
+    public void readAdditionalSaveData(final @NonNull CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        parthenonGuardian = tag.getBoolean(TAG_PARTHENON_GUARDIAN);
     }
 
     public boolean canStartSpecialAttack() {

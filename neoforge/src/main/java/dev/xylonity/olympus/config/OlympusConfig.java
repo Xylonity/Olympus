@@ -497,6 +497,26 @@ public final class OlympusConfig {
     public static double ARES_SPEAR_ABILITY_RADIUS = 3.0D;
 
     @ConfigEntry(
+            category = "Harpy",
+            comment = "Harpy natural spawn: [weight, minAmount, maxAmount, biomes and tags... (as many as you want)]. Set the weight to 0 to disable natural spawning",
+            requiresRestart = true
+    )
+    public static String HARPY_SPAWN = "15, 1, 2, #c:is_mountain";
+
+    @ConfigEntry(
+            category = "Harpy",
+            comment = "Elite harpy natural spawn: [weight, minAmount, maxAmount, biomes and tags... (as many as you want)]. Set the weight to 0 to disable natural spawning",
+            requiresRestart = true
+    )
+    public static String ELITE_HARPY_SPAWN = "2, 1, 1, #c:is_mountain";
+
+    @ConfigEntry(
+            category = "Harpy",
+            comment = "Whether harpies only attack players after being provoked. Celestial Parthenon harpies always attack"
+    )
+    public static boolean HARPY_NEUTRAL = false;
+
+    @ConfigEntry(
             category = "Celestial Parthenon",
             comment = "Number of regular harpies spawned in the first wave",
             min = 0,

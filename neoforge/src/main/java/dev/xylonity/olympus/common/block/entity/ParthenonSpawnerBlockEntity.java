@@ -148,6 +148,7 @@ public final class ParthenonSpawnerBlockEntity extends BlockEntity {
 
         harpy.moveTo(x, y, z, level.getRandom().nextFloat() * 360, 0);
         harpy.setPersistenceRequired();
+        harpy.setParthenonGuardian(true);
 
         final Player player = findTargetPlayer(level, x, y, z);
         if (player != null) {

@@ -38,13 +38,8 @@ public final class InstrumentsOfHephaestusItem extends Item implements ICurioIte
     }
 
     @Override
-    public boolean canEquip(final SlotContext slotContext, final ItemStack stack) {
-        return "belt".equals(slotContext.identifier());
-    }
-
-    @Override
     public boolean canEquipFromUse(final SlotContext slotContext, final ItemStack stack) {
-        return canEquip(slotContext, stack);
+        return true;
     }
 
     @Override

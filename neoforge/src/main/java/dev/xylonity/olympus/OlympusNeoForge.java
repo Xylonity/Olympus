@@ -8,6 +8,7 @@ import dev.xylonity.olympus.registry.OlympusBlockEntities;
 import dev.xylonity.olympus.registry.OlympusBlocks;
 import dev.xylonity.olympus.registry.OlympusCreativeModeTabs;
 import dev.xylonity.olympus.registry.OlympusEntities;
+import dev.xylonity.olympus.registry.OlympusEntitySpawns;
 import dev.xylonity.olympus.registry.OlympusItems;
 import dev.xylonity.olympus.registry.OlympusMobEffects;
 import dev.xylonity.olympus.registry.OlympusParticles;
@@ -34,6 +35,7 @@ public class OlympusNeoForge {
 
         OlympusNetwork.register();
         ConfigComposer.registerConfig(Olympus.MOD_ID, OlympusConfig.class);
+        OlympusEntitySpawns.init();
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             KnightLibEvents.CLIENT.register("dev.xylonity.olympus.client.event.OlympusClientEvents");
