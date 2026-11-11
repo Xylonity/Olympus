@@ -38,13 +38,8 @@ public class HelmetOfHadesItem extends Item implements ICurioItem {
     }
 
     @Override
-    public boolean canEquip(final SlotContext slotContext, final ItemStack stack) {
-        return "head".equals(slotContext.identifier());
-    }
-
-    @Override
     public boolean canEquipFromUse(final SlotContext slotContext, final ItemStack stack) {
-        return canEquip(slotContext, stack);
+        return true;
     }
 
     @Override
