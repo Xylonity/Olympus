@@ -1,3 +1,6 @@
+# 1.1.2
+- Added a config option to make the artifacts without durability (Aphrodite's Lyre, Bracers of Zeus, Helmet of Hades, Hermes' Sandals, Instruments of Hephaestus and Persephone's Cup) enchantable with any enchantment
+
 # 1.1.1
 - Added config options to customize the spawn biomes, weight and group size of harpies and elite harpies
 - Added a config option to make harpies neutral, so they only attack players after being provoked (Celestial Parthenon harpies always attack)

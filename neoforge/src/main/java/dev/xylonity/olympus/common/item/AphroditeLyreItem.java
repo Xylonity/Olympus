@@ -28,7 +28,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 
-public final class AphroditeLyreItem extends Item {
+public final class AphroditeLyreItem extends ArtifactItem {
 
     public static final int DURATION_TICKS = 8 * 20;
 

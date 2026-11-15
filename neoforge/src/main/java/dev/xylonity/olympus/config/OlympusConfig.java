@@ -11,6 +11,12 @@ import dev.xylonity.knightlib.api.config.ConfigEntry;
 public final class OlympusConfig {
 
     @ConfigEntry(
+            category = "Artifacts",
+            comment = "Whether Aphrodite's Lyre, the Bracers of Zeus, the Helmet of Hades, Hermes' Sandals, the Instruments of Hephaestus and Persephone's Cup can receive any enchantment from enchanting tables and anvils. Curios only applies a few enchantments from its slots (Fortune, Looting and curses), so most of them won't have an effect on the curios unless another mod handles them"
+    )
+    public static boolean ARTIFACTS_ENCHANTABLE = false;
+
+    @ConfigEntry(
             category = "Aphrodite's Lyre",
             comment = "Whether the Song of Cythera breeding ability is enabled"
     )

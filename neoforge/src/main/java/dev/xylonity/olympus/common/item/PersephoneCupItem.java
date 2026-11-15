@@ -38,7 +38,7 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public final class PersephoneCupItem extends Item implements ICurioItem {
+public final class PersephoneCupItem extends ArtifactItem implements ICurioItem {
 
     private static final String TAG_SOUL_CHARGES = "olympus_soul_charges";
     private static final String TAG_SOUL_DROPPED = "olympus_soul_dropped";

@@ -25,7 +25,7 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public final class InstrumentsOfHephaestusItem extends Item implements ICurioItem {
+public final class InstrumentsOfHephaestusItem extends ArtifactItem implements ICurioItem {
 
     private static final String TAG_COOLDOWN_END = "olympus_hephaestus_cooldown_end";
 

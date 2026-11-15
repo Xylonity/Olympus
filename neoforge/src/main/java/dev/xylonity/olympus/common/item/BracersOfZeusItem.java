@@ -35,7 +35,7 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class BracersOfZeusItem extends Item implements ICurioItem {
+public class BracersOfZeusItem extends ArtifactItem implements ICurioItem {
 
     public BracersOfZeusItem(final Properties properties) {
         super(properties);

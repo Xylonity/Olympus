@@ -28,7 +28,7 @@ import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public final class HermesSandalsItem extends Item implements ICurioItem {
+public final class HermesSandalsItem extends ArtifactItem implements ICurioItem {
 
     private static final String TAG_EXTRA_JUMPS = "olympus_hermes_sandals_extra_jumps";
 

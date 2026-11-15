@@ -31,7 +31,7 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class HelmetOfHadesItem extends Item implements ICurioItem {
+public class HelmetOfHadesItem extends ArtifactItem implements ICurioItem {
 
     private static final String TAG_COOLDOWN_END = "olympus_hades_helmet_cooldown_end";
 
