@@ -24,7 +24,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -33,7 +32,7 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public final class PersephoneCupItem extends Item implements ICurioItem {
+public final class PersephoneCupItem extends ArtifactItem implements ICurioItem {
 
     private static final String TAG_SOUL_CHARGES = "olympus_soul_charges";
     private static final String TAG_SOUL_DROPPED = "olympus_soul_dropped";

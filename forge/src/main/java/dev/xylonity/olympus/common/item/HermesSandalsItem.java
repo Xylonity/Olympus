@@ -18,7 +18,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -28,7 +27,7 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-public final class HermesSandalsItem extends Item implements ICurioItem {
+public final class HermesSandalsItem extends ArtifactItem implements ICurioItem {
 
     private static final String TAG_EXTRA_JUMPS = "olympus_hermes_sandals_extra_jumps";
 
