@@ -106,8 +106,7 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
                 continue;
             }
 
-            final BlockState targetState = level.getBlockState(target);
-            if (targetState.getBlock() instanceof BonemealableBlock bonemealable && bonemealable.isValidBonemealTarget(level, target, targetState)) {
+            if (isGrowable(level, target, level.getBlockState(target))) {
                 possiblePositions.add(target.immutable());
             }
 
@@ -130,8 +129,12 @@ public final class PoppyOfDemeterBlock extends FlowerBlock implements EntityBloc
             return false;
         }
 
-        final BlockState state = level.getBlockState(target);
-        return state.getBlock() instanceof BonemealableBlock bonemealable && bonemealable.isValidBonemealTarget(level, target, state);
+        return isGrowable(level, target, level.getBlockState(target));
+    }
+
+    // Only blocks that grow themselves
+    private static boolean isGrowable(final ServerLevel level, final BlockPos target, final BlockState state) {
+        return state.getBlock() instanceof BonemealableBlock bonemealable && bonemealable.getType() == BonemealableBlock.Type.GROWER && bonemealable.isValidBonemealTarget(level, target, state);
     }
 
     private static void spawnGrowthParticle(final ServerLevel level, final BlockPos target, final BlockState state, final BonemealableBlock bonemealable, final RandomSource random) {

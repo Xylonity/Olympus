@@ -1,3 +1,7 @@
+# 1.1.3
+- The Poppy of Demeter is no longer a small flower, so it won't generate in other mods' biomes and endermen can't pick it up
+- Fixed the Poppy of Demeter spreading uncontrollably in some modded biomes, it no longer accelerates grass, moss or nylium
+
 # 1.1.2
 - Added a config option to make the artifacts without durability (Aphrodite's Lyre, Bracers of Zeus, Helmet of Hades, Hermes' Sandals, Instruments of Hephaestus and Persephone's Cup) enchantable with any enchantment
 
